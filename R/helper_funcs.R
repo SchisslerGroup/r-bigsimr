@@ -1,5 +1,5 @@
 #' Converts Pearson correlation to Spearman. Used for normal random variables.
-#' 
+#'
 #' @param R A a square symmetric Pearson correlation matrix.
 #' @return A Spearman correlation matrix.
 convertPearsonSpearman <- function(R) {
@@ -11,7 +11,7 @@ convertPearsonSpearman <- function(R) {
 
 
 #' Converts Spearman correlation to Pearson. Used for normal random variables.
-#' 
+#'
 #' @param R A a square symmetric Spearman correlation matrix.
 #' @return A Pearson correlation matrix.
 convertSpearmanPearson <- function(Rho) {
@@ -23,7 +23,7 @@ convertSpearmanPearson <- function(Rho) {
 
 
 #' Converts Pearson correlation to Kendall. Used for normal random variables.
-#' 
+#'
 #' @param R A a square symmetric Pearson correlation matrix.
 #' @return A Kendall correlation matrix.
 convertPearsonKendall <- function(R) {
@@ -35,7 +35,7 @@ convertPearsonKendall <- function(R) {
 
 
 #' Converts Kendall correlation to Pearson. Used for normal random variables.
-#' 
+#'
 #' @param R A a square symmetric Kendall correlation matrix.
 #' @return A Pearson correlation matrix.
 convertKendallPearson <- function(Rho) {
@@ -47,16 +47,16 @@ convertKendallPearson <- function(Rho) {
 
 
 #' Adjust an input correlation matrix for our method to match
-#' 
+#'
 #' @param R A a square symmetric correlation matrix.
 #' @param params The parameters of the marginals.
 #' @param cores The number of cores to utilize.
 adjustInputR <- function(R, params, cores = 1){
-  
+
   ## 1. find the pairs
   d <- NROW(R)
   index_mat <- combn(x = 1:d, 2)
-  
+
   ## 2. compute the first order approximation
   if (cores == 1) {
     input_rho_vector <- apply(index_mat, 2, function(tmp_index){
@@ -78,9 +78,10 @@ adjustInputR <- function(R, params, cores = 1){
     })
   } else {
     cl <- parallel::makeCluster(cores, type = "FORK")
-    
+
     ## parallel version of the above code
     doParallel::registerDoParallel(cl)
+    `%dopar%` <- foreach::`%dopar%`
     input_rho_vector <- foreach::foreach(i = 1:ncol(index_mat), .combine = 'c') %dopar% {
       ## extract and compute simple quantities
       tmp_index <- index_mat[,i]
@@ -97,25 +98,25 @@ adjustInputR <- function(R, params, cores = 1){
       tmp_nb_rho <- R[tmp_index[1], tmp_index[2]]
       ## convert to rho for gamma (exact)
       target_gamma_rho <- tmp_nb_rho * ((sd_nb1 * sd_nb2) / (scale_factor * lambda_nb1 * lambda_nb2))
-      
+
       ## now approximate rho for input corr for MVN
       return(min(1, target_gamma_rho))
     }
     ## close cluster
     parallel::stopCluster(cl)
   }
-  
+
   ## Put input_rho_vector into a matrix
   to_return <- diag(d)
   to_return[lower.tri(to_return)] <- input_rho_vector
   to_return <- to_return + t(to_return) - diag(diag(to_return))
-  
+
   ## Ensure positive semi-definiteness
   eigen_obj <- eigen(to_return)
   if (any(eigen_obj$values < 0)) {
     to_return <- as.matrix(Matrix::nearPD(to_return)$mat)
   }
-  
+
   ## Label and return
   rownames(to_return) <- colnames(to_return) <- rownames(R)
   return(to_return)
