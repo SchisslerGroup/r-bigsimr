@@ -1,0 +1,21 @@
+Package: bigsimr
+Title: Simulate Multivariate Negative Binomial Data
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Alexander",
+           family = "Knudson",
+           role = c("aut", "cre"),
+           email = "aknudson@nevada.unr.edu",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: This package simulates data from a negative binomial distribution using a direct copula approach.
+Depends: R (>= 3.6.0)
+Imports:
+    foreach,
+    mvnfast,
+    Matrix,
+    doParallel,
+    parallel
+License: GNU GPLv3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
