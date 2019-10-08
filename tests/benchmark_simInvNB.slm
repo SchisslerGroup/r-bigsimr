@@ -1,0 +1,6 @@
+#!/bin/bash
+#SBATCH -n 24
+#SBATCH --mem=64GB
+
+cd /home/aknudson/Repos/bigsimr/
+/home/aknudson/miniconda3/envs/R/bin/Rscript tests/benchmark_simInvNB.R
