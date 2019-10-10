@@ -28,6 +28,7 @@
 #'
 #' rvec(10, rho, margins, cores = 1, type = "pearson")
 #' rvec(10, rho, margins2, cores = 1, type = "pearson")
+#' @export
 rvec <- function(n, R, params, cores = 1,
                  type = c("pearson", "kendall", "spearman")){
   # Handle different types of dependencies

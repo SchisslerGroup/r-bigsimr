@@ -8,7 +8,7 @@ Authors@R:
            email = "aknudson@nevada.unr.edu",
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: This package simulates data from a negative binomial distribution using a direct copula approach.
-Depends: R (>= 3.6.0)
+Depends: R (>= 3.4.0)
 Imports:
     foreach,
     mvnfast,
@@ -19,3 +19,7 @@ License: GNU GPLv3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
