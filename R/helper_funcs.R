@@ -132,3 +132,4 @@ normal2marginal <- function(x, param) {
   do.call(what = paste0("q", param[[1]]),
           args = c(list(p = pnorm(x)), param[-1]))
 }
+

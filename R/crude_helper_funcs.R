@@ -50,3 +50,13 @@ rnbinom_params <- function(d, shape = 100, id_margins = FALSE) {
   colnames(to_return) <- paste0("Var", 1:d)
   return(to_return)
 }
+
+
+#' @param R The input correlation matrix
+#' @param params The parameters of the marginals.
+#' @param type The type of correlation matrix that is being passed.
+#' @param epsilon The number of standard deviations
+
+adjustForDiscrete <- function(R, params, type = "spearman", epsilon = 5) {
+  param_dat
+}
