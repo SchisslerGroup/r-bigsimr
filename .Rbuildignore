@@ -1,3 +1,4 @@
 ^bigsimr\.Rproj$
 ^\.Rproj\.user$
 \tests
+^data-raw$

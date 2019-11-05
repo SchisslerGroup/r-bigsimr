@@ -6,6 +6,7 @@
 #' @examples
 #' rcor(4)
 #' rcor(10, TRUE)
+#' @export
 rcor <- function(d, constant_rho = FALSE) {
   if (constant_rho) {
     tmp_rho <- runif(n = 1, min = 0.25, max = 0.9)
@@ -24,39 +25,59 @@ rcor <- function(d, constant_rho = FALSE) {
 #' Generate negative binomial marginal parameters
 #'
 #' @param d A positive integer.
-#' @param shape The shape parameter of a negative binomial distribution.
 #' @param id_margins A boolean value specifying if the margins should be identical.
 #' @return A matrix with columns containing (in order) lambda, alpha, mean, and variance.
 #' @examples
 #' rnbinom_params(4)
-#' rnbinom_params(10, shape = 40)
-#' rnbinom_params(7, 44, TRUE)
-rnbinom_params <- function(d, shape = 100, id_margins = FALSE) {
+#' rnbinom_params(10)
+#' rnbinom_params(7, TRUE)
+#' @export
+rnbinom_params <- function(d, id_margins = FALSE) {
   if (!id_margins) {
-    p <- runif(d, min = 0, max = 0.1)
-    lambda <- (1 - p) / p
-    alpha <- rgamma(d, shape = shape)
-    nb_mean <- lambda * alpha
-    nb_var <- ((1 - p) / p^2) * alpha
+    probs <- runif(d, min = 0.3, max = 0.7)
+    sizes <- sample(3:8, d, TRUE)
   } else {
-    p <- rep(runif(1, min = 0, max = 0.1), d)
-    lambda <- (1 - p) / p
-    alpha <- rep(rgamma(1, shape = shape), d)
-    nb_mean <- lambda * alpha
-    nb_var <- ((1 - p) / p^2) * alpha
+    probs <- rep(runif(1, 0.3, 0.7), d)
+    sizes <- rep(sample(3:8, 1, TRUE), d)
   }
-  to_return <- rbind(lambda, alpha, nb_mean, nb_var)
-  colnames(to_return) <- paste0("Var", 1:d)
-  return(to_return)
+  purrr::transpose(list(rep("nbinom", d), size = sizes, prob = probs))
 }
 
 
-#' Transforms a [multivariate]normal vector to a different marginal via a
-#' uniform intermediate transformation.
-#'
-#' @param x A normal random vector.
-#' @param param A list ccontaining the marginal and its parameters.
-normal2marginal <- function(x, param) {
-  do.call(what = paste0("q", param[[1]]),
-          args = c(list(p = pnorm(x)), param[-1]))
+#' @param rho The input correlation matrix
+#' @param params The parameters of the marginals.
+#' @param sigma The number of standard deviations from the mean
+#' @export
+adjustForDiscrete <- function(rho, params, sigma = 5) {
+  upper_bound <- lapply(params, function(param) {
+    prob <- param[["prob"]]
+    size <- param[["size"]]
+
+    mu <- size * (1 - prob) / prob
+    sigma2 <- size^2 * (1 - prob) / prob
+
+    ceiling(mu + sigma * sqrt(sigma2))
+  })
+  upper_bound <- max(unlist(upper_bound))
+
+  adj <- lapply(params, function(param) {
+    if (param[[1]] %in% discrete_dists) {
+      pmf_x <- do.call(paste0("d", param[[1]]),
+                       c(list(x = 0:upper_bound), param[-1]))
+      return(sqrt(1 - sum(pmf_x^3)))
+    } else {
+      return(1)
+    }
+  })
+  adj <- unlist(adj)
+
+  idx_mat <- combn(x = length(params), m = 2)
+
+  rho_adj <- apply(idx_mat, 2, function(pair) {
+    adj_factor <- adj[pair[1]] * adj[pair[2]]
+    rho_tmp <- rho[pair[1], pair[2]]
+    rho_tmp / adj_factor
+  })
+  rho[lower.tri(rho)] <- rho[upper.tri(rho)] <- rho_adj
+  rho
 }
