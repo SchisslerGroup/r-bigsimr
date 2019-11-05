@@ -4,10 +4,10 @@
 \alias{convertPearsonKendall}
 \title{Converts Pearson correlation to Kendall. Used for normal random variables.}
 \usage{
-convertPearsonKendall(R)
+convertPearsonKendall(rho)
 }
 \arguments{
-\item{R}{A a square symmetric Pearson correlation matrix.}
+\item{rho}{A a square symmetric Pearson correlation matrix.}
 }
 \value{
 A Kendall correlation matrix.

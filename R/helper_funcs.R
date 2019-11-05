@@ -2,6 +2,7 @@
 #'
 #' @param rho A a square symmetric Pearson correlation matrix.
 #' @return A Spearman correlation matrix.
+#' @export
 convertPearsonSpearman <- function(rho) {
   tmp <- (6 / pi) * asin(rho / 2)
   tmp <- as.matrix(Matrix::nearPD(tmp)$mat)
@@ -14,6 +15,7 @@ convertPearsonSpearman <- function(rho) {
 #'
 #' @param rho A a square symmetric Spearman correlation matrix.
 #' @return A Pearson correlation matrix.
+#' @export
 convertSpearmanPearson <- function(rho) {
   tmp <- 2* sin( rho * (pi / 6))
   tmp <- as.matrix(Matrix::nearPD(tmp)$mat)
@@ -26,6 +28,7 @@ convertSpearmanPearson <- function(rho) {
 #'
 #' @param rho A a square symmetric Pearson correlation matrix.
 #' @return A Kendall correlation matrix.
+#' @export
 convertPearsonKendall <- function(rho) {
   tmp <- (2 / pi) * asin(rho)
   tmp <- as.matrix(Matrix::nearPD(tmp)$mat)
@@ -38,6 +41,7 @@ convertPearsonKendall <- function(rho) {
 #'
 #' @param rho A a square symmetric Kendall correlation matrix.
 #' @return A Pearson correlation matrix.
+#' @export
 convertKendallPearson <- function(rho) {
   tmp <- sin( rho * (pi / 2) )
   tmp <- as.matrix(Matrix::nearPD(tmp)$mat)
@@ -51,6 +55,7 @@ convertKendallPearson <- function(rho) {
 #' @param rho A a square symmetric correlation matrix.
 #' @param params The parameters of the marginals.
 #' @param cores The number of cores to utilize.
+#' @export
 adjustInputR <- function(rho, params, cores = 1){
 
   ## 1. find the pairs
