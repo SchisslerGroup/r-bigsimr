@@ -2,7 +2,7 @@
 #' given marginals and correlation matrix.
 #'
 #' @param n The number random vectors to generate.
-#' @param R The input correlation matrix.
+#' @param rho The input correlation matrix.
 #' @param params The parameters of the marginals.
 #' @param cores The number of cores to utilize.
 #' @param type The type of correlation matrix that is being passed.
@@ -29,23 +29,29 @@
 #' rvec(10, rho, margins, cores = 1, type = "pearson")
 #' rvec(10, rho, margins2, cores = 1, type = "pearson")
 #' @export
-rvec <- function(n, R, params, cores = 1,
-                 type = c("pearson", "kendall", "spearman")){
+rvec <- function(n, rho, params, cores = 1,
+                 type = c("pearson", "kendall", "spearman"),
+                 adjustForDiscrete = TRUE){
   # Handle different types of dependencies
   if (type == "spearman") {
-    R <- convertSpearmanPearson(R)
+    my_dists <- unlist(lapply(params, '[[', 1))
+    if (adjustForDiscrete && any(my_dists %in% discrete_dists)) {
+      rho <- adjustForDiscrete(rho, params, sigma = 5)
+    }
+    rho <- convertSpearmanPearson(rho)
   }
+
   if (type == "kendall") {
-    R <- convertKendallPearson(R)
+    rho <- convertKendallPearson(rho)
   }
 
   # determine the dimension d
-  d <- NROW(R)
+  d <- NROW(rho)
 
   # generate MVN sample
   mvn_sim <- mvnfast::rmvn(n = n,
                            mu = rep(0, d),
-                           sigma = R,
+                           sigma = rho,
                            ncores = cores,
                            isChol = FALSE)
 
@@ -62,6 +68,6 @@ rvec <- function(n, R, params, cores = 1,
     }
     parallel::stopCluster(cl)
   }
-  colnames(mv_sim) <- rownames(R)
+  colnames(mv_sim) <- rownames(rho)
   return(mv_sim)
 }

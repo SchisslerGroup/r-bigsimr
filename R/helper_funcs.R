@@ -1,60 +1,60 @@
 #' Converts Pearson correlation to Spearman. Used for normal random variables.
 #'
-#' @param R A a square symmetric Pearson correlation matrix.
+#' @param rho A a square symmetric Pearson correlation matrix.
 #' @return A Spearman correlation matrix.
-convertPearsonSpearman <- function(R) {
-  tmp <- (6 / pi) * asin(R / 2)
+convertPearsonSpearman <- function(rho) {
+  tmp <- (6 / pi) * asin(rho / 2)
   tmp <- as.matrix(Matrix::nearPD(tmp)$mat)
-  rownames(tmp) <- colnames(tmp) <- colnames(R)
+  rownames(tmp) <- colnames(tmp) <- colnames(rho)
   return(tmp)
 }
 
 
 #' Converts Spearman correlation to Pearson. Used for normal random variables.
 #'
-#' @param R A a square symmetric Spearman correlation matrix.
+#' @param rho A a square symmetric Spearman correlation matrix.
 #' @return A Pearson correlation matrix.
-convertSpearmanPearson <- function(Rho) {
-  tmp <- 2* sin( Rho * (pi / 6))
+convertSpearmanPearson <- function(rho) {
+  tmp <- 2* sin( rho * (pi / 6))
   tmp <- as.matrix(Matrix::nearPD(tmp)$mat)
-  rownames(tmp) <- colnames(tmp) <- colnames(Rho)
+  rownames(tmp) <- colnames(tmp) <- colnames(rho)
   return(tmp)
 }
 
 
 #' Converts Pearson correlation to Kendall. Used for normal random variables.
 #'
-#' @param R A a square symmetric Pearson correlation matrix.
+#' @param rho A a square symmetric Pearson correlation matrix.
 #' @return A Kendall correlation matrix.
-convertPearsonKendall <- function(R) {
-  tmp <- (2 / pi) * asin(R)
+convertPearsonKendall <- function(rho) {
+  tmp <- (2 / pi) * asin(rho)
   tmp <- as.matrix(Matrix::nearPD(tmp)$mat)
-  rownames(tmp) <- colnames(tmp) <- colnames(R)
+  rownames(tmp) <- colnames(tmp) <- colnames(rho)
   return(tmp)
 }
 
 
 #' Converts Kendall correlation to Pearson. Used for normal random variables.
 #'
-#' @param R A a square symmetric Kendall correlation matrix.
+#' @param rho A a square symmetric Kendall correlation matrix.
 #' @return A Pearson correlation matrix.
-convertKendallPearson <- function(Rho) {
-  tmp <- sin( Rho * (pi / 2) )
+convertKendallPearson <- function(rho) {
+  tmp <- sin( rho * (pi / 2) )
   tmp <- as.matrix(Matrix::nearPD(tmp)$mat)
-  rownames(tmp) <- colnames(tmp) <- colnames(Rho)
+  rownames(tmp) <- colnames(tmp) <- colnames(rho)
   return(tmp)
 }
 
 
 #' Adjust an input correlation matrix for our method to match
 #'
-#' @param R A a square symmetric correlation matrix.
+#' @param rho A a square symmetric correlation matrix.
 #' @param params The parameters of the marginals.
 #' @param cores The number of cores to utilize.
-adjustInputR <- function(R, params, cores = 1){
+adjustInputR <- function(rho, params, cores = 1){
 
   ## 1. find the pairs
-  d <- NROW(R)
+  d <- NROW(rho)
   index_mat <- combn(x = 1:d, 2)
 
   ## 2. compute the first order approximation
@@ -70,7 +70,7 @@ adjustInputR <- function(R, params, cores = 1){
       ## precompute scale factor
       scale_factor <- sqrt(alpha1) * sqrt(alpha2)
       ## extract target nb corr
-      tmp_nb_rho <- R[tmp_index[1], tmp_index[2]]
+      tmp_nb_rho <- rho[tmp_index[1], tmp_index[2]]
       ## convert to rho for gamma (exact)
       target_gamma_rho <- tmp_nb_rho * ( (sd_nb1 * sd_nb2) / (scale_factor * lambda_nb1 * lambda_nb2) )
       ## now approximate rho for input corr for MVN
@@ -95,7 +95,7 @@ adjustInputR <- function(R, params, cores = 1){
       ## precompute scale factor
       scale_factor <- sqrt(alpha1) * sqrt(alpha2)
       ## extract target nb corr
-      tmp_nb_rho <- R[tmp_index[1], tmp_index[2]]
+      tmp_nb_rho <- rho[tmp_index[1], tmp_index[2]]
       ## convert to rho for gamma (exact)
       target_gamma_rho <- tmp_nb_rho * ((sd_nb1 * sd_nb2) / (scale_factor * lambda_nb1 * lambda_nb2))
 
@@ -118,7 +118,7 @@ adjustInputR <- function(R, params, cores = 1){
   }
 
   ## Label and return
-  rownames(to_return) <- colnames(to_return) <- rownames(R)
+  rownames(to_return) <- colnames(to_return) <- rownames(rho)
   return(to_return)
 }
 
