@@ -31,6 +31,7 @@ rcor <- function(d, constant_rho = FALSE) {
 #' rnbinom_params(4)
 #' rnbinom_params(10)
 #' rnbinom_params(7, TRUE)
+#' @export
 rnbinom_params <- function(d, id_margins = FALSE) {
   if (!id_margins) {
     probs <- runif(d, min = 0.3, max = 0.7)
@@ -46,6 +47,7 @@ rnbinom_params <- function(d, id_margins = FALSE) {
 #' @param rho The input correlation matrix
 #' @param params The parameters of the marginals.
 #' @param sigma The number of standard deviations from the mean
+#' @export
 adjustForDiscrete <- function(rho, params, sigma = 5) {
   upper_bound <- lapply(params, function(param) {
     prob <- param[["prob"]]

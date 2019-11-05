@@ -4,10 +4,10 @@
 \alias{convertPearsonSpearman}
 \title{Converts Pearson correlation to Spearman. Used for normal random variables.}
 \usage{
-convertPearsonSpearman(R)
+convertPearsonSpearman(rho)
 }
 \arguments{
-\item{R}{A a square symmetric Pearson correlation matrix.}
+\item{rho}{A a square symmetric Pearson correlation matrix.}
 }
 \value{
 A Spearman correlation matrix.

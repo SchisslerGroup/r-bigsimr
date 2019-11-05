@@ -1,6 +1,6 @@
 Package: bigsimr
 Title: Simulate Multivariate Negative Binomial Data
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: 
     person(given = "Alexander",
            family = "Knudson",
@@ -14,7 +14,8 @@ Imports:
     mvnfast,
     Matrix,
     doParallel,
-    parallel
+    parallel,
+    purrr
 License: GNU GPLv3
 Encoding: UTF-8
 LazyData: true

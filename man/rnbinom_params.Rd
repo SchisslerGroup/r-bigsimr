@@ -4,12 +4,10 @@
 \alias{rnbinom_params}
 \title{Generate negative binomial marginal parameters}
 \usage{
-rnbinom_params(d, shape = 100, id_margins = FALSE)
+rnbinom_params(d, id_margins = FALSE)
 }
 \arguments{
 \item{d}{A positive integer.}
-
-\item{shape}{The shape parameter of a negative binomial distribution.}
 
 \item{id_margins}{A boolean value specifying if the margins should be identical.}
 }
@@ -21,6 +19,6 @@ Generate negative binomial marginal parameters
 }
 \examples{
 rnbinom_params(4)
-rnbinom_params(10, shape = 40)
-rnbinom_params(7, 44, TRUE)
+rnbinom_params(10)
+rnbinom_params(7, TRUE)
 }

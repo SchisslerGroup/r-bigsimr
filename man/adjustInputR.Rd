@@ -4,10 +4,10 @@
 \alias{adjustInputR}
 \title{Adjust an input correlation matrix for our method to match}
 \usage{
-adjustInputR(R, params, cores = 1)
+adjustInputR(rho, params, cores = 1)
 }
 \arguments{
-\item{R}{A a square symmetric correlation matrix.}
+\item{rho}{A a square symmetric correlation matrix.}
 
 \item{params}{The parameters of the marginals.}
 
