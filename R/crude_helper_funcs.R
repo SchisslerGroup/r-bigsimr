@@ -46,9 +46,9 @@ rnbinom_params <- function(d, id_margins = FALSE) {
 
 #' @param rho The input correlation matrix
 #' @param params The parameters of the marginals.
-#' @param sigma The number of standard deviations from the mean
+#' @param nSigmas The number of standard deviations from the mean
 #' @export
-adjustForDiscrete <- function(rho, params, sigma = 5) {
+adjustForDiscrete <- function(rho, params, nSigmas = 5) {
   upper_bound <- lapply(params, function(param) {
     prob <- param[["prob"]]
     size <- param[["size"]]
@@ -56,7 +56,7 @@ adjustForDiscrete <- function(rho, params, sigma = 5) {
     mu <- size * (1 - prob) / prob
     sigma2 <- size^2 * (1 - prob) / prob
 
-    ceiling(mu + sigma * sqrt(sigma2))
+    ceiling(mu + nSigmas * sqrt(sigma2))
   })
   upper_bound <- max(unlist(upper_bound))
 

@@ -31,7 +31,7 @@
 #' @export
 rvec <- function(n, rho, params, cores = 1,
                  type = c("pearson", "kendall", "spearman"),
-                 adjustForDiscrete = TRUE){
+                 adjustForDiscrete = TRUE, nSigmas = 10){
   # Handle different types of dependencies
   if (type == "spearman") {
     my_dists <- unlist(lapply(params, '[[', 1))
