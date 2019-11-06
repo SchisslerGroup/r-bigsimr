@@ -41,7 +41,7 @@ rvec <- function(n, rho, params, cores = 1,
   if (type == "spearman") {
     my_dists <- unlist(lapply(params, '[[', 1))
     if (adjustForDiscrete && any(my_dists %in% discrete_dists)) {
-      rho <- adjustForDiscrete(rho, params, sigma = 5)
+      rho <- adjustForDiscrete(rho, params, nSigmas)
     }
     rho <- convertSpearmanPearson(rho)
   }
