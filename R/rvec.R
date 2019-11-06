@@ -6,7 +6,12 @@
 #' @param params The parameters of the marginals.
 #' @param cores The number of cores to utilize.
 #' @param type The type of correlation matrix that is being passed.
-#' @return A matrix of random vectors generated from the specified marginals and parameters.
+#' @param adjustForDiscrete A boolean for whether to adjust the correlation
+#'   matrix when in the presence of discrete distributions
+#' @param nSigmas The number of standard deviations above the mean to set the
+#'   upper bound when adjusting for discrete distributions
+#' @return A matrix of random vectors generated from the specified marginals
+#'   and parameters.
 #' @examples
 #' d <- 5
 #' rho <- rcor(d)

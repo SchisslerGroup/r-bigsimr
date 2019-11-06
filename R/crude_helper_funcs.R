@@ -43,12 +43,13 @@ rnbinom_params <- function(d, id_margins = FALSE) {
   purrr::transpose(list(rep("nbinom", d), size = sizes, prob = probs))
 }
 
-
+#' Adjust the correlation matrix when there are discrete distributions present
+#'
 #' @param rho The input correlation matrix
 #' @param params The parameters of the marginals.
 #' @param nSigmas The number of standard deviations from the mean
 #' @export
-adjustForDiscrete <- function(rho, params, nSigmas = 5) {
+adjustForDiscrete <- function(rho, params, nSigmas) {
   upper_bound <- lapply(params, function(param) {
     prob <- param[["prob"]]
     size <- param[["size"]]

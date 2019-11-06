@@ -1,6 +1,6 @@
 Package: bigsimr
 Title: Simulate Multivariate Negative Binomial Data
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: 
     person(given = "Alexander",
            family = "Knudson",
