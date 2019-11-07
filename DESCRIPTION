@@ -1,5 +1,5 @@
 Package: bigsimr
-Title: Simulate Multivariate Negative Binomial Data
+Title: An R Package for Generating High-Dimensional Random Vectors
 Version: 0.2.1
 Authors@R: 
     person(given = "Alexander",
