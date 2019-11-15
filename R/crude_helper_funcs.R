@@ -25,8 +25,10 @@ rcor <- function(d, constant_rho = FALSE) {
 #' Generate negative binomial marginal parameters
 #'
 #' @param d A positive integer.
-#' @param id_margins A boolean value specifying if the margins should be identical.
-#' @return A matrix with columns containing (in order) lambda, alpha, mean, and variance.
+#' @param id_margins A boolean value specifying if the margins should be
+#'   identical.
+#' @return A matrix with columns containing (in order) lambda, alpha, mean,
+#'   and variance.
 #' @examples
 #' rnbinom_params(4)
 #' rnbinom_params(10)
@@ -77,7 +79,7 @@ adjustForDiscrete <- function(rho, params, nSigmas) {
   rho_adj <- apply(idx_mat, 2, function(pair) {
     adj_factor <- adj[pair[1]] * adj[pair[2]]
     rho_tmp <- rho[pair[1], pair[2]]
-    rho_tmp / adj_factor
+    min(rho_tmp / adj_factor, 1)
   })
   rho[lower.tri(rho)] <- rho[upper.tri(rho)] <- rho_adj
   rho
