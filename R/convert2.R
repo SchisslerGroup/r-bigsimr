@@ -3,7 +3,7 @@
 #' @param rho A a square symmetric Pearson correlation matrix.
 #' @return A Spearman correlation matrix.
 #' @export
-convertPearsonSpearman <- function(rho) {
+convertPearson2Spearman <- function(rho) {
   tmp <- (6 / pi) * asin(rho / 2)
   tmp <- as.matrix(Matrix::nearPD(tmp)$mat)
   rownames(tmp) <- colnames(tmp) <- colnames(rho)
@@ -16,7 +16,7 @@ convertPearsonSpearman <- function(rho) {
 #' @param rho A a square symmetric Spearman correlation matrix.
 #' @return A Pearson correlation matrix.
 #' @export
-convertSpearmanPearson <- function(rho) {
+convertSpearman2Pearson <- function(rho) {
   tmp <- 2* sin( rho * (pi / 6))
   tmp <- as.matrix(Matrix::nearPD(tmp)$mat)
   rownames(tmp) <- colnames(tmp) <- colnames(rho)
@@ -29,7 +29,7 @@ convertSpearmanPearson <- function(rho) {
 #' @param rho A a square symmetric Pearson correlation matrix.
 #' @return A Kendall correlation matrix.
 #' @export
-convertPearsonKendall <- function(rho) {
+convertPearson2Kendall <- function(rho) {
   tmp <- (2 / pi) * asin(rho)
   tmp <- as.matrix(Matrix::nearPD(tmp)$mat)
   rownames(tmp) <- colnames(tmp) <- colnames(rho)
@@ -42,21 +42,9 @@ convertPearsonKendall <- function(rho) {
 #' @param rho A a square symmetric Kendall correlation matrix.
 #' @return A Pearson correlation matrix.
 #' @export
-convertKendallPearson <- function(rho) {
+convertKendall2Pearson <- function(rho) {
   tmp <- sin( rho * (pi / 2) )
   tmp <- as.matrix(Matrix::nearPD(tmp)$mat)
   rownames(tmp) <- colnames(tmp) <- colnames(rho)
   return(tmp)
 }
-
-
-#' Transforms a [multivariate]normal vector to a different marginal via a
-#' uniform intermediate transformation.
-#'
-#' @param x A normal random vector.
-#' @param param A list ccontaining the marginal and its parameters.
-normal2marginal <- function(x, param) {
-  do.call(what = paste0("q", param[[1]]),
-          args = c(list(p = pnorm(x)), param[-1]))
-}
-

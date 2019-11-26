@@ -43,11 +43,11 @@ rvec <- function(n, rho, params, cores = 1,
     if (adjustForDiscrete && any(my_dists %in% discrete_dists)) {
       rho <- adjustForDiscrete(rho, params, nSigmas)
     }
-    rho <- convertSpearmanPearson(rho)
+    rho <- convertSpearman2Pearson(rho)
   }
 
   if (type == "kendall") {
-    rho <- convertKendallPearson(rho)
+    rho <- convertKendall2Pearson(rho)
   }
 
   # determine the dimension d
