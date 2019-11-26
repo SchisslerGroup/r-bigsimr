@@ -38,6 +38,7 @@ all.corInBounds(rho, margins, cores, type, rho_bounds)
 all.corInBounds(pm1_rho, margins, cores, type, rho_bounds)
 
 # Get coordinate of offending correlations
-cols <- (which(which.corInBounds(pm1_rho, rho_bounds, TRUE)) - 1) %/%5 + 1
+cols <- (which(which.corInBounds(pm1_rho, rho_bounds, TRUE)) - 1) %/% 5 + 1
 rows <- (which(which.corInBounds(pm1_rho, rho_bounds, TRUE)) - 1) %% 5 + 1
 coords <- cbind(rows, cols)
+

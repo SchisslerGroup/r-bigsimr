@@ -34,7 +34,9 @@ adjustForDiscrete <- function(rho, params, nSigmas) {
     rho_tmp <- rho[pair[1], pair[2]]
     min(rho_tmp / adj_factor, 1)
   })
-  rho[lower.tri(rho)] <- rho[upper.tri(rho)] <- rho_adj
+
+  rho[lower.tri(rho)] <- rho_adj
+  rho[upper.tri(rho)] <- t(rho)[upper.tri(rho)]
   rho
 }
 
@@ -51,12 +53,13 @@ computeCorBounds <- function(params,
                              cores = 1,
                              type = c("pearson", "kendall", "spearman"),
                              reps = 1e5){
-  # i. process inputs
+
   d <- length(params)
-  # 1. Begin by simulating and sorting each margin
+
+  # Generate random samples for each margin and sort the vectors
+  # The sorted vectors are used for computing the bounds
   if (cores == 1) {
     sim_data <- sapply(1:d, function(i) {
-      # sort here!
       sort(do.call(what = paste0("r", unlist(params[[i]][1])),
                    args = c(list(n = reps), params[[i]][-1])))
     })
@@ -64,69 +67,69 @@ computeCorBounds <- function(params,
     `%dopar%` <- foreach::`%dopar%`
     cl <- parallel::makeCluster(cores, type = "FORK")
     doParallel::registerDoParallel(cl)
-    sim_data <- foreach::foreach(i = 1:d, .combine = "cbind") %dopar%
-      {
-        # sort here!
+    sim_data <- foreach::foreach(i = 1:d, .combine = "cbind") %dopar% {
         sort(do.call(what = paste0("r", unlist(params[[i]][1])),
                      args = c(list(n = reps), params[[i]][-1])))
       }
-    # parallel::stopCluster(cl)
   }
-  # unname
+
   unname(sim_data)
-  # str(sim_data); tail(sim_data)
-  # 2. Now compute upper/lower bounds compute for each pair
-  # all pairs
   index_mat <- combn(x = d, m = 2)
-  # cor(sort(y1), sort(y2))
-  # cor(sort(y1), sort(y2), method="spearman")
-  # cor(sort(y1), rev(sort(y2)))
-  # cor(sort(y1), rev(sort(y2)), method="spearman")
+
+
   if (cores == 1) {
+    # Upper bounds
     rho_upper <- cor(sim_data, method = type)
-    # now rev(sort lower
-    # rho_upper <- cor(sim_data, method=type)
-    # str(rho_upper)
-    # 2b. lower bounds
+
+    # Lower bounds
     rho_lower_values <- apply(index_mat, 2, function(index, data, ...){
-      # reverse the second empirical distribution
-      cor(data[ , index[1] ], rev(data[ , index[2] ]), method = type)
+      cor(data[, index[1]],
+          rev(data[, index[2]]),
+          method = type)
     }, data = sim_data, method = type)
-    # store as a correlation matrix
+
     rho_lower <- diag(x = 1, nrow = d, ncol = d)
     rho_lower[lower.tri(rho_lower)] <- rho_lower_values
     rho_lower <- t(rho_lower)
     rho_lower[lower.tri(rho_lower)] <- rho_lower_values
-  }
-  else {
-    # cl <- parallel::makeCluster(cores, type = "FORK")
-    # doParallel::registerDoParallel(cl)
-    # parallel::parApply
-    # index = index_mat[ , 1]
-    rho_upper_values <- parallel::parApply(cl = cl, X = index_mat, MARGIN = 2, FUN = function(index, data, ...){
-      cor(x = data[ , index[1] ], y = data[ , index[2] ], method=type)
+
+  } else {
+    # Upper bounds
+    rho_upper_values <- parallel::parApply(
+      cl = cl,
+      X = index_mat,
+      MARGIN = 2,
+      FUN = function(index, data, ...){
+        cor(x = data[, index[1]],
+            y = data[, index[2]],
+            method = type)
     }, data = sim_data, method = type)
-    # store as a correlation matrix
+
+    # Ensure that the result is a valid correlation matrix
     rho_upper <- diag(x = 1, nrow = d, ncol = d)
     rho_upper[lower.tri(rho_upper)] <- rho_upper_values
     rho_upper <- t(rho_upper)
     rho_upper[lower.tri(rho_upper)] <- rho_upper_values
-    # isSymmetric(rho_upper)
-    # 2b. lower bounds
-    rho_lower_values <- parallel::parApply(cl = cl, X = index_mat, MARGIN = 2, FUN = function(index, data, ...){
-      # reverse the second empirical distribution
-      cor(x = data[ , index[1] ], y = rev(data[ , index[2] ]), method=type)
-    }, data = sim_data, method = type)
-    # stop the cluster
+
+    # Lower bounds
+    rho_lower_values <- parallel::parApply(
+      cl = cl,
+      X = index_mat,
+      MARGIN = 2,
+      FUN = function(index, data, ...){
+        cor(x = data[, index[1]],
+            y = rev(data[, index[2]]),
+            method=type)
+      }, data = sim_data, method = type)
     parallel::stopCluster(cl)
-    # store as a correlation matrix
+
+    # Ensure that the result is a valid correlation matrix
     rho_lower <- diag(x = 1, nrow = d, ncol = d)
     rho_lower[lower.tri(rho_lower)] <- rho_lower_values
     rho_lower <- t(rho_lower)
     rho_lower[lower.tri(rho_lower)] <- rho_lower_values
   }
 
-  # return
   list(upper = rho_upper,
        lower = rho_lower)
 }
@@ -151,17 +154,14 @@ constrainRho <- function(rho, rho_bounds){
 #'   values that are outside the feasible region.
 #' @export
 which.corInBounds <- function(rho, rho_bounds, negate = FALSE){
-  if (is.null(rho_bounds)) {
-    rho_bounds <- computeCorBounds(params = params,
-                                   cores = cores,
-                                   type = type, ...)
-  }
 
   tooSmall <- rho < rho_bounds[["lower"]]
   tooLarge <- rho > rho_bounds[["upper"]]
 
   outOfBounds <- tooSmall | tooLarge
   inBounds <- !outOfBounds
+
+  # Return either the in bounds or out of bounds matrix
   if (negate) {
     outOfBounds
   } else {
@@ -206,17 +206,13 @@ all.corInBounds <- function(rho,
 
 
 #' Estimate the Spearman rank correlation
-estimateSpearmanRho <- function(x, y, fast = TRUE){
-  if (fast){
-    r0 <- apply(x, 2, fastrank::fastrank)
-    sim_r_hat0 <- coop::pcor(r0)
-    r1 <- apply(y, 2, fastrank::fastrank)
-    sim_r_hat1 <- coop::pcor(r1)
+#'
+#' For a Nx2 matrix when N=1e5, fast is about 2x faster, and when N=1e6,
+#'   fast is about 3x faster.
+estimateSpearmanRho <- function(x, fast = TRUE){
+  if (fast) {
+    coop::pcor(apply(x, 2, fastrank::fastrank_num_avg))
   } else {
-    r0 <- apply(x, 2, rank)
-    sim_r_hat0 <- cor(r0)
-    r1 <- apply(y, 2, rank)
-    sim_r_hat1 <- cor(r1)
+    cor(apply(x, 2, rank))
   }
-  return(list(r_hat0 = sim_r_hat0, r_hat1 = sim_r_hat1))
 }
