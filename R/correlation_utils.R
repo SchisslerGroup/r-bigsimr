@@ -1,3 +1,32 @@
+#' Convert between different types of correlation matrices
+#'
+#' @param rho A a square symmetric correlation matrix
+#' @param from The type of the input correlation matrix
+#' @param to The type of the output correlation matrix
+#' @export
+convertCor <- function(rho,
+                       from = c("pearson", "spearman", "kendall"),
+                       to = c("pearson", "spearman", "kendall")) {
+
+  key <- paste(from, to)
+  A <- list(
+    "pearson pearson"   = function(r) {r},
+    "pearson spearman"  = function(r) {(6/pi)*asin(r/2)},
+    "pearson kendall"   = function(r) {(2/pi)*asin(r)},
+    "spearman pearson"  = function(r) {2*sin(r*(pi/6))},
+    "spearman spearman" = function(r) {r},
+    "spearman kendall"  = function(r) {(2/pi)*asin(2*sin(r*(pi/6)))},
+    "kendall pearson"   = function(r) {sin(r*(pi/2))},
+    "kendal spearman"   = function(r) {(6/pi)*asin(sin(r*(pi/2))/2)},
+    "kendall kendall"   = function(r) {r}
+  )
+
+  tmp <- as.matrix(Matrix::nearPD(A[[key]](rho))$mat)
+  rownames(tmp) <- colnames(tmp) <- colnames(rho)
+  tmp
+}
+
+
 #' Adjust the correlation matrix when there are discrete distributions present
 #'
 #' @param rho The input correlation matrix
@@ -153,7 +182,7 @@ constrainRho <- function(rho, rho_bounds){
 #' @param negate Should the logical values be negated in order to identify
 #'   values that are outside the feasible region.
 #' @export
-which.corInBounds <- function(rho, rho_bounds, negate = FALSE){
+which_corInBounds <- function(rho, rho_bounds, negate = FALSE){
 
   tooSmall <- rho < rho_bounds[["lower"]]
   tooLarge <- rho > rho_bounds[["upper"]]
@@ -180,24 +209,25 @@ which.corInBounds <- function(rho, rho_bounds, negate = FALSE){
 #' ... Other arguments passed to `computeCoreBounds()`
 #' @return Logical. TRUE if all correlations pairs are within the theoretical
 #'   bounds, and false otherwise.
-all.corInBounds <- function(rho,
+#' @export
+all_corInBounds <- function(rho,
                           params,
                           cores = 1,
                           type = c("pearson", "spearman", "kendall"),
                           rho_bounds = NULL, ...){
 
-  if ( is.null(rho_bounds) ){
+  if (is.null(rho_bounds)){
     rho_bounds <- computeCorBounds(params = params,
                                    cores = cores,
                                    type = type,
                                    ...)
   }
 
-  outOfBounds <- which.corInBounds(rho, rho_bounds, negate = TRUE)
+  outOfBounds <- which_corInBounds(rho, rho_bounds, negate = TRUE)
 
   if (any(outOfBounds)) {
     warning(paste0("At least one of the specified correlations are either ",
-                   "too large or too small. Please use 'which.corInBounds() ",
+                   "too large or too small. Please use 'which_corInBounds() ",
                    "to see which correlations are valid."))
     return(FALSE)
   }

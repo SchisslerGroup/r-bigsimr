@@ -4,8 +4,9 @@
 \alias{estimateSpearmanRho}
 \title{Estimate the Spearman rank correlation}
 \usage{
-estimateSpearmanRho(x, y, fast = TRUE)
+estimateSpearmanRho(x, fast = TRUE)
 }
 \description{
-Estimate the Spearman rank correlation
+For a Nx2 matrix when N=1e5, fast is about 2x faster, and when N=1e6,
+  fast is about 3x faster.
 }
