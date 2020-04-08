@@ -58,11 +58,12 @@ rvec <- function(n,
   d <- NROW(rho)
 
   # generate MVN sample
-  mvn_sim <- mvnfast::rmvn(n = n,
-                           mu = rep(0, d),
-                           sigma = rho,
-                           ncores = cores,
-                           isChol = FALSE)
+  # mvn_sim <- mvnfast::rmvn(n = n,
+  #                          mu = rep(0, d),
+  #                          sigma = rho,
+  #                          ncores = cores,
+  #                          isChol = FALSE)
+  mvn_sim <- .rmvn_jax(NULL, rep(0, d), rho, as.integer(n))
 
   if (cores == 1) {
     mv_sim <- sapply(1:d, function(i){

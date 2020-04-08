@@ -18,6 +18,6 @@
 
   key = jax$random$PRNGKey(as.integer(seed))
   x = rmvn(key, mu, Sigma, list(n))$block_until_ready()
-
-  reticulate::py_to_r(jax$device_get(x))
+  x = jax$device_get(x)
+  reticulate::py_to_r(x)
 }
