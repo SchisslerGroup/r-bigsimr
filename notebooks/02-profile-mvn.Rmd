@@ -1,0 +1,95 @@
+---
+title: "Profile Multivariate Normal"
+author: "Alex Knudson"
+date: "4/7/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      comment = NA,
+                      cache=TRUE)
+
+library(tictoc)
+library(mvnfast)
+
+library(reticulate)
+use_python("~/miniconda3/envs/pygantic/bin/python")
+```
+
+
+```{python, echo=FALSE}
+import time
+import numpy as onp
+import jax.numpy as np
+from jax import random
+from jax import device_put, device_get
+
+d = 5000
+n = 2000
+mu = onp.zeros((d, ), dtype=onp.float32)
+rho = 0.5
+Rho = onp.full((d, d), rho, dtype=onp.float32)
+Rho[onp.diag_indices(d)] = 1.0
+
+key = random.PRNGKey(0)
+mu_dev = device_put(mu)
+Rho_dev = device_put(Rho)
+```
+
+
+# Basic Wall Clock Benchmark
+
+```{r}
+d <- 5000L
+n <- 2000L
+rho <- 0.5
+Rho <- matrix(rho, d, d)
+diag(Rho) <- 1.0
+cores <- 10L
+```
+
+
+## `mvnfast`
+
+```{r}
+tic()
+mvn_sim <- rmvn(n = n,
+                mu = rep(0, d),
+                sigma = Rho,
+                ncores = cores,
+                isChol = FALSE)
+toc()
+```
+
+## `numpy.random`
+
+```{python}
+t = time.time()
+x = onp.random.multivariate_normal(mean=mu, cov=Rho, size=(n,))
+elapsed = time.time() - t
+print(f"{round(elapsed, 3)} sec elapsed")
+```
+
+```{python}
+x.shape
+```
+
+
+## `jax.random`
+
+```{python}
+t = time.time()
+x_gpu = random.multivariate_normal(key, 
+                                   mean=mu_dev, 
+                                   cov=Rho_dev, 
+                                   shape=(n,)).block_until_ready()
+elapsed = time.time() - t
+print(f"{round(elapsed, 3)} sec elapsed")
+```
+
+```{python}
+x_cpu = device_get(x_gpu)
+x_cpu.shape
+```
+
