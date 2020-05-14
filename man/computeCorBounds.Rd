@@ -5,8 +5,12 @@
 \title{Computes the theoretical upper and lower bounds of possible correlations
   given a set of marginals}
 \usage{
-computeCorBounds(params, cores = 1, type = c("pearson", "kendall",
-  "spearman"), reps = 1e+05)
+computeCorBounds(
+  params,
+  cores = 1,
+  type = c("pearson", "kendall", "spearman"),
+  reps = 1e+05
+)
 }
 \arguments{
 \item{params}{The parameters of the marginals.}

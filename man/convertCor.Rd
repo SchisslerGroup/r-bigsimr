@@ -4,8 +4,11 @@
 \alias{convertCor}
 \title{Convert between different types of correlation matrices}
 \usage{
-convertCor(rho, from = c("pearson", "spearman", "kendall"),
-  to = c("pearson", "spearman", "kendall"))
+convertCor(
+  rho,
+  from = c("pearson", "spearman", "kendall"),
+  to = c("pearson", "spearman", "kendall")
+)
 }
 \arguments{
 \item{rho}{A a square symmetric correlation matrix}

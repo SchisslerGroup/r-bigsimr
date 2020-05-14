@@ -1,4 +1,4 @@
-#' @importFrom reticulate py_to_r
+#' @importFrom reticulate py_to_r tuple
 .rmvn_jax <- function(seed, mu, Sigma, n) {
 
   # Any RNG in jax requires a key. If none is supplied by the user, then it
@@ -17,7 +17,7 @@
   mu  = jax$device_put(mu)
 
   key = jax$random$PRNGKey(as.integer(seed))
-  x = rmvn(key, mu, Sigma, list(n))$block_until_ready()
+  x = rmvn(key, mu, Sigma, reticulate::tuple(list(n)))$block_until_ready()
   x = jax$device_get(x)
   reticulate::py_to_r(x)
 }

@@ -4,8 +4,14 @@
 \alias{all_corInBounds}
 \title{Returns TRUE if all correlations pairs are within the theoretical bounds}
 \usage{
-all_corInBounds(rho, params, cores = 1, type = c("pearson", "spearman",
-  "kendall"), rho_bounds = NULL, ...)
+all_corInBounds(
+  rho,
+  params,
+  cores = 1,
+  type = c("pearson", "spearman", "kendall"),
+  rho_bounds = NULL,
+  ...
+)
 }
 \arguments{
 \item{rho}{The input correlation matrix.}
