@@ -32,7 +32,6 @@ convertCor <- function(rho,
 #' @param rho The input correlation matrix
 #' @param params The parameters of the marginals.
 #' @param nSigmas The number of standard deviations from the mean
-#' @export
 adjustForDiscrete <- function(rho, params, nSigmas) {
   upper_bound <- lapply(params, function(param) {
     prob <- param[["prob"]]
@@ -181,7 +180,6 @@ constrainRho <- function(rho, rho_bounds){
 #' @param rho_bounds A list containing the theoretical upper and lower bounds
 #' @param negate Should the logical values be negated in order to identify
 #'   values that are outside the feasible region.
-#' @export
 which_corInBounds <- function(rho, rho_bounds, negate = FALSE){
 
   tooSmall <- rho < rho_bounds[["lower"]]
@@ -209,7 +207,6 @@ which_corInBounds <- function(rho, rho_bounds, negate = FALSE){
 #' ... Other arguments passed to `computeCoreBounds()`
 #' @return Logical. TRUE if all correlations pairs are within the theoretical
 #'   bounds, and false otherwise.
-#' @export
 all_corInBounds <- function(rho,
                           params,
                           cores = 1,

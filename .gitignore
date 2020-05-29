@@ -25,7 +25,9 @@ vignettes/*.pdf
 .httr-oauth
 
 # knitr and R markdown default cache directories
-/*_cache/
+notebooks/*_cache/
+notebooks/*_files/
+notebooks/*.html
 /cache/
 
 # Temporary files created by R markdown
@@ -36,5 +38,3 @@ vignettes/*.pdf
 rsconnect/
 .Rproj.user
 inst/doc
-
-Meta
