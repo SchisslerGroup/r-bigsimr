@@ -1,25 +1,27 @@
 Package: bigsimr
-Title: Simulate Multivariate Negative Binomial Data
-Version: 0.2.0
+Title: An R Package for Generating High-Dimensional Random Vectors
+Version: 0.3.0
 Authors@R: 
     person(given = "Alexander",
            family = "Knudson",
            role = c("aut", "cre"),
-           email = "aknudson@nevada.unr.edu",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "aknudson@nevada.unr.edu")
 Description: This package simulates data from a negative binomial distribution using a direct copula approach.
 Depends: R (>= 3.4.0)
 Imports:
+    fastrank,
     foreach,
-    mvnfast,
     Matrix,
     doParallel,
     parallel,
-    purrr
+    purrr,
+    coop
+Remotes:
+    douglasgscofield/fastrank
 License: GNU GPLv3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 Suggests: 
     knitr,
     rmarkdown

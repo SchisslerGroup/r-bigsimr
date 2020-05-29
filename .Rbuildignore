@@ -2,3 +2,5 @@
 ^\.Rproj\.user$
 \tests
 ^data-raw$
+^doc$
+^Meta$
