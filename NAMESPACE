@@ -2,6 +2,10 @@
 
 export(computeCorBounds)
 export(convertCor)
+export(install_bigsimr)
 export(rcor)
 export(rnbinom_params)
 export(rvec)
+importFrom(reticulate,conda_binary)
+importFrom(reticulate,py_available)
+importFrom(reticulate,py_module_available)
