@@ -9,19 +9,18 @@ convertCor <- function(rho,
                        to = c("pearson", "spearman", "kendall")) {
 
   key <- paste(from, to)
-  A <- list(
-    "pearson pearson"   = function(r) {r},
-    "pearson spearman"  = function(r) {(6/pi)*asin(r/2)},
-    "pearson kendall"   = function(r) {(2/pi)*asin(r)},
-    "spearman pearson"  = function(r) {2*sin(r*(pi/6))},
-    "spearman spearman" = function(r) {r},
-    "spearman kendall"  = function(r) {(2/pi)*asin(2*sin(r*(pi/6)))},
-    "kendall pearson"   = function(r) {sin(r*(pi/2))},
-    "kendal spearman"   = function(r) {(6/pi)*asin(sin(r*(pi/2))/2)},
-    "kendall kendall"   = function(r) {r}
+
+  A <- switch (key,
+               "pearson spearman" = function(r) (6/pi)*asin(r/2),
+               "pearson kendall"  = function(r) (2/pi)*asin(r),
+               "spearman pearson" = function(r) 2*sin(r*pi/6),
+               "spearman kendall" = function(r) (2/pi)*asin(2*sin(r*pi/6)),
+               "kendall pearson"  = function(r) sin(r*pi/2),
+               "kendal spearman"  = function(r) (6/pi)*asin(sin(r*pi/2)/2),
+               function(r) r
   )
 
-  tmp <- as.matrix(Matrix::nearPD(A[[key]](rho))$mat)
+  tmp <- as.matrix(Matrix::nearPD(A(rho))$mat)
   rownames(tmp) <- colnames(tmp) <- colnames(rho)
   tmp
 }
