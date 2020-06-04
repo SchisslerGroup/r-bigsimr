@@ -15,7 +15,8 @@ Imports:
     doParallel,
     parallel,
     purrr,
-    coop
+    coop,
+    pcaPP
 Remotes:
     douglasgscofield/fastrank
 License: GNU GPLv3

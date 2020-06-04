@@ -39,15 +39,21 @@ rvec <- function(n,
                  params,
                  cores = 1,
                  type = c("pearson", "kendall", "spearman"),
-                 adjustForDiscrete = TRUE,
+                 # adjustForDiscrete = TRUE,
+                 checkBounds = FALSE,
                  nSigmas = 10){
 
   # Handle different types of dependencies
-  if (type == "spearman" &&
-      adjustForDiscrete &&
-      any(my_dists %in% discrete_dists)) {
-    my_dists <- unlist(lapply(params, '[[', 1))
-    rho <- adjustForDiscrete(rho, params, nSigmas)
+  # NOT YET IMPLEMENTED
+  # if (type == "spearman" &&
+  #     adjustForDiscrete &&
+  #     any(my_dists %in% discrete_dists)) {
+  #   my_dists <- unlist(lapply(params, '[[', 1))
+  #   rho <- adjustForDiscrete(rho, params, nSigmas)
+  # }
+
+  if (checkBounds) {
+    stopifnot(all_corInBounds(rho, params, cores, type))
   }
 
   # Correlation matrix must be a Pearson correlation
@@ -81,6 +87,7 @@ rvec <- function(n,
   }
 
   colnames(mv_sim) <- rownames(rho)
-  return(mv_sim)
 
+  # return
+  mv_sim
 }
