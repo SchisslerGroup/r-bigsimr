@@ -11,6 +11,7 @@ rvec(
   params,
   cores = 1,
   type = c("pearson", "kendall", "spearman"),
+  adjustForDiscrete = FALSE,
   checkBounds = FALSE,
   nSigmas = 10
 )
@@ -26,11 +27,11 @@ rvec(
 
 \item{type}{The type of correlation matrix that is being passed.}
 
-\item{nSigmas}{The number of standard deviations above the mean to set the
-upper bound when adjusting for discrete distributions}
-
 \item{adjustForDiscrete}{A boolean for whether to adjust the correlation
 matrix when in the presence of discrete distributions}
+
+\item{nSigmas}{The number of standard deviations above the mean to set the
+upper bound when adjusting for discrete distributions}
 }
 \value{
 A matrix of random vectors generated from the specified marginals
