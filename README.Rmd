@@ -103,3 +103,28 @@ cor(x)
 computeCorBounds(margins, type = "pearson")
 ```
 
+## Appendix
+
+```{r, eval=FALSE}
+all_dists <- list(
+  list(dist = "beta", shape1, shape2),
+  list(dist = "binom", size, prob),
+  list(dist = "cauchy", location, scale),
+  list(dist = "chisq", df),
+  list(dist = "exp", rate),
+  list(dist = "f", df1, df2),
+  list(dist = "gamma", shape, rate),
+  list(dist = "geom", prob),
+  list(dist = "hyper", m, n, k),
+  list(dist = "logis", location, scale),
+  list(dist = "lnorm", meanlog, sdlog),
+  list(dist = "nbinom", size, prob),
+  list(dist = "norm", mean, sd),
+  list(dist = "pois", lambda),
+  list(dist = "t", df),
+  list(dist = "unif", min, max),
+  list(dist = "weibull", shape, scale),
+  list(dist = "wilcox", m, n),
+  list(dist = "signrank", n)
+)
+```

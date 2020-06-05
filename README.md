@@ -116,9 +116,9 @@ x <- rvec(100, rho = rho, params = margins, type = "pearson")
 # Sample correlation
 cor(x)
 #>           [,1]      [,2]      [,3]
-#> [1,] 1.0000000 0.5009145 0.5860191
-#> [2,] 0.5009145 1.0000000 0.5542112
-#> [3,] 0.5860191 0.5542112 1.0000000
+#> [1,] 1.0000000 0.4296601 0.3491483
+#> [2,] 0.4296601 1.0000000 0.3924128
+#> [3,] 0.3491483 0.3924128 1.0000000
 ```
 
 ``` r
@@ -126,13 +126,39 @@ cor(x)
 computeCorBounds(margins, type = "pearson")
 #> $upper
 #>           [,1]      [,2]      [,3]
-#> [1,] 1.0000000 0.9517272 0.9697327
-#> [2,] 0.9517272 1.0000000 0.9830166
-#> [3,] 0.9697327 0.9830166 1.0000000
+#> [1,] 1.0000000 0.9531578 0.9706689
+#> [2,] 0.9531578 1.0000000 0.9827171
+#> [3,] 0.9706689 0.9827171 1.0000000
 #> 
 #> $lower
 #>            [,1]       [,2]       [,3]
-#> [1,]  1.0000000 -0.9541586 -0.9712443
-#> [2,] -0.9541586  1.0000000 -0.8679343
-#> [3,] -0.9712443 -0.8679343  1.0000000
+#> [1,]  1.0000000 -0.9535620 -0.9710851
+#> [2,] -0.9535620  1.0000000 -0.8697967
+#> [3,] -0.9710851 -0.8697967  1.0000000
+```
+
+## Appendix
+
+``` r
+all_dists <- list(
+  list(dist = "beta", shape1, shape2),
+  list(dist = "binom", size, prob),
+  list(dist = "cauchy", location, scale),
+  list(dist = "chisq", df),
+  list(dist = "exp", rate),
+  list(dist = "f", df1, df2),
+  list(dist = "gamma", shape, rate),
+  list(dist = "geom", prob),
+  list(dist = "hyper", m, n, k),
+  list(dist = "logis", location, scale),
+  list(dist = "lnorm", meanlog, sdlog),
+  list(dist = "nbinom", size, prob),
+  list(dist = "norm", mean, sd),
+  list(dist = "pois", lambda),
+  list(dist = "t", df),
+  list(dist = "unif", min, max),
+  list(dist = "weibull", shape, scale),
+  list(dist = "wilcox", m, n),
+  list(dist = "signrank", n)
+)
 ```
