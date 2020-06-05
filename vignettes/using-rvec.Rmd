@@ -69,10 +69,10 @@ diag(rho) <- 1.0
 rho
 ```
 
-Finally we can generate a random vector with our specified marginals and correlation structure. The last argument, `type`, is looking to know what kind of correlation matrix it is receiving. Right now it can handle Pearson, Spearman, or Kendal.
+Finally we can generate a random vector with our specified marginals and correlation structure. The last argument, `type`, is looking to know what kind of correlation matrix it is receiving. Right now it can handle Pearson, Spearman, or Kendall.
 
 ```{r}
-x = rvec(10, rho = rho, params = margins, type = "pearson")
+x <- rvec(10, rho = rho, params = margins, type = "pearson")
 ```
 
 On my machine, there is no dedicated GPU, so I would see the following warning message once per session.

@@ -31,6 +31,7 @@ convertCor <- function(rho,
 #' @param rho The input correlation matrix
 #' @param params The parameters of the marginals.
 #' @param nSigmas The number of standard deviations from the mean
+#' @export
 adjustForDiscrete <- function(rho, params, nSigmas) {
   upper_bound <- lapply(params, function(param) {
     prob <- param[["prob"]]
@@ -97,22 +98,20 @@ computeCorBounds <- function(params,
     sim_data <- foreach::foreach(i = 1:d, .combine = "cbind") %dopar% {
         sort(do.call(what = paste0("r", unlist(params[[i]][1])),
                      args = c(list(n = reps), params[[i]][-1])))
-      }
+    }
   }
 
-  unname(sim_data)
   index_mat <- combn(x = d, m = 2)
-
 
   if (cores == 1) {
     # Upper bounds
-    rho_upper <- cor(sim_data, method = type)
+    rho_upper <- fastCor(sim_data, method = type)
 
     # Lower bounds
     rho_lower_values <- apply(index_mat, 2, function(index, data, ...){
-      cor(data[, index[1]],
-          rev(data[, index[2]]),
-          method = type)
+      fastCor(data[, index[1]],
+              rev(data[, index[2]]),
+              method = type)
     }, data = sim_data, method = type)
 
     rho_lower <- diag(x = 1, nrow = d, ncol = d)
@@ -127,9 +126,9 @@ computeCorBounds <- function(params,
       X = index_mat,
       MARGIN = 2,
       FUN = function(index, data, ...){
-        cor(x = data[, index[1]],
-            y = data[, index[2]],
-            method = type)
+        fastCor(x = data[, index[1]],
+                y = data[, index[2]],
+                method = type)
     }, data = sim_data, method = type)
 
     # Ensure that the result is a valid correlation matrix
@@ -144,9 +143,9 @@ computeCorBounds <- function(params,
       X = index_mat,
       MARGIN = 2,
       FUN = function(index, data, ...){
-        cor(x = data[, index[1]],
-            y = rev(data[, index[2]]),
-            method=type)
+        fastCor(x = data[, index[1]],
+                y = rev(data[, index[2]]),
+                method=type)
       }, data = sim_data, method = type)
     parallel::stopCluster(cl)
 
@@ -179,6 +178,7 @@ constrainRho <- function(rho, rho_bounds){
 #' @param rho_bounds A list containing the theoretical upper and lower bounds
 #' @param negate Should the logical values be negated in order to identify
 #'   values that are outside the feasible region.
+#' @export
 which_corInBounds <- function(rho, rho_bounds, negate = FALSE){
 
   tooSmall <- rho < rho_bounds[["lower"]]
@@ -206,11 +206,12 @@ which_corInBounds <- function(rho, rho_bounds, negate = FALSE){
 #' ... Other arguments passed to `computeCoreBounds()`
 #' @return Logical. TRUE if all correlations pairs are within the theoretical
 #'   bounds, and false otherwise.
+#' @export
 all_corInBounds <- function(rho,
-                          params,
-                          cores = 1,
-                          type = c("pearson", "spearman", "kendall"),
-                          rho_bounds = NULL, ...){
+                            params,
+                            cores = 1,
+                            type = c("pearson", "spearman", "kendall"),
+                            rho_bounds = NULL, ...){
 
   if (is.null(rho_bounds)){
     rho_bounds <- computeCorBounds(params = params,
@@ -231,14 +232,41 @@ all_corInBounds <- function(rho,
 }
 
 
-#' Estimate the Spearman rank correlation
+#' Use the fastest methods available for computing each type of correlation
 #'
-#' For a Nx2 matrix when N=1e5, fast is about 2x faster, and when N=1e6,
-#'   fast is about 3x faster.
-estimateSpearmanRho <- function(x, fast = TRUE){
-  if (fast) {
-    coop::pcor(apply(x, 2, fastrank::fastrank_num_avg))
+#' @param x A matrix or vector
+#' @param y A vector
+#' @param method The type of correlation to compute
+#' @export
+fastCor <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) {
+
+  stopifnot(method %in% c("pearson", "kendall", "spearman"))
+
+  if (method == "pearson") {
+
+    if (is.null(y)) {
+      coop::pcor(x)
+    } else {
+      coop::pcor(x, y)
+    }
+
+  } else if (method == "spearman") {
+
+    if (is.null(y)) {
+      coop::pcor(apply(x, 2, fastrank::fastrank_num_avg))
+    } else {
+      coop::pcor(fastrank::fastrank_num_avg(x),
+                 fastrank::fastrank_num_avg(y))
+    }
+
   } else {
-    cor(apply(x, 2, rank))
+
+    if (is.null(y)) {
+      pcaPP::cor.fk(x)
+    } else {
+      pcaPP::cor.fk(x, y)
+    }
+
   }
+
 }

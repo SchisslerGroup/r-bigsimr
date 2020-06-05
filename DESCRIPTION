@@ -1,12 +1,12 @@
 Package: bigsimr
 Title: An R Package for Generating High-Dimensional Random Vectors
-Version: 0.3.1
+Version: 0.4.0
 Authors@R: 
     person(given = "Alexander",
            family = "Knudson",
            role = c("aut", "cre"),
            email = "aknudson@nevada.unr.edu")
-Description: This package simulates data from a negative binomial distribution using a direct copula approach.
+Description: This package simulates multivariate data with arbitrary marginal distributions.
 Depends: R (>= 3.4.0)
 Imports:
     fastrank,
@@ -15,7 +15,8 @@ Imports:
     doParallel,
     parallel,
     purrr,
-    coop
+    coop,
+    pcaPP
 Remotes:
     douglasgscofield/fastrank
 License: GNU GPLv3
