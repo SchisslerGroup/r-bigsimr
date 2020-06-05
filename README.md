@@ -116,34 +116,23 @@ x <- rvec(100, rho = rho, params = margins, type = "pearson")
 # Sample correlation
 cor(x)
 #>           [,1]      [,2]      [,3]
-#> [1,] 1.0000000 0.3919804 0.4317084
-#> [2,] 0.3919804 1.0000000 0.4678965
-#> [3,] 0.4317084 0.4678965 1.0000000
+#> [1,] 1.0000000 0.5009145 0.5860191
+#> [2,] 0.5009145 1.0000000 0.5542112
+#> [3,] 0.5860191 0.5542112 1.0000000
 ```
 
 ``` r
 # Estimated upper and lower correlation bounds
-computeCorBounds(margins)
-#> Warning in if (method == "pearson") {: the condition has length > 1 and only the
-#> first element will be used
-
-#> Warning in if (method == "pearson") {: the condition has length > 1 and only the
-#> first element will be used
-
-#> Warning in if (method == "pearson") {: the condition has length > 1 and only the
-#> first element will be used
-
-#> Warning in if (method == "pearson") {: the condition has length > 1 and only the
-#> first element will be used
+computeCorBounds(margins, type = "pearson")
 #> $upper
 #>           [,1]      [,2]      [,3]
-#> [1,] 1.0000000 0.9539526 0.9712235
-#> [2,] 0.9539526 1.0000000 0.9828965
-#> [3,] 0.9712235 0.9828965 1.0000000
+#> [1,] 1.0000000 0.9517272 0.9697327
+#> [2,] 0.9517272 1.0000000 0.9830166
+#> [3,] 0.9697327 0.9830166 1.0000000
 #> 
 #> $lower
 #>            [,1]       [,2]       [,3]
-#> [1,]  1.0000000 -0.9528902 -0.9704918
-#> [2,] -0.9528902  1.0000000 -0.8696719
-#> [3,] -0.9704918 -0.8696719  1.0000000
+#> [1,]  1.0000000 -0.9541586 -0.9712443
+#> [2,] -0.9541586  1.0000000 -0.8679343
+#> [3,] -0.9712443 -0.8679343  1.0000000
 ```
