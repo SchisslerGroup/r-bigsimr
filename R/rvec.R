@@ -45,17 +45,33 @@ rvec <- function(n,
 
   # TODO: Warn if using Pearson correlation
 
+
+
   # Handle different types of dependencies
-  # NOT YET IMPLEMENTED
+  dists <- unlist(lapply(params, '[[', 1))
   if (type == "spearman" &&
       adjustForDiscrete &&
-      any(my_dists %in% discrete_dists)) {
-    my_dists <- unlist(lapply(params, '[[', 1))
+      any(dists %in% discrete_dists)) {
+    bounds <- computeCorBounds(
+      params = params,
+      cores = cores,
+      type = type,
+      reps = 1e5
+    )
+
     rho <- adjustForDiscrete(rho, params, nSigmas)
   }
 
   if (checkBounds) {
-    stopifnot(all_corInBounds(rho, params, cores, type))
+    any_out_of_bounds <- all_corInBounds(rho,
+                                         params,
+                                         cores,
+                                         type,
+                                         rho_bounds = bounds)
+    if (any_out_of_bounds) {
+      warning("The target correlation matrix is outside the theoretical bounds given the marginal distributions. Constraining rho to be in bounds.")
+      # rho <- constrainRho(rho, bounds)
+    }
   }
 
   # Correlation matrix must be a Pearson correlation

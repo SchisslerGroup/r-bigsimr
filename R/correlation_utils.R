@@ -65,6 +65,7 @@ adjustForDiscrete <- function(rho, params, nSigmas) {
 
   rho[lower.tri(rho)] <- rho_adj
   rho[upper.tri(rho)] <- t(rho)[upper.tri(rho)]
+  diag(rho) <- 1.0
   rho
 }
 

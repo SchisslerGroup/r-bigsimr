@@ -34,11 +34,10 @@ diag(pm1_rho) <- 1
 constrainRho(rho, rho_bounds)
 constrainRho(pm1_rho, rho_bounds)
 
-all.corInBounds(rho, margins, cores, type, rho_bounds)
-all.corInBounds(pm1_rho, margins, cores, type, rho_bounds)
+all_corInBounds(rho, margins, cores, type, rho_bounds)
+all_corInBounds(pm1_rho, margins, cores, type, rho_bounds)
 
-# Get coordinate of offending correlations
-cols <- (which(which.corInBounds(pm1_rho, rho_bounds, TRUE)) - 1) %/% 5 + 1
-rows <- (which(which.corInBounds(pm1_rho, rho_bounds, TRUE)) - 1) %% 5 + 1
-coords <- cbind(rows, cols)
+which_corInBounds(pm1_rho, rho_bounds)
 
+rvec(10, rho, margins, type = "spearman")
+rvec(10, rho, margins, type = "spearman", adjustForDiscrete = TRUE)
