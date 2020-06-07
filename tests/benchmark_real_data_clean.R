@@ -1,5 +1,4 @@
 library(tidyverse)
-Sys.setenv("JAX_ENABLE_X64=")
 
 # Load in the data
 dat0 <- readRDS(

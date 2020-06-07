@@ -241,8 +241,11 @@ fastCor <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) {
 
   stopifnot(method %in% c("pearson", "kendall", "spearman"))
 
-  if (method == "pearson") {
+  if (is.data.frame(x)) {
+    x <- as.matrix(x)
+  }
 
+  if (method == "pearson") {
     if (is.null(y)) {
       coop::pcor(x)
     } else {
@@ -250,7 +253,6 @@ fastCor <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) {
     }
 
   } else if (method == "spearman") {
-
     if (is.null(y)) {
       coop::pcor(apply(x, 2, fastrank::fastrank_average))
     } else {
@@ -259,7 +261,6 @@ fastCor <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) {
     }
 
   } else {
-
     if (is.null(y)) {
       pcaPP::cor.fk(x)
     } else {

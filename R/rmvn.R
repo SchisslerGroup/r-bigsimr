@@ -2,32 +2,28 @@
 
   # Any RNG in jax requires a key. If none is supplied by the user, then it
   # should be generated at random.
-  # if (is.null(seed)) {
-  #   set.seed(seed)
-  #   seed <- as.integer(sample(1:1000, 1))
-  # }
-  # key = jax$random$PRNGKey(as.integer(seed))
-  #
-  # rmvn <- jax$random$multivariate_normal
+  if (is.null(seed)) {
+    set.seed(seed)
+    seed <- as.integer(sample(1:1000, 1))
+  }
+  key = jax$random$PRNGKey(as.integer(seed))
 
-  size   = reticulate::tuple(n)
+  d <- ncol(rho)
 
-  rho_np = reticulate::np_array(rho)
-  mu_np  = reticulate::np_array(mu)
-  x      = numpy$random$multivariate_normal(mu_np, rho_np, size)
+  size     = reticulate::tuple(as.integer(n), as.integer(d))
+  rho_np   = reticulate::np_array(rho)
+  mu_np    = reticulate::np_array(mu)
 
-  # dev <- reticulate::py_to_r(jax$lib$xla_bridge$get_backend()$platform)
-  #
-  # mu    = jax$device_put(mu)
-  # Sigma = jax$device_put(Sigma)
-  #
-  # if (dev == 'gpu') {
-  #   x = rmvn(key, mu, Sigma, reticulate::tuple(list(n)))$block_until_ready()
-  # } else {
-  #   x = rmvn(key, mu, Sigma, reticulate::tuple(list(n)))
-  # }
-  #
-  # x = jax$device_get(x)
+  rho_chol = numpy$linalg$cholesky(rho_np)
 
-  reticulate::py_to_r(x)
+  z      = numpy$random$normal(0.0, 1.0, size)
+
+  z_d    = jax$device_put(z)
+  rho_chol_d = jax$device_put(rho_chol)
+
+  x_d = jax$numpy$matmul(z_d, rho_chol_d)
+
+  x   = jax$device_get(x_d)
+
+  reticulate::py_to_r(z)
 }

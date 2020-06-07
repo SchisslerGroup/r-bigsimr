@@ -28,6 +28,7 @@ vignettes/*.pdf
 notebooks/*_cache/
 notebooks/*_files/
 notebooks/*.html
+notebooks/sims*
 /cache/
 
 # Temporary files created by R markdown
@@ -38,3 +39,6 @@ notebooks/*.html
 rsconnect/
 .Rproj.user
 inst/doc
+
+/tests
+/sims_nb
