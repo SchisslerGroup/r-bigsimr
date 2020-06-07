@@ -10,7 +10,7 @@ normal2marginal(x, param)
 \arguments{
 \item{x}{A normal random vector.}
 
-\item{param}{A list ccontaining the marginal and its parameters.}
+\item{param}{A list containing the marginal and its parameters.}
 }
 \description{
 Transforms a [multivariate]normal vector to a different marginal via a

@@ -20,9 +20,7 @@ convertCor <- function(rho,
                function(r) r
   )
 
-  tmp <- as.matrix(Matrix::nearPD(A(rho))$mat)
-  rownames(tmp) <- colnames(tmp) <- colnames(rho)
-  tmp
+  Matrix::nearPD(A(rho), corr = TRUE)$mat
 }
 
 
@@ -271,3 +269,41 @@ fastCor <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) {
   }
 
 }
+
+
+#' Return the nearest positive definite correlation matrix
+validcorr <- function(A) {
+  eye <- function(d) {
+    A <- matrix(0, d, d)
+    diag(A) <- 1.0
+    A
+  }
+
+  Ps <- function(A) {
+    eig <- eigen(A)
+    Q <- eig$vectors
+    D <- eig$values
+    D <- diag(ifelse(D < 0, 0, D))
+    Q %*% D %*% t(Q)
+  }
+
+  Pu <- function(X) {
+    X - diag(diag(X)) + eye(ncol(X))
+  }
+
+  d <- dim(A)
+  stopifnot(length(d) == 2, d[1] == d[2])
+
+  S <- matrix(0, d[1], d[2])
+  Y <- A
+
+  for (k in 1:(ncol(A)*100)) {
+    R <- Y - S
+    X <- Ps(R)
+    S <- X - R
+    Y <- Pu(X)
+  }
+
+  Pu(X)
+}
+

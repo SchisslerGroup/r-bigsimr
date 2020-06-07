@@ -46,7 +46,6 @@ rvec <- function(n,
   # TODO: Warn if using Pearson correlation
 
 
-
   # Handle different types of dependencies
   dists <- unlist(lapply(params, '[[', 1))
   if (type == "spearman" &&
@@ -80,7 +79,8 @@ rvec <- function(n,
   d <- NROW(rho)
 
   # generate MVN sample
-  mvn_sim <- .rmvn_jax(NULL, rep(0, d), rho, as.integer(n))
+  # mvn_sim <- .rmvn_jax(NULL, rep(0, d), rho, as.integer(n))
+  mvn_sim <- mvnfast::rmvn(n, rep(0, d), rho, ncores = cores)
 
   # Apply the NORTA algorithm
   if (cores == 1) {
