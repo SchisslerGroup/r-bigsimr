@@ -5,16 +5,7 @@
 \title{Creates \code{n} observations from a multivariate distribution with the
 given marginals and correlation matrix.}
 \usage{
-rvec(
-  n,
-  rho,
-  params,
-  cores = 1,
-  type = c("pearson", "kendall", "spearman"),
-  adjustForDiscrete = FALSE,
-  checkBounds = FALSE,
-  nSigmas = 10
-)
+rvec(n, rho, params, cores = 1, type = c("pearson", "kendall", "spearman"))
 }
 \arguments{
 \item{n}{The number random vectors to generate.}
