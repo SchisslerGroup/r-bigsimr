@@ -1,1 +1,1 @@
-reticulate::use_condaenv("bigsimr")
+# reticulate::use_condaenv("bigsimr")

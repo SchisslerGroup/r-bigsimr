@@ -1,25 +1,51 @@
-.rmvn_jax <- function(seed, mu, Sigma, n) {
+.rmvn <- function(rho, n) {
 
-  # Any RNG in jax requires a key. If none is supplied by the user, then it
-  # should be generated at random.
-  if (is.null(seed)) {
-    set.seed(seed)
-    seed <- as.integer(sample(1:1000, 1))
-  }
+  R    = reticulate::np_array(rho)
+  S    = numpy$linalg$cholesky(R)
+  S_d  = jax$device_put(numpy$transpose(S))
 
-  rmvn <- jax$random$multivariate_normal
+  key  = jax$random$PRNGKey(sample(.Random.seed, 1))
 
-  Sigma = numpy$array(Sigma, dtype=numpy$float32)
-  mu  = numpy$array(mu, dtype=numpy$float32)
+  size = reticulate::tuple(as.integer(n),
+                           as.integer(ncol(rho)))
 
-  key = jax$random$PRNGKey(as.integer(seed))
+  z_d  = jax$random$normal(key, size)
+  x_d  = jax$numpy$matmul(z_d, S_d)
 
-  dev <- reticulate::py_to_r(jax$lib$xla_bridge$get_backend()$platform)
-
-  # mu  = jax$device_put(mu)
-  # Sigma = jax$device_put(Sigma)
-  x = rmvn(key, mu, Sigma, reticulate::tuple(list(n)))$block_until_ready()
-  x = jax$device_get(x)
+  x    = jax$device_get(x_d)
 
   reticulate::py_to_r(x)
+
 }
+
+
+#' Simulate random data from a multivariate normal distribution
+#'
+#' This function is designed to be 'bare bones' and does not check that the
+#'   given covariance matrix is positive semi-definite.
+#'
+#' @param n number of random vectors to be simulated.
+#' @param mu vector of length d, representing the mean.
+#' @param sigma covariance matrix (d x d). Alternatively is can be the cholesky
+#'   decomposition of the covariance. In that case isChol should be set to TRUE.
+#' @param isChol boolean set to true if sigma is the cholesky decomposition of
+#'   the covariance matrix.
+#' @export
+rmvn <- function(n, mu, sigma, isChol = FALSE) {
+
+  S    = jax$device_put(reticulate::np_array(sigma)) #
+  m    = jax$device_put(reticulate::np_array(mu))
+  key  = jax$random$PRNGKey(sample(.Random.seed, 1))
+
+  if (isChol) {
+    size = reticulate::tuple(as.integer(n), as.integer(ncol(sigma)))
+    z    = jax$numpy$add(jax$numpy$matmul(jax$random$normal(key, size), S), m)
+  } else {
+    size = reticulate::tuple(as.integer(n))
+    z    = jax$random$multivariate_normal(key, m, S, size)
+  }
+
+  reticulate::py_to_r(jax$device_get(z))
+
+}
+

@@ -6,7 +6,7 @@ numpy <- NULL
   jax <<- reticulate::import("jax",
                              delay_load = TRUE,
                              convert = FALSE)
-  numpy <<- reticulate::import("jax.numpy",
+  numpy <<- reticulate::import("numpy",
                                as = "numpy",
                                delay_load = TRUE,
                                convert = FALSE)

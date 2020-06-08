@@ -38,56 +38,35 @@ rvec <- function(n,
                  rho,
                  params,
                  cores = 1,
-                 type = c("pearson", "kendall", "spearman"),
-                 # adjustForDiscrete = TRUE,
-                 checkBounds = FALSE,
-                 nSigmas = 10){
+                 type = c("pearson", "kendall", "spearman")){
 
-  # Handle different types of dependencies
-  # NOT YET IMPLEMENTED
-  # if (type == "spearman" &&
-  #     adjustForDiscrete &&
-  #     any(my_dists %in% discrete_dists)) {
-  #   my_dists <- unlist(lapply(params, '[[', 1))
-  #   rho <- adjustForDiscrete(rho, params, nSigmas)
-  # }
+  type <- match.arg(type)
 
-  if (checkBounds) {
-    stopifnot(all_corInBounds(rho, params, cores, type))
-  }
+  # TODO: Warn if using Pearson correlation
+
 
   # Correlation matrix must be a Pearson correlation
   rho <- convertCor(rho, from = type, to = "pearson")
 
-  d <- NROW(rho)
-
   # generate MVN sample
-  mvn_sim <- .rmvn_jax(NULL, rep(0, d), rho, as.integer(n))
+  mvn_sim <- .rmvn(rho, n)
 
   # Apply the NORTA algorithm
+  d <- NROW(rho)
   if (cores == 1) {
-
     mv_sim <- sapply(1:d, function(i){
       normal2marginal(mvn_sim[,i], params[[i]])
     })
-
   } else {
-
     `%dopar%` <- foreach::`%dopar%`
-
     cl <- parallel::makeCluster(cores, type = "FORK")
     doParallel::registerDoParallel(cl)
-
     mv_sim <- foreach::foreach(i = 1:d, .combine = 'cbind') %dopar% {
       normal2marginal(mvn_sim[,i], params[[i]])
     }
-
     parallel::stopCluster(cl)
-
   }
 
   colnames(mv_sim) <- rownames(rho)
-
-  # return
   mv_sim
 }
