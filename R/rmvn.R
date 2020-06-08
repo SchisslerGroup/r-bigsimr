@@ -1,27 +1,21 @@
-.rmvn_jax <- function(seed, mu, rho, n) {
+.rmvn <- function(rho, n) {
 
-  # Any RNG in jax requires a key. If none is supplied by the user, then it
-  # should be generated at random.
-  key = jax$random$PRNGKey(sample(.Random.seed, 1))
+  R    = reticulate::np_array(rho)
+  S    = numpy$linalg$cholesky(R)
+  S_d  = jax$device_put(numpy$transpose(S))
 
-  d <- ncol(rho)
+  key  = jax$random$PRNGKey(sample(.Random.seed, 1))
 
-  size     = reticulate::tuple(as.integer(n), as.integer(d))
-  rho_np   = reticulate::np_array(rho)
-  mu_np    = reticulate::np_array(mu)
+  size = reticulate::tuple(as.integer(n),
+                           as.integer(ncol(rho)))
 
-  rho_chol = numpy$linalg$cholesky(rho_np)
+  z_d  = jax$random$normal(key, size)
+  x_d  = jax$numpy$matmul(z_d, S_d)
 
-  z      = numpy$random$normal(0.0, 1.0, size)
+  x    = jax$device_get(x_d)
 
-  z_d    = jax$device_put(z)
-  rho_chol_d = jax$device_put(rho_chol)
+  reticulate::py_to_r(x)
 
-  x_d = jax$numpy$matmul(z_d, rho_chol_d)
-
-  x   = jax$device_get(x_d)
-
-  reticulate::py_to_r(z)
 }
 
 
