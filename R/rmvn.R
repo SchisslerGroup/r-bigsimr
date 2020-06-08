@@ -12,8 +12,6 @@
 
   rho_chol = numpy$linalg$cholesky(rho_np)
 
-  mvnfast::rmvn()
-
   z      = numpy$random$normal(0.0, 1.0, size)
 
   z_d    = jax$device_put(z)
