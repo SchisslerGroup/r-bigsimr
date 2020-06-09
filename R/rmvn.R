@@ -1,4 +1,4 @@
-.rmvn <- function(rho, n) {
+.rmvn <- function(n, rho) {
 
   R    = reticulate::np_array(rho)
   S    = numpy$linalg$cholesky(R)

@@ -49,7 +49,7 @@ rvec <- function(n,
   rho <- convertCor(rho, from = type, to = "pearson")
 
   # generate MVN sample
-  mvn_sim <- .rmvn(rho, n)
+  mvn_sim <- .rmvn(n, rho)
 
   # Apply the NORTA algorithm
   d <- NROW(rho)
