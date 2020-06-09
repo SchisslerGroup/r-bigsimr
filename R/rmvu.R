@@ -19,7 +19,7 @@
 #' @param rho correlation matrix (d x d)
 #' @param min Either a single number or a vector of length d
 #' @param max Either a single number or a vector of length d
-#'
+#' @export
 rmvu <- function(n, rho, min = 0, max = 1) {
   d <- ncol(rho)
 
@@ -43,6 +43,6 @@ rmvu <- function(n, rho, min = 0, max = 1) {
 
   stopifnot(all(max > min))
 
-  # .rmvuu(n, rho) * (u - l) + l
-  list(l, u)
+  .rmvuu(n, rho) * (u - l) + l
+  # list(l, u)
 }
