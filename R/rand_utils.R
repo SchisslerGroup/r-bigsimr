@@ -1,11 +1,8 @@
 #' Generate a random Pearson correlation matrix
 #'
-#' @param d A positive integer.
-#' @param constant_rho A boolean value.
-#' @return A \code{dxd} symmetric matrix with ones on the diagonal.
-#' @examples
-#' rcor(4)
-#' rcor(10, TRUE)
+#' @param d A positive integer
+#' @param constant_rho A boolean value
+#' @return A \code{dxd} symmetric matrix with ones on the diagonal
 #' @export
 rcor <- function(d, constant_rho = FALSE) {
   if (constant_rho) {

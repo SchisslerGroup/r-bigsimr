@@ -13,15 +13,10 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-reticulate::use_condaenv("py37")
+reticulate::use_condaenv("bigsimr-cpu")
 devtools::load_all()
 ```
 
-```{r setup, eval=FALSE}
- # Optional step if your python binary is in a miniconda environment
-reticulate::use_condaenv("py37")
-library(bigsimr)
-```
 
 # Installation
 
@@ -33,6 +28,7 @@ This package operates on the principle of Gaussian copulas, for which you will n
 
 The main function is `bigsimr::rvec` which mirrors some of the conventions found in the base `stats` package like `stats::rnorm`. I.e. the common convention for generating a random vector is to first specify the number of samples followed by the parameters for the distribution.
 
+
 ```{r}
 # Generating samples from a normal distribution
 # We need three things: 
@@ -43,19 +39,16 @@ The main function is `bigsimr::rvec` which mirrors some of the conventions found
 rnorm(n = 16, mean = 5, sd = 1.5)
 ```
 
-The 'r' in front of 'norm' is standard for 'random', as in generate random samples from the normal distribution. Other examples are `rexp` (exponential), `rnbinom` (negative binomial), and `rt` (Student t).
-
-One thing to familiarize yourself with is the specific parameterization of certain R distributions. `stats::rexp` uses a rate parameter while others may use the scale parameter, $1 / rate$. Our package uses the default parameterizations found in R, so be sure to check that you have the correct parameterization beforehand.
 
 # Building a Multivariate Distribution
 
-As stated earlier, to generate multivariate data, we need a list of marginals (and their parameters), and a correlation structure (matrix). The marginal distributions can be built up as a list of lists, where each sublist contains the information for the target distribution.
+
 
 ```{r}
-margins = list(
-  list("norm", mean = 3.14, sd = 0.1),
-  list("beta", shape1 = 1, shape2 = 4),
-  list("nbinom", size = 10, prob = 0.75)
+margins = alist(
+  qnorm(mean = 3.14, sd = 0.1),
+  qbeta(shape1 = 1, shape2 = 4),
+  qnbinom(size = 10, prob = 0.75)
 )
 ```
 
@@ -108,24 +101,24 @@ We can see that even wih 10,000 samples, the estimated correlation of the simula
 
 ```{r, eval=FALSE}
 all_dists <- list(
-  list(dist = "beta", shape1, shape2),
-  list(dist = "binom", size, prob),
-  list(dist = "cauchy", location, scale),
-  list(dist = "chisq", df),
-  list(dist = "exp", rate),
-  list(dist = "f", df1, df2),
-  list(dist = "gamma", shape, rate),
-  list(dist = "geom", prob),
-  list(dist = "hyper", m, n, k),
-  list(dist = "logis", location, scale),
-  list(dist = "lnorm", meanlog, sdlog),
-  list(dist = "nbinom", size, prob),
-  list(dist = "norm", mean, sd),
-  list(dist = "pois", lambda),
-  list(dist = "t", df),
-  list(dist = "unif", min, max),
-  list(dist = "weibull", shape, scale),
-  list(dist = "wilcox", m, n),
-  list(dist = "signrank", n)
+  qbeta( shape1, shape2 ),
+  qbinom( size, prob ),
+  qcauchy( location, scale ),
+  qchisq( df ),
+  qexp( rate ),
+  qf( df1, df2 ),
+  qgamma( shape, rate ),
+  qgeom( prob ),
+  qhyper( m, n, k ),
+  qlogis( location, scale ),
+  qlnorm( meanlog, sdlog ),
+  qnbinom( size, prob ),
+  qnorm( mean, sd ),
+  qpois( lambda ),
+  qt( df ),
+  qunif( min, max ),
+  qweibull( shape, scale ),
+  qwilcox( m, n ),
+  qsignrank( n )
 )
 ```

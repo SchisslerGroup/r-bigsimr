@@ -1,24 +1,3 @@
-.rmvn <- function(n, rho) {
-
-  R    = reticulate::np_array(rho)
-  S    = numpy$linalg$cholesky(R)
-  S_d  = jax$device_put(numpy$transpose(S))
-
-  key  = jax$random$PRNGKey(sample(.Random.seed, 1))
-
-  size = reticulate::tuple(as.integer(n),
-                           as.integer(ncol(rho)))
-
-  z_d  = jax$random$normal(key, size)
-  x_d  = jax$numpy$matmul(z_d, S_d)
-
-  x    = jax$device_get(x_d)
-
-  reticulate::py_to_r(x)
-
-}
-
-
 #' Simulate random data from a multivariate normal distribution
 #'
 #' This function is designed to be 'bare bones' and does not check that the

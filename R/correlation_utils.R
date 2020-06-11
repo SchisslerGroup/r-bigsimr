@@ -37,36 +37,30 @@ computeCorBounds <- function(margins,
                              cores = 1,
                              reps = 1e5){
 
+  type <- match.arg(type)
   d <- length(margins)
+  index_mat <- combn(x = d, m = 2)
 
+
+  # Replace the quantile function with the RNG function (e.g. qnorm -> rnorm)
   q2r <- function(x) {
     s <- rlang::as_string(x)
     substr(s, 1, 1) <- "r"    # replace 'q' with 'r'
     rlang::ensym(s)
   }
 
+
   # Generate random samples for each margin and sort the vectors
   # The sorted vectors are used for computing the bounds
   if (cores == 1) {
+
     sim_data <- sapply(1:d, function(i) {
       # Replace the quantile function with the RNG function (e.g. qnorm -> rnorm)
       margins[[i]][[1]] <- q2r(margins[[i]][[1]])
       margins[[i]]$n <- quote(reps)
       eval( rlang::call2("sort", margins_new[[i]]) )
     })
-  } else {
-    `%dopar%` <- foreach::`%dopar%`
-    cl <- parallel::makeCluster(cores, type = "FORK")
-    doParallel::registerDoParallel(cl)
-    sim_data <- foreach::foreach(i = 1:d, .combine = "cbind") %dopar% {
-        sort(do.call(what = paste0("r", unlist(margins[[i]][1])),
-                     args = c(list(n = reps), margins[[i]][-1])))
-    }
-  }
 
-  index_mat <- combn(x = d, m = 2)
-
-  if (cores == 1) {
     # Upper bounds
     rho_upper <- fastCor(sim_data, method = type)
 
@@ -77,13 +71,25 @@ computeCorBounds <- function(margins,
               method = type)
     }, data = sim_data, method = type)
 
-    rho_lower <- diag(x = 1, nrow = d, ncol = d)
+    rho_lower <- matrix(0, d, d)
+    diag(rho_lower) <- 0.5
     rho_lower[lower.tri(rho_lower)] <- rho_lower_values
-    rho_lower <- t(rho_lower)
-    rho_lower[lower.tri(rho_lower)] <- rho_lower_values
+    rho_lower <- rho_lower + t(rho_lower)
 
   } else {
-    # Upper bounds
+
+    # Set up the parallel computing environment
+    `%dopar%` <- foreach::`%dopar%`
+    cl <- parallel::makeCluster(cores, type = "FORK")
+    doParallel::registerDoParallel(cl)
+
+    sim_data <- foreach::foreach(i = 1:d, .combine = "cbind") %dopar% {
+      margins[[i]][[1]] <- q2r(margins[[i]][[1]])
+      margins[[i]]$n <- quote(reps)
+      eval( rlang::call2("sort", margins_new[[i]]) )
+    }
+
+    # Upper bounds (parallelized)
     rho_upper_values <- parallel::parApply(
       cl = cl,
       X = index_mat,
@@ -92,13 +98,12 @@ computeCorBounds <- function(margins,
         fastCor(x = data[, index[1]],
                 y = data[, index[2]],
                 method = type)
-    }, data = sim_data, method = type)
+      }, data = sim_data, method = type)
 
-    # Ensure that the result is a valid correlation matrix
-    rho_upper <- diag(x = 1, nrow = d, ncol = d)
+    rho_upper <- matrix(0, d, d)
+    diag(rho_upper) <- 0.5
     rho_upper[lower.tri(rho_upper)] <- rho_upper_values
-    rho_upper <- t(rho_upper)
-    rho_upper[lower.tri(rho_upper)] <- rho_upper_values
+    rho_upper <- rho_upper + t(rho_upper)
 
     # Lower bounds
     rho_lower_values <- parallel::parApply(
@@ -110,77 +115,19 @@ computeCorBounds <- function(margins,
                 y = rev(data[, index[2]]),
                 method=type)
       }, data = sim_data, method = type)
+
+    rho_lower <- matrix(0, d, d)
+    diag(rho_lower) <- 0.5
+    rho_lower[lower.tri(rho_lower)] <- rho_lower_values
+    rho_lower <- rho_lower + t(rho_lower)
+
+    # Shut down the parallel cluster
     parallel::stopCluster(cl)
 
-    # Ensure that the result is a valid correlation matrix
-    rho_lower <- diag(x = 1, nrow = d, ncol = d)
-    rho_lower[lower.tri(rho_lower)] <- rho_lower_values
-    rho_lower <- t(rho_lower)
-    rho_lower[lower.tri(rho_lower)] <- rho_lower_values
   }
 
   list(upper = rho_upper,
        lower = rho_lower)
-}
-
-
-#' Returns a logical matrix of which correlations are in the feasible region
-#'
-#' @param rho The input correlation matrix.
-#' @param rho_bounds A list containing the theoretical upper and lower bounds
-#' @param negate Should the logical values be negated in order to identify
-#'   values that are outside the feasible region.
-#' @export
-which_corInBounds <- function(rho, rho_bounds, negate = FALSE){
-
-  tooSmall <- rho < rho_bounds[["lower"]]
-  tooLarge <- rho > rho_bounds[["upper"]]
-
-  outOfBounds <- tooSmall | tooLarge
-  inBounds <- !outOfBounds
-
-  # Return either the in bounds or out of bounds matrix
-  if (negate) {
-    outOfBounds
-  } else {
-    inBounds
-  }
-}
-
-
-#' Returns TRUE if all correlations pairs are within the theoretical bounds
-#'
-#' @param rho The input correlation matrix.
-#' @param margins The parameters of the marginals.
-#' @param cores The number of cores to utilize.
-#' @param type The type of correlation matrix that is being passed.
-#' @param rho_bounds Pre-computed upper and lower correlation bounds
-#' ... Other arguments passed to `computeCoreBounds()`
-#' @return Logical. TRUE if all correlations pairs are within the theoretical
-#'   bounds, and false otherwise.
-#' @export
-all_corInBounds <- function(rho,
-                            margins,
-                            cores = 1,
-                            type = c("pearson", "spearman", "kendall"),
-                            rho_bounds = NULL, ...){
-
-  if (is.null(rho_bounds)){
-    rho_bounds <- computeCorBounds(margins = margins,
-                                   cores = cores,
-                                   type = type,
-                                   ...)
-  }
-
-  outOfBounds <- which_corInBounds(rho, rho_bounds, negate = TRUE)
-
-  if (any(outOfBounds)) {
-    warning(paste0("At least one of the specified correlations are either ",
-                   "too large or too small. Please use 'which_corInBounds() ",
-                   "to see which correlations are valid."))
-    return(FALSE)
-  }
-  TRUE
 }
 
 
@@ -191,6 +138,8 @@ all_corInBounds <- function(rho,
 #' @param method The type of correlation to compute
 #' @export
 fastCor <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) {
+
+  method <- match.arg(method)
 
   stopifnot(method %in% c("pearson", "kendall", "spearman"))
 
@@ -223,41 +172,3 @@ fastCor <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) {
   }
 
 }
-
-
-#' Return the nearest positive definite correlation matrix
-validcorr <- function(A) {
-  eye <- function(d) {
-    A <- matrix(0, d, d)
-    diag(A) <- 1.0
-    A
-  }
-
-  Ps <- function(A) {
-    eig <- eigen(A)
-    Q <- eig$vectors
-    D <- eig$values
-    D <- diag(ifelse(D < 0, 0, D))
-    Q %*% D %*% t(Q)
-  }
-
-  Pu <- function(X) {
-    X - diag(diag(X)) + eye(ncol(X))
-  }
-
-  d <- dim(A)
-  stopifnot(length(d) == 2, d[1] == d[2])
-
-  S <- matrix(0, d[1], d[2])
-  Y <- A
-
-  for (k in 1:(ncol(A)*100)) {
-    R <- Y - S
-    X <- Ps(R)
-    S <- X - R
-    Y <- Pu(X)
-  }
-
-  Pu(X)
-}
-
