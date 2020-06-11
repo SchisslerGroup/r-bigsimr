@@ -6,7 +6,7 @@
 \usage{
 all_corInBounds(
   rho,
-  params,
+  margins,
   cores = 1,
   type = c("pearson", "spearman", "kendall"),
   rho_bounds = NULL,
@@ -16,7 +16,7 @@ all_corInBounds(
 \arguments{
 \item{rho}{The input correlation matrix.}
 
-\item{params}{The parameters of the marginals.}
+\item{margins}{The parameters of the marginals.}
 
 \item{cores}{The number of cores to utilize.}
 

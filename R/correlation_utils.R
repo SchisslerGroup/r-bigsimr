@@ -24,79 +24,43 @@ convertCor <- function(rho,
 }
 
 
-#' Adjust the correlation matrix when there are discrete distributions present
-#'
-#' @param rho The input correlation matrix
-#' @param params The parameters of the marginals.
-#' @param nSigmas The number of standard deviations from the mean
-#' @export
-adjustForDiscrete <- function(rho, params, nSigmas) {
-  upper_bound <- lapply(params, function(param) {
-    prob <- param[["prob"]]
-    size <- param[["size"]]
-
-    mu <- size * (1 - prob) / prob
-    sigma2 <- size^2 * (1 - prob) / prob
-
-    ceiling(mu + nSigmas * sqrt(sigma2))
-  })
-  upper_bound <- max(unlist(upper_bound))
-
-  adj <- lapply(params, function(param) {
-    if (param[[1]] %in% discrete_dists) {
-      pmf_x <- do.call(paste0("d", param[[1]]),
-                       c(list(x = 0:upper_bound), param[-1]))
-      return(sqrt(1 - sum(pmf_x^3)))
-    } else {
-      return(1)
-    }
-  })
-  adj <- unlist(adj)
-
-  idx_mat <- combn(x = length(params), m = 2)
-
-  rho_adj <- apply(idx_mat, 2, function(pair) {
-    adj_factor <- adj[pair[1]] * adj[pair[2]]
-    rho_tmp <- rho[pair[1], pair[2]]
-    min(rho_tmp / adj_factor, 1)
-  })
-
-  rho[lower.tri(rho)] <- rho_adj
-  rho[upper.tri(rho)] <- t(rho)[upper.tri(rho)]
-  diag(rho) <- 1.0
-  rho
-}
-
-
 #' Computes the theoretical upper and lower bounds of possible correlations
 #'   given a set of marginals
 #'
-#' @param params The parameters of the marginals.
+#' @param margins The parameters of the marginals.
 #' @param cores The number of cores to utilize.
 #' @param type The type of correlation matrix that is being passed.
 #' @return A list containing the theoretical upper and lower bounds
 #' @export
-computeCorBounds <- function(params,
-                             cores = 1,
+computeCorBounds <- function(margins,
                              type = c("pearson", "kendall", "spearman"),
+                             cores = 1,
                              reps = 1e5){
 
-  d <- length(params)
+  d <- length(margins)
+
+  q2r <- function(x) {
+    s <- rlang::as_string(x)
+    substr(s, 1, 1) <- "r"    # replace 'q' with 'r'
+    rlang::ensym(s)
+  }
 
   # Generate random samples for each margin and sort the vectors
   # The sorted vectors are used for computing the bounds
   if (cores == 1) {
     sim_data <- sapply(1:d, function(i) {
-      sort(do.call(what = paste0("r", unlist(params[[i]][1])),
-                   args = c(list(n = reps), params[[i]][-1])))
+      # Replace the quantile function with the RNG function (e.g. qnorm -> rnorm)
+      margins[[i]][[1]] <- q2r(margins[[i]][[1]])
+      margins[[i]]$n <- quote(reps)
+      eval( rlang::call2("sort", margins_new[[i]]) )
     })
   } else {
     `%dopar%` <- foreach::`%dopar%`
     cl <- parallel::makeCluster(cores, type = "FORK")
     doParallel::registerDoParallel(cl)
     sim_data <- foreach::foreach(i = 1:d, .combine = "cbind") %dopar% {
-        sort(do.call(what = paste0("r", unlist(params[[i]][1])),
-                     args = c(list(n = reps), params[[i]][-1])))
+        sort(do.call(what = paste0("r", unlist(margins[[i]][1])),
+                     args = c(list(n = reps), margins[[i]][-1])))
     }
   }
 
@@ -160,17 +124,6 @@ computeCorBounds <- function(params,
 }
 
 
-#' Constrains a correlation matrix to the theoretical upper and lower bounds
-#'
-#' @param rho The input correlation matrix.
-#' @param rho_bounds A list containing the theoretical upper and lower bounds
-#' @return The constrained correlation matrix
-constrainRho <- function(rho, rho_bounds){
-  rho_tmp <- pmin(rho_bounds[["upper"]], rho)
-  pmax(rho_bounds[["lower"]], rho_tmp)
-}
-
-
 #' Returns a logical matrix of which correlations are in the feasible region
 #'
 #' @param rho The input correlation matrix.
@@ -198,7 +151,7 @@ which_corInBounds <- function(rho, rho_bounds, negate = FALSE){
 #' Returns TRUE if all correlations pairs are within the theoretical bounds
 #'
 #' @param rho The input correlation matrix.
-#' @param params The parameters of the marginals.
+#' @param margins The parameters of the marginals.
 #' @param cores The number of cores to utilize.
 #' @param type The type of correlation matrix that is being passed.
 #' @param rho_bounds Pre-computed upper and lower correlation bounds
@@ -207,13 +160,13 @@ which_corInBounds <- function(rho, rho_bounds, negate = FALSE){
 #'   bounds, and false otherwise.
 #' @export
 all_corInBounds <- function(rho,
-                            params,
+                            margins,
                             cores = 1,
                             type = c("pearson", "spearman", "kendall"),
                             rho_bounds = NULL, ...){
 
   if (is.null(rho_bounds)){
-    rho_bounds <- computeCorBounds(params = params,
+    rho_bounds <- computeCorBounds(margins = margins,
                                    cores = cores,
                                    type = type,
                                    ...)

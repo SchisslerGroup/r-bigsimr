@@ -3,20 +3,17 @@
 #'
 #' @param n The number random vectors to generate.
 #' @param rho The input correlation matrix.
-#' @param params The parameters of the marginals.
+#' @param margins The marginal distributions (Typically R's "quantile functions")
 #' @param cores The number of cores to utilize.
-#' @param type The type of correlation matrix that is being passed.
-#' @param adjustForDiscrete A boolean for whether to adjust the correlation
-#'   matrix when in the presence of discrete distributions
-#' @param nSigmas The number of standard deviations above the mean to set the
-#'   upper bound when adjusting for discrete distributions
+#' @param type The type of correlation matrix that is being passed (Assumed to
+#'   be Pearson by default).
 #' @return A matrix of random vectors generated from the specified marginals
 #'   and parameters.
 #' @examples
 #' d <- 5
 #' rho <- rcor(d)
-#' margins <- list(
-#'   list("nbinom", size = 5, prob = 0.3),
+#' margins <- alist(
+#'   "nbinom", size = 5, prob = 0.3),
 #'   list("exp", rate = 4),
 #'   list("binom", size = 5, prob = 0.7),
 #'   list("norm", mean = 10, sd = 3),
@@ -34,39 +31,29 @@
 #' rvec(10, rho, margins, cores = 1, type = "pearson")
 #' rvec(10, rho, margins2, cores = 1, type = "pearson")
 #' @export
-rvec <- function(n,
-                 rho,
-                 params,
-                 cores = 1,
+rvec <- function(n, rho, margins, cores = 1,
                  type = c("pearson", "kendall", "spearman")){
 
   type <- match.arg(type)
-
-  # TODO: Warn if using Pearson correlation
-
-
-  # Correlation matrix must be a Pearson correlation
   rho <- convertCor(rho, from = type, to = "pearson")
 
-  # generate MVN sample
-  mvn_sim <- .rmvn(n, rho)
+  # generate multivariate uniform distribution (via Z -> U)
+  U <- .rmvuu(n, rho)
 
   # Apply the NORTA algorithm
   d <- NROW(rho)
   if (cores == 1) {
-    mv_sim <- sapply(1:d, function(i){
-      normal2marginal(mvn_sim[,i], params[[i]])
-    })
+    rv <- sapply(1:d, function(i){.u2m(U[,i], margins[[i]])})
   } else {
     `%dopar%` <- foreach::`%dopar%`
     cl <- parallel::makeCluster(cores, type = "FORK")
     doParallel::registerDoParallel(cl)
-    mv_sim <- foreach::foreach(i = 1:d, .combine = 'cbind') %dopar% {
-      normal2marginal(mvn_sim[,i], params[[i]])
+    rv <- foreach::foreach(i = 1:d, .combine = 'cbind') %dopar% {
+      .u2m(U[,i], margins[[i]])
     }
     parallel::stopCluster(cl)
   }
 
-  colnames(mv_sim) <- rownames(rho)
-  mv_sim
+  colnames(rv) <- rownames(rho)
+  rv
 }
