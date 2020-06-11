@@ -1,15 +1,40 @@
 .rmvuu <- function(n, rho) {
 
   R    = reticulate::np_array(rho)
+
   R_d  = jax$device_put(R)
   m_d  = jax$numpy$zeros(reticulate::tuple(ncol(rho)))
+
   key  = jax$random$PRNGKey(sample(.Random.seed, 1))
   size = reticulate::tuple(as.integer(n))
-  Z_d  = jax$random$multivariate_normal(key, m_d, R_d, size)
-  U_d  = jax$scipy$stats$norm$cdf(Z_d)
+
+  Z_d  = jax$random$multivariate_normal(key, m_d, R_d, size)$block_until_ready()
+  U_d  = jax$scipy$stats$norm$cdf(Z_d)$block_until_ready()
+
+  U    = jax$device_get(U_d)
+  reticulate::py_to_r(U)
+
+}
+
+
+.rmvuu_safe <- function(n, rho) {
+
+  R    = reticulate::np_array(rho)
+  R_d  = jax$device_put(R)
+  C_d  = jax$scipy$linalg$cholesky(R_d)
+
+  key  = jax$random$PRNGKey(sample(.Random.seed, 1))
+  size = reticulate::tuple(as.integer(n),
+                           as.integer(ncol(rho)))
+
+  Z_d  = jax$random$normal(key, size)
+  U_d  = jax$numpy$matmul(Z_d, C_d)$block_until_ready()
+  U_d  = jax$scipy$stats$norm$cdf(U_d)
+
   U    = jax$device_get(U_d)
 
   reticulate::py_to_r(U)
+
 }
 
 

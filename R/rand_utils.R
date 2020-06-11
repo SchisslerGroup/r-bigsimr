@@ -14,6 +14,6 @@ rcor <- function(d, constant_rho = FALSE) {
     mcov <- tcrossprod(tmp, tmp)
     sigma <- cov2cor(mcov)
   }
-  rownames(sigma) <- colnames(sigma) <- paste0("Var", 1:d)
-  return(sigma)
+
+  sigma
 }

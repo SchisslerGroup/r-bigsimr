@@ -20,7 +20,8 @@ convertCor <- function(rho,
                function(r) r
   )
 
-  Matrix::nearPD(A(rho), corr = TRUE)$mat
+  # nearPD(A(rho))$mat
+  A(rho)
 }
 
 

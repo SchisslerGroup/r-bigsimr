@@ -10,4 +10,5 @@ numpy <- NULL
                                as = "numpy",
                                delay_load = TRUE,
                                convert = FALSE)
+
 }
