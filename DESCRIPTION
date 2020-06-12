@@ -1,6 +1,6 @@
 Package: bigsimr
 Title: An R Package for Generating High-Dimensional Random Vectors
-Version: 0.5.1
+Version: 0.6.0
 Authors@R: 
     person(given = "Alexander",
            family = "Knudson",
