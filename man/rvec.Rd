@@ -5,24 +5,19 @@
 \title{Creates \code{n} observations from a multivariate distribution with the
 given marginals and correlation matrix.}
 \usage{
-rvec(n, rho, params, cores = 1, type = c("pearson", "kendall", "spearman"))
+rvec(n, rho, margins, cores = 1, type = c("pearson", "kendall", "spearman"))
 }
 \arguments{
 \item{n}{The number random vectors to generate.}
 
 \item{rho}{The input correlation matrix.}
 
-\item{params}{The parameters of the marginals.}
+\item{margins}{The marginal distributions (Typically R's "quantile functions")}
 
 \item{cores}{The number of cores to utilize.}
 
-\item{type}{The type of correlation matrix that is being passed.}
-
-\item{adjustForDiscrete}{A boolean for whether to adjust the correlation
-matrix when in the presence of discrete distributions}
-
-\item{nSigmas}{The number of standard deviations above the mean to set the
-upper bound when adjusting for discrete distributions}
+\item{type}{The type of correlation matrix that is being passed (Assumed to
+be Pearson by default).}
 }
 \value{
 A matrix of random vectors generated from the specified marginals
@@ -31,26 +26,4 @@ A matrix of random vectors generated from the specified marginals
 \description{
 Creates \code{n} observations from a multivariate distribution with the
 given marginals and correlation matrix.
-}
-\examples{
-d <- 5
-rho <- rcor(d)
-margins <- list(
-  list("nbinom", size = 5, prob = 0.3),
-  list("exp", rate = 4),
-  list("binom", size = 5, prob = 0.7),
-  list("norm", mean = 10, sd = 3),
-  list("pois", lambda = 10)
-)
-
-margins2 <- list(
-  list("nbinom", 5, 0.3),
-  list("exp", 4),
-  list("binom", 5, 0.7),
-  list("norm", 10, 3),
-  list("pois", 10)
-)
-
-rvec(10, rho, margins, cores = 1, type = "pearson")
-rvec(10, rho, margins2, cores = 1, type = "pearson")
 }

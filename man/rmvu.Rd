@@ -11,9 +11,9 @@ rmvu(n, rho, min = 0, max = 1)
 
 \item{rho}{correlation matrix (d x d)}
 
-\item{min}{Either a single number or a vector of length d}
+\item{min}{either a single number or a vector of length d}
 
-\item{max}{Either a single number or a vector of length d}
+\item{max}{either a single number or a vector of length d}
 }
 \description{
 Generate random data from a multivariate uniform distribution

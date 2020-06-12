@@ -6,18 +6,18 @@
   given a set of marginals}
 \usage{
 computeCorBounds(
-  params,
-  cores = 1,
+  margins,
   type = c("pearson", "kendall", "spearman"),
+  cores = 1,
   reps = 1e+05
 )
 }
 \arguments{
-\item{params}{The parameters of the marginals.}
-
-\item{cores}{The number of cores to utilize.}
+\item{margins}{The parameters of the marginals.}
 
 \item{type}{The type of correlation matrix that is being passed.}
+
+\item{cores}{The number of cores to utilize.}
 }
 \value{
 A list containing the theoretical upper and lower bounds

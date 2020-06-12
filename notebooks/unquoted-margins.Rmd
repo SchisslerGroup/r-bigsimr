@@ -1,0 +1,182 @@
+---
+title: "Unquoted Margins"
+author: "Alex Knudson"
+date: "6/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+reticulate::use_condaenv("bigsimr-gpu")
+devtools::load_all()
+
+library(rlang)
+library(lobstr)
+```
+
+
+```{r}
+reticulate::py_config()
+```
+
+
+## Idea
+
+Let users input their own functions or use base R functions without quotation.
+
+**Example**
+
+```{r, eval=FALSE}
+qpareto <- function(p, scale = 1.0, shape = 1.0) {
+  scale / (1 - p)^(1 / shape)
+}
+
+rpareto <- function(n, scale = 1.0, shape = 1.0) {
+  qpareto(runif(n), scale = scale, shape = shape
+}
+
+margins <- alist(
+  qnbinom(size = 8, prob = 0.75),
+  qpareto(scale = 1.1, shape = 5),
+  qbeta(shape1 = 2, shape2 = 1)
+)
+```
+
+
+**IMPORTANT:** Input for marginals is now specified as an `alist` rather than a `list`. This allows me to treat the margins as expressions that can be modified, and also has the benefit of *tab completion* for users. 
+
+
+## Implementation
+
+
+```{r}
+u2m <- function(u, margin) {
+  margin$p <- quote(u)
+  # eval(margin)
+  eval(margin)
+}
+
+u2m(runif(10), margins[[1]])
+U <- runif(10)
+.u2m(U, margins[[1]])
+
+new_rvec <- function(n, rho, margins,
+                     type = c("pearson", "kendall", "spearman")) {
+  
+  type <- match.arg(type)
+  rho <- convertCor(rho, from = type, to = "pearson")
+
+  U <- .rmvuu(n, rho)
+  
+  d <- dim(rho)[2]
+  sapply(1:d, function(i){
+      u2m(U[,i], margins[[i]])
+  })
+}
+```
+
+
+```{r}
+qpareto <- function(p, scale = 1.0, shape = 1.0) {
+  scale / (1 - p)^(1 / shape)
+}
+
+rpareto <- function(n, scale = 1.0, shape = 1.0) {
+  qpareto(runif(n), scale = scale, shape = shape)
+}
+
+margins <- alist(
+  qnbinom(size = 8, prob = 0.75),
+  qpareto(scale = 1.0, shape = 5),
+  qbeta(shape1 = 2, shape2 = 1)
+)
+
+(rho <- rcor(3))
+X <- new_rvec(1e6, rho, margins)
+cor(X)
+```
+
+
+## Other necessary features
+
+**Replace `qnorm` with `rnorm`**
+
+
+```{r}
+q2r <- function(x) {
+  s <- rlang::as_string(x)
+  substr(s, 1, 1) <- "r"
+  ensym(s)
+}
+
+str(margins[[1]][[1]])
+str(q2r(margins[[1]][[1]]))
+```
+
+
+```{r}
+exprs(
+  qnorm(mean = 3.14, sd = 1.2),
+  qbeta(shape1 = 1.5, shape2 = 2.5),
+  qnbinom(size = 8, prob = 0.75),
+  qpois(lambda = 4)
+)
+
+alist(
+  qnorm(mean = 3.14, sd = 1.2),
+  qbeta(shape1 = 1.5, shape2 = 2.5),
+  qnbinom(size = 8, prob = 0.75),
+  qpois(lambda = 4)
+)
+```
+
+
+
+```{r}
+margins_new <- alist(
+  qnorm(mean = 3.14, sd = 1.2),
+  qbeta(shape1 = 1.5, shape2 = 2.5),
+  qnbinom(size = 8, prob = 0.75),
+  qpois(lambda = 4)
+)
+
+margins_old <- list(
+  list("norm", mean = 3.14, sd = 1.2),
+  list("beta", shape1 = 1.5, shape2 = 2.5),
+  list("nbinom", size = 8, prob = 0.75),
+  list("pois", lambda = 4)
+)
+
+rho <- matrix(0.5, 3, 3)
+diag(rho) <- 1.0
+
+d <- 3
+reps <- 1e6
+```
+
+
+```{r}
+system.time({
+  sim_data_new <- sapply(1:d, function(i) {
+    # Replace quantile function with RNG function (e.g. qnorm -> rnorm)
+    margins_new[[i]][[1]] <- q2r(margins_new[[i]][[1]])
+    margins_new[[i]]$n <- quote(reps)
+    
+    eval( rlang::call2("sort", margins_new[[i]]) )
+  })
+})
+```
+
+
+
+```{r}
+system.time({
+  sim_data_old <- sapply(1:d, function(i) {
+    sort(do.call(
+      what = paste0("r", unlist(margins_old[[i]][1])),
+      args = c(list(n = reps), margins_old[[i]][-1])
+    ))
+  })
+})
+```
+
