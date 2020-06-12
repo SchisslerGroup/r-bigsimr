@@ -20,8 +20,8 @@
 .rmvuu_safe <- function(n, rho) {
 
   R    = reticulate::np_array(rho)
-  R_d  = jax$device_put(R)
-  C_d  = jax$scipy$linalg$cholesky(R_d)
+  C    = numpy$linalg$cholesky(R)$transpose()
+  C_d  = jax$device_put(C)
 
   key  = jax$random$PRNGKey(sample(.Random.seed, 1))
   size = reticulate::tuple(as.integer(n),

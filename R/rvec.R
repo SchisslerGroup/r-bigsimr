@@ -14,7 +14,10 @@ rvec <- function(n, rho, margins, cores = 1,
                  type = c("pearson", "kendall", "spearman")){
 
   type <- match.arg(type)
+
   rho <- convertCor(rho, from = type, to = "pearson")
+
+  cores <- as.integer(min(parallel::detectCores(), max(cores, 1)))
 
   # Convert uniform to marginal via X := F^-1(U)
   u2m <- function(u, margin) {

@@ -20,8 +20,7 @@ convertCor <- function(rho,
                function(r) r
   )
 
-  # nearPD(A(rho))$mat
-  A(rho)
+  Matrix::nearPD(A(rho), ensureSymmetry = FALSE, corr = TRUE)$mat
 }
 
 
@@ -59,7 +58,7 @@ computeCorBounds <- function(margins,
       # Replace the quantile function with the RNG function (e.g. qnorm -> rnorm)
       margins[[i]][[1]] <- q2r(margins[[i]][[1]])
       margins[[i]]$n <- quote(reps)
-      eval( rlang::call2("sort", margins_new[[i]]) )
+      eval( rlang::call2("sort", margins[[i]]) )
     })
 
     # Upper bounds
@@ -87,7 +86,7 @@ computeCorBounds <- function(margins,
     sim_data <- foreach::foreach(i = 1:d, .combine = "cbind") %dopar% {
       margins[[i]][[1]] <- q2r(margins[[i]][[1]])
       margins[[i]]$n <- quote(reps)
-      eval( rlang::call2("sort", margins_new[[i]]) )
+      eval( rlang::call2("sort", margins[[i]]) )
     }
 
     # Upper bounds (parallelized)
