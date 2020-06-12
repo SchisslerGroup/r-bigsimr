@@ -13,15 +13,10 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-reticulate::use_condaenv("py37")
+reticulate::use_condaenv("bigsimr-cpu")
 devtools::load_all()
 ```
 
-```{r setup, eval=FALSE}
- # Optional step if your python binary is in a miniconda environment
-reticulate::use_condaenv("py37")
-library(bigsimr)
-```
 
 # Installation
 
@@ -33,6 +28,7 @@ This package operates on the principle of Gaussian copulas, for which you will n
 
 The main function is `bigsimr::rvec` which mirrors some of the conventions found in the base `stats` package like `stats::rnorm`. I.e. the common convention for generating a random vector is to first specify the number of samples followed by the parameters for the distribution.
 
+
 ```{r}
 # Generating samples from a normal distribution
 # We need three things: 
@@ -43,28 +39,63 @@ The main function is `bigsimr::rvec` which mirrors some of the conventions found
 rnorm(n = 16, mean = 5, sd = 1.5)
 ```
 
-The 'r' in front of 'norm' is standard for 'random', as in generate random samples from the normal distribution. Other examples are `rexp` (exponential), `rnbinom` (negative binomial), and `rt` (Student t).
-
-One thing to familiarize yourself with is the specific parameterization of certain R distributions. `stats::rexp` uses a rate parameter while others may use the scale parameter, $1 / rate$. Our package uses the default parameterizations found in R, so be sure to check that you have the correct parameterization beforehand.
 
 # Building a Multivariate Distribution
 
-As stated earlier, to generate multivariate data, we need a list of marginals (and their parameters), and a correlation structure (matrix). The marginal distributions can be built up as a list of lists, where each sublist contains the information for the target distribution.
+As stated earlier, to generate multivariate data, we need a list of marginals (and their parameters), and a correlation structure (matrix). The marginal distributions can be built up using R's special `alist` function. This allows one to enter the distributions without evaluating anything (yet).
 
 ```{r}
-margins = list(
-  list("norm", mean = 3.14, sd = 0.1),
-  list("beta", shape1 = 1, shape2 = 4),
-  list("nbinom", size = 10, prob = 0.75)
+margins = alist(
+  qnorm(mean = 3.14, sd = 0.1),
+  qbeta(shape1 = 1, shape2 = 4),
+  qnbinom(size = 10, prob = 0.75)
 )
 ```
 
-The things to point out here are that in each sublist (marginal), the first item is an unnamed character string with the R name of the distribution *without a letter prefix*. E.g. instead of `rnorm`, we pass in just `"norm"`. The second thing to note is that the remaining items are *named* arguments that go along with the distribution. A full list of built-in distributions is found in the appendix.
+Notice that we use the *quantile* function for the marginals, as that is the workhorse of the `rvec` function. By using an `alist`, users can also specify their own custom distributions. **It is highly recommended that users follow R's naming convention for probability distributions**. I.e. prefixing distributions with `r` and `q`. In the future we hope to be able to handle any arbitrary function name. If one wishes to compute the theoretical correlation bounds, then one should also specify the RNG function for their custom distribution. For example, R does not have any functions for the *Pareto* distribution. We can write a quantile and RNG function as follows:
+
+The Pareto CDF is defined as
+
+$$
+1 - \left(\frac{x_m}{x}\right)^\alpha
+$$
+
+for $x_m > 0$ scale and $\alpha > 0$ shape, with support $x \in \left[x_m, \infty\right)$. From the CDF, we compute the inverse CDF
+
+$$
+\frac{x_m}{\left(1 - p\right)^\frac{1}{\alpha}}
+$$
+
+```{r}
+qpareto <- function(p, scale, shape) {
+  scale / (1 - p)^(1/shape)
+}
+```
+
+Writing a RNG function for our new distribution is as simple as calling the quantile function of a unit uniform distribution.
+
+```{r}
+rpareto <- function(n, scale, shape) {
+  qpareto(runif(n))
+}
+```
+
+The new distribution can then be used in the list of marginals.
+
+```{r}
+margins = alist(
+  qnorm(mean = 3.14, sd = 0.1),
+  qbeta(shape1 = 1, shape2 = 4),
+  qnbinom(size = 10, prob = 0.75),
+  qpareto(scale = 1.11, shape = 5.55)
+)
+```
+
 
 The next step is to define a correlation structure for the multivariate distribution. This correlation matrix can either come from observed data, or we can set it ourselves, or we can generate a random correlation matrix via `bigsimr::rcor`. Let's create a simple correlation matrix where all off-diagonal elements are 0.5. Since we have 3 marginals, we need a $3\times 3$ matrix.
 
 ```{r}
-rho <- matrix(0.5, nrow = 3, ncol = 3)
+rho <- matrix(0.5, nrow = 4, ncol = 4)
 diag(rho) <- 1.0
 rho
 ```
@@ -72,7 +103,7 @@ rho
 Finally we can generate a random vector with our specified marginals and correlation structure. The last argument, `type`, is looking to know what kind of correlation matrix it is receiving. Right now it can handle Pearson, Spearman, or Kendall.
 
 ```{r}
-x <- rvec(10, rho = rho, params = margins, type = "pearson")
+x <- rvec(10, rho = rho, margins = margins, type = "pearson")
 ```
 
 On my machine, there is no dedicated GPU, so I would see the following warning message once per session.
@@ -90,42 +121,43 @@ x
 We can simulate many more samples and then check the histogram of each margin, as well as the estimated correlation between the columns.
 
 ```{r, fig.width=7}
-x = rvec(10000, rho = rho, params = margins, type = "pearson")
+x = rvec(10000, rho = rho, margins = margins, type = "pearson")
 
-par(mfrow=c(1,3))
+par(mfrow=c(2,2))
 hist(x[,1], breaks = 30, xlab = "", main = "Normal")
 hist(x[,2], breaks = 30, xlab = "", main = "Beta")
 hist(x[,3], breaks = 30, xlab = "", main = "Negative Binomial")
+hist(x[,4], breaks = 30, xlab = "", main = "Pareto")
 ```
 
 ```{r}
 cor(x)
 ```
 
-We can see that even wih 10,000 samples, the estimated correlation of the simulated data is not exactly the same as the target correlation. This can be explained by the fact that some correlations are simply not possible due to the discrete nature of certain distributions. Another possibility is that the copula algorith is biased and needs correction. 
+We can see that even with 10,000 samples, the estimated correlation of the simulated data is not exactly the same as the target correlation. This can be explained by the fact that some correlations are simply not possible due to the discrete nature of certain distributions. Another possibility is that the copula algorithm is biased and needs correction. 
 
 # Appendix
 
 ```{r, eval=FALSE}
-all_dists <- list(
-  list(dist = "beta", shape1, shape2),
-  list(dist = "binom", size, prob),
-  list(dist = "cauchy", location, scale),
-  list(dist = "chisq", df),
-  list(dist = "exp", rate),
-  list(dist = "f", df1, df2),
-  list(dist = "gamma", shape, rate),
-  list(dist = "geom", prob),
-  list(dist = "hyper", m, n, k),
-  list(dist = "logis", location, scale),
-  list(dist = "lnorm", meanlog, sdlog),
-  list(dist = "nbinom", size, prob),
-  list(dist = "norm", mean, sd),
-  list(dist = "pois", lambda),
-  list(dist = "t", df),
-  list(dist = "unif", min, max),
-  list(dist = "weibull", shape, scale),
-  list(dist = "wilcox", m, n),
-  list(dist = "signrank", n)
+all_dists <- alist(
+  qbeta( shape1, shape2 ),
+  qbinom( size, prob ),
+  qcauchy( location, scale ),
+  qchisq( df ),
+  qexp( rate ),
+  qf( df1, df2 ),
+  qgamma( shape, rate ),
+  qgeom( prob ),
+  qhyper( m, n, k ),
+  qlogis( location, scale ),
+  qlnorm( meanlog, sdlog ),
+  qnbinom( size, prob ),
+  qnorm( mean, sd ),
+  qpois( lambda ),
+  qt( df ),
+  qunif( min, max ),
+  qweibull( shape, scale ),
+  qwilcox( m, n ),
+  qsignrank( n )
 )
 ```

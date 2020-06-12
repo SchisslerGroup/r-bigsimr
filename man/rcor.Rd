@@ -7,17 +7,13 @@
 rcor(d, constant_rho = FALSE)
 }
 \arguments{
-\item{d}{A positive integer.}
+\item{d}{A positive integer}
 
-\item{constant_rho}{A boolean value.}
+\item{constant_rho}{A boolean value}
 }
 \value{
-A \code{dxd} symmetric matrix with ones on the diagonal.
+A \code{dxd} symmetric matrix with ones on the diagonal
 }
 \description{
 Generate a random Pearson correlation matrix
-}
-\examples{
-rcor(4)
-rcor(10, TRUE)
 }

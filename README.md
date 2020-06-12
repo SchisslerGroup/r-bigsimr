@@ -62,26 +62,19 @@ getting a GPU version.
 ``` r
 library(bigsimr)
 # Reticulate needs to be able to find the python binary with `jax` installed
-reticulate::use_condaenv("bigsimr")
+reticulate::use_condaenv("bigsimr-cpu")
 ```
 
-To generate multivariate data, we need a list of marginals (and their
+to generate multivariate data, we need a list of marginals (and their
 parameters), and a correlation structure (matrix). The marginal
-distributions can be built up as a list of lists, where each sublist
-contains the information for the target distribution.
-
-Note that in each sublist, the first item is an unnamed character string
-with the R name of the distribution *without a letter prefix*. E.g.
-instead of `rnorm`, we pass in just `"norm"`. The second thing to note
-is that the remaining items are *named* arguments that go along with the
-distribution. A full list of built-in distributions is found in the
-appendix.
+distributions can be built up using R’s special `alist` function. This
+allows one to enter the distributions without evaluating anything (yet).
 
 ``` r
-margins = list(
-  list("norm", mean = 3.14, sd = 0.1),
-  list("beta", shape1 = 1, shape2 = 4),
-  list("nbinom", size = 10, prob = 0.75)
+margins = alist(
+  qnorm(mean = 3.14, sd = 0.1),
+  qbeta(shape1 = 1, shape2 = 4),
+  qnbinom(size = 10, prob = 0.75)
 )
 ```
 
@@ -109,16 +102,16 @@ the Pearson product-moment correlation, Spearman’s \(\rho\), or
 Kendall’s \(\tau\).
 
 ``` r
-x <- rvec(100, rho = rho, params = margins, type = "pearson")
+x <- rvec(100, rho = rho, margins = margins, type = "pearson")
 ```
 
 ``` r
 # Sample correlation
 cor(x)
 #>           [,1]      [,2]      [,3]
-#> [1,] 1.0000000 0.5275571 0.5018824
-#> [2,] 0.5275571 1.0000000 0.5280112
-#> [3,] 0.5018824 0.5280112 1.0000000
+#> [1,] 1.0000000 0.4959944 0.5525602
+#> [2,] 0.4959944 1.0000000 0.5496653
+#> [3,] 0.5525602 0.5496653 1.0000000
 ```
 
 ``` r
@@ -126,39 +119,39 @@ cor(x)
 computeCorBounds(margins, type = "pearson")
 #> $upper
 #>           [,1]      [,2]      [,3]
-#> [1,] 1.0000000 0.9532376 0.9698262
-#> [2,] 0.9532376 1.0000000 0.9829682
-#> [3,] 0.9698262 0.9829682 1.0000000
+#> [1,] 1.0000000 0.9533036 0.9708210
+#> [2,] 0.9533036 1.0000000 0.9828064
+#> [3,] 0.9708210 0.9828064 1.0000000
 #> 
 #> $lower
 #>            [,1]       [,2]       [,3]
-#> [1,]  1.0000000 -0.9544697 -0.9708227
-#> [2,] -0.9544697  1.0000000 -0.8690555
-#> [3,] -0.9708227 -0.8690555  1.0000000
+#> [1,]  1.0000000 -0.9534858 -0.9706092
+#> [2,] -0.9534858  1.0000000 -0.8696132
+#> [3,] -0.9706092 -0.8696132  1.0000000
 ```
 
 ## Appendix
 
 ``` r
-all_dists <- list(
-  list(dist = "beta", shape1, shape2),
-  list(dist = "binom", size, prob),
-  list(dist = "cauchy", location, scale),
-  list(dist = "chisq", df),
-  list(dist = "exp", rate),
-  list(dist = "f", df1, df2),
-  list(dist = "gamma", shape, rate),
-  list(dist = "geom", prob),
-  list(dist = "hyper", m, n, k),
-  list(dist = "logis", location, scale),
-  list(dist = "lnorm", meanlog, sdlog),
-  list(dist = "nbinom", size, prob),
-  list(dist = "norm", mean, sd),
-  list(dist = "pois", lambda),
-  list(dist = "t", df),
-  list(dist = "unif", min, max),
-  list(dist = "weibull", shape, scale),
-  list(dist = "wilcox", m, n),
-  list(dist = "signrank", n)
+all_dists <- alist(
+  qbeta( shape1, shape2 ),
+  qbinom( size, prob ),
+  qcauchy( location, scale ),
+  qchisq( df ),
+  qexp( rate ),
+  qf( df1, df2 ),
+  qgamma( shape, rate ),
+  qgeom( prob ),
+  qhyper( m, n, k ),
+  qlogis( location, scale ),
+  qlnorm( meanlog, sdlog ),
+  qnbinom( size, prob ),
+  qnorm( mean, sd ),
+  qpois( lambda ),
+  qt( df ),
+  qunif( min, max ),
+  qweibull( shape, scale ),
+  qwilcox( m, n ),
+  qsignrank( n )
 )
 ```
