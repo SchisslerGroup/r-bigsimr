@@ -1,1 +1,1 @@
-reticulate::use_condaenv("bigsimr-cpu")
+reticulate::use_condaenv("bigsimr-gpu")

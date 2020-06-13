@@ -11,12 +11,12 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,
                       comment = NA,
-                      cache = TRUE)
+                      cache = TRUE,
+                      results = 'hold')
 
 library(magrittr)
 ```
 
-condition number covariance estimation
 
 # Idea
 
@@ -26,7 +26,7 @@ The rest of the algorithm depends on random multivariate normal samples with $R_
 
 $$
 \begin{align*}
-R_A &= \text{Corr}_A(X) \\
+R_A &= \text{Corr}_A(D) \\
 R_P &= F_{A\rightarrow P}(R_A) \\
 R_P^* &= \text{NearestPosDef}(R_P) \\
 L_P^* &= \text{Cholesky}(R_P^*) \\
@@ -36,6 +36,7 @@ Z_{[n\times d]} &\sim \mathcal{N}(0, 1) \\
 $$
 
 **Simple Example of the Concept**
+
 
 ```{r}
 n <- 1e5
@@ -48,12 +49,12 @@ diag(R) <- 1.0
 # Cholesky decomposition
 # Note that chol() returns the upper triangular factor
 L_ <- chol(R)
-L <- t(L_)
+L  <- t(L_)
 ```
 
 
-```{r, echo=FALSE}
-cat("L*L_ == R:\t", all.equal(L %*% L_, R), "\n\n")
+```{r}
+all.equal(L %*% L_, R)
 ```
 
 
@@ -63,18 +64,18 @@ M <- Z %*% L_
 ```
 
 
-```{r, results='hold', echo=FALSE}
-cat("cor(M):\n")
+```{r}
 cor(M) %>% round(3)
 ```
 
+
 ## Modification of the Algorithm
 
-Instead of converting the correlation matrix and then computing the nearest positive definite matrix, we are interested in seeing if we can compute the cholesky decomposition of $R_A$ and then running the decomposition through the conversion:
+Instead of converting the correlation matrix and then computing the nearest positive definite matrix, we are interested in seeing if we can compute the Cholesky decomposition of $R_A$ and then running the decomposition through the conversion:
 
 $$
 \begin{align*}
-R_A &= \text{Corr}_A(X) \\
+R_A &= \text{Corr}_A(D) \\
 L_A^* &= \text{Cholesky}(R_A) \\
 L_P^* &= F_{A\rightarrow P}(L_A^*) \\
 Z_{[n\times d]} &\sim \mathcal{N}(0, 1) \\
@@ -112,12 +113,13 @@ convertCor <- function(rho,
 }
 ```
 
-
 We can show that the above conversions work on Cholesky factors. We have already showed that $LL^* = R$
+
 
 ```{r}
 L %*% L_
 ```
+
 
 We want to show that 
 
@@ -125,7 +127,8 @@ $$
 F_{A\rightarrow B}(L_A) \times F_{A\rightarrow B}(L_A^*) \approx R_B
 $$
 
-**Pearson to spearman**
+### Pearson to Spearman
+
 
 ```{r}
 Rs <- convertCor(R, from = "pearson", to = "spearman")
@@ -140,7 +143,9 @@ round(Ls %*% Ls_, 3)
 all.equal(round(Rs, 3), round(Ls %*% Ls_, 3))
 ```
 
-**Pearson to Kendall**
+
+### Pearson to Kendall
+
 
 ```{r}
 Rk <- convertCor(R, from = "pearson", to = "kendall")
@@ -154,9 +159,13 @@ round(Rk, 3)
 round(Lk %*% Lk_, 3)
 all.equal(round(Rk, 3), round(Lk %*% Lk_, 3))
 ```
+
+
+
 It seems as though $P \rightarrow S$ conversion yields closer results than $P \rightarrow K$. We still need to test a few other conversions, namely $S \rightarrow P$ and $K \rightarrow P$. These next two will be more in line with how the algorithm is expected to be used.
 
-**Spearman to Pearson**
+### Spearman to Pearson
+
 
 ```{r}
 Rsp <- convertCor(R, from = "spearman", to = "pearson")
@@ -171,29 +180,13 @@ round(Lsp %*% Lsp_, 3)
 all.equal(Rsp, Lsp %*% Lsp_)
 ```
 
-This direction results in a symmetric matrix that **does not** have ones on the diagonal, meaning that it **is not** a valid correlation matrix. We can do one of three things: 1) Ignore the problem and use the Cholesky factor anyway, 2) multiply and set the diagonals to 1 and then refactor, or 3) multiply and use `cov2cor()` to ensure that it is a valid correlation matrix, then refactor.
 
-```{r}
-# Method 1
-Msp1 <- bigsimr::rmvn(n, rep(0, d), Lsp_, isChol = TRUE)
-(C1 <- bigsimr::fastCor(Msp1, method = "spearman")) %>% round(3)
-```
+This direction results in a symmetric matrix that **does not** have ones on the diagonal, meaning that it **is not** a valid correlation matrix. We can do one of three things:
 
-```{r}
-# Method 2
-Rp2 <- Lsp %*% Lsp_
-diag(Rp2) <- 1
-Msp2 <- bigsimr::rmvn(n, rep(0, d), Rp2)
-(C2 <- bigsimr::fastCor(Msp2, method = "spearman")) %>% round(3)
-```
+  1. Ignore the problem and use the Cholesky factor anyway
+  2. multiply and set the diagonals to 1 and then refactor
+  3. multiply and use `cov2cor()` to ensure that it is a valid correlation matrix, then refactor.
 
-```{r}
-# Method 3
-Rp3 <- Lsp %*% Lsp_
-Rp3 <- cov2cor(Rp3)
-Msp3 <- bigsimr::rmvn(n, rep(0, d), Rp3)
-(C3 <- bigsimr::fastCor(Msp3, method = "spearman")) %>% round(3)
-```
 
 ```{r}
 # Baseline
@@ -203,16 +196,45 @@ Msp0 <- bigsimr::rmvn(n, rep(0, d), Rp0)
 ```
 
 
-```{r, results='hold'}
+```{r}
+# Method 1
+Msp1 <- bigsimr::rmvn(n, rep(0, d), Lsp_, isChol = TRUE)
+(C1 <- bigsimr::fastCor(Msp1, method = "spearman")) %>% round(3)
+```
+
+
+
+```{r}
+# Method 2
+Rp2 <- Lsp %*% Lsp_
+diag(Rp2) <- 1
+Msp2 <- bigsimr::rmvn(n, rep(0, d), Rp2)
+(C2 <- bigsimr::fastCor(Msp2, method = "spearman")) %>% round(3)
+```
+
+
+
+```{r}
+# Method 3
+Rp3 <- Lsp %*% Lsp_
+Rp3 <- cov2cor(Rp3)
+Msp3 <- bigsimr::rmvn(n, rep(0, d), Rp3)
+(C3 <- bigsimr::fastCor(Msp3, method = "spearman")) %>% round(3)
+```
+
+
+
+```{r}
 all.equal(C0, R)
 all.equal(C1, R)
 all.equal(C2, R)
 all.equal(C3, R)
 ```
 
-This idea seems to be okay for 
 
-**Kendall to Pearson**
+
+### Kendall to Pearson
+
 
 ```{r}
 Rkp <- convertCor(R, from = "kendall", to = "pearson")
@@ -227,11 +249,23 @@ round(Lkp %*% Lkp_, 3)
 all.equal(Rkp, Lkp %*% Lkp_)
 ```
 
+
+
+```{r}
+# Baseline
+Rp0 <- convertCor(R, "kendall", "pearson", computeNearestPD = TRUE)
+Mkp0 <- bigsimr::rmvn(n, rep(0, d), Rp0)
+(C0 <- bigsimr::fastCor(Msp0, method = "kendall")) %>% round(3)
+```
+
+
 ```{r}
 # Method 1
 Mkp1 <- bigsimr::rmvn(n, rep(0, d), Lkp_, isChol = TRUE)
 (C1 <- bigsimr::fastCor(Mkp1, method = "kendall")) %>% round(3)
 ```
+
+
 
 ```{r}
 # Method 2
@@ -241,6 +275,7 @@ Mkp2 <- bigsimr::rmvn(n, rep(0, d), Rp2)
 (C2 <- bigsimr::fastCor(Mkp2, method = "kendall")) %>% round(3)
 ```
 
+
 ```{r}
 # Method 3
 Rp3 <- Lkp %*% Lkp_
@@ -249,25 +284,22 @@ Mkp3 <- bigsimr::rmvn(n, rep(0, d), Rp3)
 (C3 <- bigsimr::fastCor(Mkp3, method = "kendall")) %>% round(3)
 ```
 
-```{r}
-# Baseline
-Rp0 <- convertCor(R, "kendall", "pearson", computeNearestPD = TRUE)
-Mkp0 <- bigsimr::rmvn(n, rep(0, d), Rp0)
-(C0 <- bigsimr::fastCor(Msp0, method = "kendall")) %>% round(3)
-```
 
-```{r, results='hold'}
+```{r}
 all.equal(C0, R, check.attributes = FALSE)
 all.equal(C1, R, check.attributes = FALSE)
 all.equal(C2, R, check.attributes = FALSE)
 all.equal(C3, R, check.attributes = FALSE)
 ```
 
+
+
 For Kendall to Pearson, methods 1, 2, and 3 offer similar performance that is even better than the baseline method.
 
 Let's see how this scales with the number of dimensions.
 
 ## Larger Dimensions
+
 
 ```{r}
 n <- 1e5
@@ -278,10 +310,11 @@ R <- matrix(0.5, d, d)
 diag(R) <- 1.0
 
 L_ <- chol(R)
-L <- t(L_)
+L  <- t(L_)
 ```
 
-**Spearman to Pearson**
+### Spearman to Pearson
+
 
 ```{r}
 Rsp <- convertCor(R, from = "spearman", to = "pearson")
@@ -312,17 +345,21 @@ C0 <- bigsimr::fastCor(Msp0, method = "spearman")
 ```
 
 
-```{r, results='hold'}
+```{r}
 all.equal(C0, R)
 all.equal(C1, R)
 all.equal(C2, R)
 all.equal(C3, R)
 ```
+
+
+
 The baseline method is still the best, but methods 1 and 3 are not bad. Method 2 (setting the diagonal to 1) seems to be more detrimental.
 
-**Kendall to Pearson**
+### Kendall to Pearson
 
-```{r, error=TRUE}
+
+```{r}
 Rsp <- convertCor(R, from = "kendall", to = "pearson")
 Lsp <- convertCor(L, from = "kendall", to = "pearson")
 Lsp_ <- t(Lsp)
@@ -333,10 +370,10 @@ Msp1 <- bigsimr::rmvn(n, rep(0, d), Lsp_, isChol = TRUE)
 C1 <- bigsimr::fastCor(Msp1, method = "kendall")
 
 # Method 2
-Rp2 <- Lsp %*% Lsp_
-diag(Rp2) <- 1
-Msp2 <- bigsimr::rmvn(n, rep(0, d), Rp2)
-C2 <- bigsimr::fastCor(Msp2, method = "kendall")
+# Rp2 <- Lsp %*% Lsp_
+# diag(Rp2) <- 1
+# Msp2 <- bigsimr::rmvn(n, rep(0, d), Rp2)
+# C2 <- bigsimr::fastCor(Msp2, method = "kendall")
 
 # Method 3
 Rp3 <- Lsp %*% Lsp_
@@ -351,7 +388,7 @@ C0 <- bigsimr::fastCor(Msp0, method = "kendall")
 ```
 
 
-```{r, results='hold'}
+```{r}
 all.equal(C0, R, check.attributes = FALSE)
 all.equal(C1, R, check.attributes = FALSE)
 # all.equal(C2, R, check.attributes = FALSE) # Fails
@@ -365,12 +402,13 @@ For Kendall, the baseline method far outperforms methods 1 and 3. Method 2 fails
 
 We are now going to take real data and apply the methods described above. The data is the breast cancer data set filtered to use just the top 99% expressing genes (206 columns).
 
+
 ```{r}
 # Load in the data
 dat <- local({
   library(tidyverse)
   
-  q <- 0.999
+  q <- 0.99
   
   dat0 <- readRDS(
     file = "~/Downloads/complete_processed_tcga2stat_RNASeq2_with_clinical.rds")
@@ -389,7 +427,7 @@ dat <- local({
   (d <- length(keep_genes))
   
   brca1 %>%
-    select(all_of(keep_genes))
+    select(keep_genes)
 })
 
 mom_nbinom <- function(x) {
@@ -401,13 +439,14 @@ mom_nbinom <- function(x) {
 margins <- apply(dat, 2, mom_nbinom)
 ```
 
+
 ## Spearman
 
 ### Normal Method with Inverse CDF Step
 
 $$
 \begin{align*}
-R_A &= \text{Corr}_A(X) \\
+R_A &= \text{Corr}_A(D) \\
 R_P &= F_{A\rightarrow P}(R_A) \\
 R_P^* &= \text{NearestPosDef}(R_P) \\
 L_P^* &= \text{Cholesky}(R_P^*) \\
@@ -417,6 +456,7 @@ U &= \Phi(M) \\
 X_i &= G_i^{-1}(U_i) \quad \text{for } i = 1\ldots d
 \end{align*}
 $$
+
 
 
 ```{r}
@@ -459,11 +499,53 @@ all.equal(Rs, Rs_hat, check.attributes = FALSE)
 ```
 
 
+### Normal Method without nearPD call
+
+
+```{r}
+n <- 1e5
+d <- ncol(dat)
+
+Rs  <- bigsimr::fastCor(dat, method = "spearman")
+Rp  <- convertCor(Rs, "spearman", "pearson")
+Lp_ <- chol(Rp)
+
+X <- local({
+  Z   <- matrix(rnorm(n * d), n, d)
+  M   <- Z %*% Lp_
+  U   <- pnorm(M)
+  
+  u2m <- function(u, margin) {
+    margin$p <- quote(u)
+    eval(margin)
+  }
+  
+  `%dopar%` <- foreach::`%dopar%`
+  cl <- parallel::makeCluster(parallel::detectCores(), type = "FORK")
+  doParallel::registerDoParallel(cl)
+  
+  rv <- foreach::foreach(i = 1:d, .combine = 'cbind') %dopar% {
+    u2m(U[, i], margins[[i]])
+  }
+  
+  parallel::stopCluster(cl)
+  
+  rv
+})
+```
+
+
+```{r}
+Rs_hat <- bigsimr::fastCor(X, method = "spearman")
+all.equal(Rs, Rs_hat, check.attributes = FALSE)
+```
+
+
 ### Modified Method with Inverse CDF Step
 
 $$
 \begin{align*}
-R_A &= \text{Corr}_A(X) \\
+R_A &= \text{Corr}_A(D) \\
 L_A^* &= \text{Cholesky}(R_A) \\
 L_P^* &= F_{A\rightarrow P}(L_A^*) \\
 Z_{[n\times d]} &\sim \mathcal{N}(0, 1) \\
@@ -511,3 +593,14 @@ X1 <- local({
 Rs_hat1 <- bigsimr::fastCor(X1, method = "spearman")
 all.equal(Rs, Rs_hat1, check.attributes = FALSE)
 ```
+
+
+```{r}
+Rs[1:10, 1:10] %>% round(3)
+```
+
+
+```{r}
+Rs_hat1[1:10, 1:10] %>% round(3) 
+```
+
