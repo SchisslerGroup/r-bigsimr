@@ -12,7 +12,7 @@ convertCor_experimental <- function(rho,
                "spearman pearson" = function(r) 2*sin(r*pi/6),
                "spearman kendall" = function(r) (2/pi)*asin(2*sin(r*pi/6)),
                "kendall pearson"  = function(r) sin(r*pi/2),
-               "kendal spearman"  = function(r) (6/pi)*asin(sin(r*pi/2)/2),
+               "kendall spearman"  = function(r) (6/pi)*asin(sin(r*pi/2)/2),
                function(r) r
   )
 
@@ -21,6 +21,28 @@ convertCor_experimental <- function(rho,
   } else {
     return(A(rho))
   }
+}
+
+
+#' @export
+cor2cor <- function(rho,
+                    from = c("pearson", "spearman", "kendall"),
+                    to = c("pearson", "spearman", "kendall")) {
+
+  from <- match.arg(from)
+  to   <- match.arg(to)
+
+  CASE <- switch (paste(from, to, sep = "_"),
+               "pearson_spearman" = 0L,
+               "pearson_kendall"  = 1L,
+               "spearman_pearson" = 2L,
+               "spearman_kendall" = 3L,
+               "kendall_pearson"  = 4L,
+               "kendall_spearman" = 5L,
+               -1L
+  )
+
+  CXX_cor2cor(rho, CASE)
 }
 
 #' @export

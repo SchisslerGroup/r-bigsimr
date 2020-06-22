@@ -17,7 +17,8 @@ Imports:
     purrr,
     coop,
     pcaPP,
-    rlang
+    rlang,
+    Rcpp
 Remotes:
     douglasgscofield/fastrank
 License: GNU GPLv3
@@ -28,3 +29,6 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
