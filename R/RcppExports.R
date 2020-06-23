@@ -5,3 +5,19 @@ CXX_cor2cor <- function(X, CASE) {
     .Call(`_bigsimr_CXX_cor2cor`, X, CASE)
 }
 
+rcor <- function(d, k = 1L) {
+    .Call(`_bigsimr_rcor`, d, k)
+}
+
+rmvn <- function(n, mu, sigma) {
+    .Call(`_bigsimr_rmvn`, n, mu, sigma)
+}
+
+rmvuu <- function(n, rho) {
+    .Call(`_bigsimr_rmvuu`, n, rho)
+}
+
+rmvu <- function(n, rho, min, max) {
+    .Call(`_bigsimr_rmvu`, n, rho, min, max)
+}
+

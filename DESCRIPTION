@@ -10,15 +10,11 @@ Description: This package simulates multivariate data with arbitrary marginal di
 Depends: R (>= 3.4.0)
 Imports:
     fastrank,
-    foreach,
-    Matrix,
-    doParallel,
-    parallel,
-    purrr,
     coop,
     pcaPP,
     rlang,
-    Rcpp
+    Rcpp,
+    RcppArmadillo
 Remotes:
     douglasgscofield/fastrank
 License: GNU GPLv3
