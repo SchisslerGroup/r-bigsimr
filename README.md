@@ -16,7 +16,7 @@ You can install the released version of bigsimr from
 
 ``` r
 # install.packages("devtools")
-remotes::install_github("adknudson/bigsimr")
+remotes::install_github("SchisslerGroup/bigsimr")
 ```
 
 This package relies on
@@ -38,7 +38,7 @@ can install the development version of bigsimr from GitHub:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("adknudson/bigsimr", ref="develop")
+devtools::install_github("SchisslerGroup/bigsimr", ref="develop")
 ```
 
 ### GPU version
