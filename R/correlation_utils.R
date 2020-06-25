@@ -16,7 +16,7 @@ convertCor <- function(rho,
                "spearman pearson" = function(r) 2*sin(r*pi/6),
                "spearman kendall" = function(r) (2/pi)*asin(2*sin(r*pi/6)),
                "kendall pearson"  = function(r) sin(r*pi/2),
-               "kendal spearman"  = function(r) (6/pi)*asin(sin(r*pi/2)/2),
+               "kendall spearman"  = function(r) (6/pi)*asin(sin(r*pi/2)/2),
                function(r) r
   )
 
