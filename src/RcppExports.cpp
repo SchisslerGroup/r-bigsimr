@@ -6,15 +6,38 @@
 
 using namespace Rcpp;
 
-// CXX_cor2cor
-arma::mat CXX_cor2cor(const arma::mat& X, int CASE);
-RcppExport SEXP _bigsimr_CXX_cor2cor(SEXP XSEXP, SEXP CASESEXP) {
+// cor2cor
+arma::mat cor2cor(const arma::mat& X, int CASE);
+RcppExport SEXP _bigsimr_cor2cor(SEXP XSEXP, SEXP CASESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
     Rcpp::traits::input_parameter< int >::type CASE(CASESEXP);
-    rcpp_result_gen = Rcpp::wrap(CXX_cor2cor(X, CASE));
+    rcpp_result_gen = Rcpp::wrap(cor2cor(X, CASE));
+    return rcpp_result_gen;
+END_RCPP
+}
+// hermite
+arma::vec hermite(const arma::vec& x, int n);
+RcppExport SEXP _bigsimr_hermite(SEXP xSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(hermite(x, n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// nearPD
+arma::mat nearPD(arma::mat G);
+RcppExport SEXP _bigsimr_nearPD(SEXP GSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type G(GSEXP);
+    rcpp_result_gen = Rcpp::wrap(nearPD(G));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -71,7 +94,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_bigsimr_CXX_cor2cor", (DL_FUNC) &_bigsimr_CXX_cor2cor, 2},
+    {"_bigsimr_cor2cor", (DL_FUNC) &_bigsimr_cor2cor, 2},
+    {"_bigsimr_hermite", (DL_FUNC) &_bigsimr_hermite, 2},
+    {"_bigsimr_nearPD", (DL_FUNC) &_bigsimr_nearPD, 1},
     {"_bigsimr_rcor", (DL_FUNC) &_bigsimr_rcor, 2},
     {"_bigsimr_rmvn", (DL_FUNC) &_bigsimr_rmvn, 3},
     {"_bigsimr_rmvuu", (DL_FUNC) &_bigsimr_rmvuu, 2},

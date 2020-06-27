@@ -3,6 +3,7 @@
 export(computeCorBounds)
 export(cor2cor)
 export(fastCor)
+export(hermite)
 import(RcppArmadillo)
 importFrom(Rcpp,sourceCpp)
 useDynLib(bigsimr, .registration = TRUE)

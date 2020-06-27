@@ -9,32 +9,21 @@
 #define KENDALL_SPEARMAN 5
 
 // [[Rcpp::export]]
-arma::mat CXX_cor2cor(const arma::mat& X, int CASE) {
-
-  arma::mat rho(size(X), arma::fill::zeros);
-
+arma::mat cor2cor(const arma::mat& X, int CASE) {
   switch (CASE) {
     case PEARSON_SPEARMAN:
-      rho += (6 / M_PI) * arma::asin(X / 2);
-      break;
+      return (6 / M_PI) * arma::asin(X / 2);
     case PEARSON_KENDALL:
-      rho += (2 / M_PI) * arma::asin(X);
-      break;
+      return (2 / M_PI) * arma::asin(X);
     case SPEARMAN_PEARSON:
-      rho += 2 * arma::sin(X * M_PI / 6);
-      break;
+      return 2 * arma::sin(X * M_PI / 6);
     case SPEARMAN_KENDALL:
-      rho += (2 / M_PI) * arma::asin(2 * arma::sin(X * M_PI / 6));
-      break;
+      return (2 / M_PI) * arma::asin(2 * arma::sin(X * M_PI / 6));
     case KENDALL_PEARSON:
-      rho += arma::sin(X * M_PI / 2);
-      break;
+      return arma::sin(X * M_PI / 2);
     case KENDALL_SPEARMAN:
-      rho += (6 / M_PI) * arma::asin(arma::sin(X * M_PI / 2) / 2);
-      break;
+      return (6 / M_PI) * arma::asin(arma::sin(X * M_PI / 2) / 2);
     default:
-      rho += X;
+      return X;
   }
-
-  return rho;
 }
