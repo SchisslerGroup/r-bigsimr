@@ -30,14 +30,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// nearPD
-arma::mat nearPD(arma::mat G);
-RcppExport SEXP _bigsimr_nearPD(SEXP GSEXP) {
+// nearPDcor
+arma::mat nearPDcor(arma::mat G);
+RcppExport SEXP _bigsimr_nearPDcor(SEXP GSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type G(GSEXP);
-    rcpp_result_gen = Rcpp::wrap(nearPD(G));
+    rcpp_result_gen = Rcpp::wrap(nearPDcor(G));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -96,7 +96,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_bigsimr_cor2cor", (DL_FUNC) &_bigsimr_cor2cor, 2},
     {"_bigsimr_hermite", (DL_FUNC) &_bigsimr_hermite, 2},
-    {"_bigsimr_nearPD", (DL_FUNC) &_bigsimr_nearPD, 1},
+    {"_bigsimr_nearPDcor", (DL_FUNC) &_bigsimr_nearPDcor, 1},
     {"_bigsimr_rcor", (DL_FUNC) &_bigsimr_rcor, 2},
     {"_bigsimr_rmvn", (DL_FUNC) &_bigsimr_rmvn, 3},
     {"_bigsimr_rmvuu", (DL_FUNC) &_bigsimr_rmvuu, 2},
