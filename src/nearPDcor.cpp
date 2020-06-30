@@ -4,8 +4,7 @@
 #define PERTURBATION 1.0e-9
 
 
-// TODO: determine if precond_mat and pre_cg are working properly
-
+// Verified
 void Jacobian(
         const arma::vec& x,
         const arma::mat& Omega12,
@@ -15,15 +14,13 @@ void Jacobian(
     int n = P.n_cols;
     int r = Omega12.n_rows;
     int s = Omega12.n_cols;
-    arma::mat P1 = P.head_cols(r);
-    arma::mat P2 = P.tail_cols(s);
 
-    Ax.zeros();
     arma::mat Omega(r, s);
 
     if (r == 0)
     {
         // TODO: this should probably throw an exception
+        Ax.zeros();
     }
     else if (r == n)
     {
@@ -31,6 +28,8 @@ void Jacobian(
     }
     else if (r < s)
     {
+        arma::mat P1 = P.head_cols(r);
+        arma::mat P2 = P.tail_cols(s);
         arma::mat H1 = P1 + x * arma::ones(1, r);
         arma::mat Omega = Omega12 % (H1.t() * P2);
 
@@ -42,8 +41,10 @@ void Jacobian(
     }
     else // (r >= s)
     {
+        arma::mat P1 = P.head_cols(r);
+        arma::mat P2 = P.tail_cols(s);
         arma::mat H1 = P2 % (x * arma::ones(1, s));
-        arma::mat Omega = 1.0 - Omega12 + P1.t() * H1;
+        arma::mat Omega = (1.0 - Omega12) + P1.t() * H1;
 
         arma::mat HT(n, n, arma::fill::zeros);
         HT.head_cols(r) += P2 * Omega.t();
@@ -54,43 +55,45 @@ void Jacobian(
 }
 
 
+// Verified
 void gradient(
     const arma::vec& y,
     const arma::vec& lambda,
-    const arma::mat& P,
+    arma::mat P,
     const arma::vec& b0,
     double& f,
     arma::vec& Fy)
 {
     int n = P.n_cols;
+    int r = arma::accu(lambda > 0); // number of positive eigenvalues
 
-    arma::vec lambda_nonneg(lambda);
-    lambda_nonneg.elem(find(lambda < 0)).fill(0);
+    if (r == 0) {
+        Fy.zeros();
+        f = 0;
+    } else {
+        // work only with the positive eigenvalues (lambda)
+        arma::vec l1(lambda);
+        l1.elem(find(lambda < 0)).fill(0);
 
-    arma::mat Q(P);
-    for (int j = 0; j < n; j++)
-    {
-        Q.col(j) *= std::sqrt(lambda_nonneg(j));
+        // column j is multiplied by lambda[j]
+        for (int j = 0; j < n; j++)
+        {
+            P.col(j) *= std::sqrt(l1(j));
+        }
+
+        Fy = arma::sum(P % P, 1);
+        f = 0.5 * arma::accu(arma::pow(l1, 2.0)) - arma::accu(b0 % y);
     }
-
-    for (int i = 0; i < n; i++)
-    {
-        Fy[i] = arma::accu(Q.row(i) % Q.row(i));
-    }
-    f = arma::accu( arma::pow(lambda_nonneg, 2) / 2.0 - arma::accu(b0 - y) );
 }
 
 
+// Verified
 void omega_mat(
     const arma::vec& lambda,
     arma::mat& Omega12)
 {
     int n = lambda.n_elem;
-
-    // number of strictly positive eigenvalues
-    // lambda is assumed to be in descending order
-    int r = 0;
-    while(lambda(r) > 0 && r < n) r++;
+    int r = arma::accu(lambda > 0);
     int s = n - r;
 
     if (r == 0)
@@ -117,12 +120,12 @@ void omega_mat(
 }
 
 
+// Verified
 void precond_matrix(
     const arma::mat& Omega12,
     const arma::mat& P,
     arma::vec& c)
 {
-
     int n = P.n_cols;
     int r = Omega12.n_rows;
     int s = Omega12.n_cols;
@@ -135,63 +138,53 @@ void precond_matrix(
         return;
     }
 
-    arma::mat H = P % P;
+    arma::mat H = (P % P).t();
+    arma::mat H1 = H.head_rows(r);
+    arma::mat H2 = H.tail_rows(s);
+
     if (r < s)
     {
-        arma::mat H12 = H.head_cols(r) * Omega12; // [n,s] = [n,r]*[r,s]
-        c = arma::sum(H, 1); // c = rowsums(H)
-        c %= c;              // c = c % c
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = 0; j < s; j++)
-            {
-                c(i) += 2.0 * H12(i,j) * H(i,r+j);
-            }
-            c(i) = std::max(c(i), 1.0e-8);
-        }
+        arma::mat H12 = H1.t() * Omega12;
+        c  = arma::pow(arma::sum(H1, 0), 2.0);
+        c += 2.0 * arma::sum(H12 * H2.t(), 1);
     }
     else
     {
-        arma::mat H12 = H.tail_cols(s) * (1.0 - Omega12).t();   // [n,r] = [n,s]*[s,r]
-        c = arma::sum(H.tail_cols(s), 1);
-        c %= c;
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = 0; j < r; j++)
-            {
-                c(i) += 2.0 * H(i,j) * H12(i,j);
-            }
-            double alpha = accu(H.row(i));
-            c(i) = -1.0 * c(i) + alpha*alpha;
-            c(i) = std::max(c(i), 1.0e-8);
-        }
+        arma::mat H12 = (1 - Omega12) * H2;
+        c  = arma::pow(arma::sum(H, 0), 2.0);
+        c -= arma::pow(arma::sum(H2, 0), 2.0);
+        c -= 2 * arma::sum((H1 % H12).t(), 1);
     }
+    c.elem(find(c < 1.0e-8)).fill(1.0e-8);
 }
 
 
+// Verified
 void pre_cg(
     const arma::vec& b,
-    double tol,
-    int maxit,
     const arma::vec& c,
     const arma::mat& Omega12,
     const arma::mat& P,
-    arma::vec& p)
-{
+    const double& tol,
+    const int& maxit,
+    arma::vec& p
+) {
     int n = P.n_cols;
     int r = Omega12.n_rows;
     int s = Omega12.n_cols;
 
-    arma::vec rv(b);
     double n2b = arma::norm(b, 2);
-
     double tolb = tol * n2b;
-    p.zeros();
+
+    arma::vec rv(b);
     arma::vec z = rv / c;
     double rz1 = arma::accu(rv % z);
     double rz2 = 1.0;
+
+    p.zeros();
     arma::vec d(z);
     arma::vec w(n);
+
     for (int k = 1; k <= maxit; k++)
     {
         if (k > 1)
@@ -199,7 +192,8 @@ void pre_cg(
             d = z + d * rz1/rz2;
         }
 
-        Jacobian(d, Omega12, P, w); // modifies w
+        // w <- Jacobian()
+        Jacobian(d, Omega12, P, w);
 
         double denom = arma::accu(d % w);
         double normr = arma::norm(rv, 2);
@@ -217,6 +211,7 @@ void pre_cg(
         }
 
         z = rv / c;
+
         normr = arma::norm(rv, 2);
         if (normr <= tolb)
         {
@@ -224,28 +219,79 @@ void pre_cg(
         }
         else
         {
-            rz2 = 0.0;
+            rz2 = rz1;
             rz1 = arma::accu(rv % z);
         }
     }
 }
 
 
+// Probably correct
+void PCA(
+    const arma::vec& lambda,
+    const arma::mat& P,
+    arma::mat& X
+) {
+    int n = P.n_cols;
+    int r = arma::accu(lambda > 0);
+    int s = n - r;
+
+    if (r == 0)
+    {
+        X.zeros();
+    }
+    else if (r == n)
+    {
+        // X = X
+        return;
+    }
+    else if (r == 1)
+    {
+        X = lambda(0) * lambda(0) * (P.col(0) * P.col(0).t());
+    }
+    else if (r <= s)
+    {
+        arma::mat P1 = P.head_cols(r);
+        arma::vec l1 = arma::sqrt(lambda.head(r));
+        arma::mat P1l1 = P1.each_row() % l1.t();
+        X = P1l1 * P1l1.t();
+    }
+    else // (r > s)
+    {
+        arma::mat P2 = P.tail_cols(s);
+        arma::vec l2 = arma::sqrt(-1.0 * lambda.tail(s));
+        arma::mat P2l2 = P2.each_row() % l2.t();
+        X += P2l2 * P2l2.t();
+    }
+}
+
 // [[Rcpp::export]]
-arma::mat nearPDcor(arma::mat G)
+arma::mat nearPDcor(
+    arma::mat G)
 {
     int n = G.n_cols;
 
-    arma::vec b(n, arma::fill::ones);
-    arma::vec b0(b);
-
-    // Make G symmetric
+    // Make G symmetric correlation matrix
     G = arma::symmatu(G);
     G.diag().ones();
 
+    // Set X, compute eigen decomp, and sort values/vectors
     arma::vec y(n, arma::fill::zeros);
+    arma::mat X = G + arma::diagmat(y);
+    arma::vec lambda;
+    arma::mat P;
+    arma::eig_sym(lambda, P, X);
+    lambda = arma::reverse(lambda);
+    P = arma::fliplr(P);
+
+    arma::vec b(n, arma::fill::ones);
+    arma::vec b0(b);
     arma::vec Fy(n, arma::fill::zeros);
-    arma::vec x0(y);
+    double f0;
+    gradient(y, lambda, P, b0, f0, Fy);  // modifies f0 and Fy
+    double f = f0;
+    b = b0 - Fy;
+    double normb = arma::norm(b, 2);
 
     int k = 0;
     int iter_outer = 200;
@@ -255,51 +301,27 @@ arma::mat nearPDcor(arma::mat G)
     double err_tol = 1.0e-6;
     double sigma1 = 1.0e-4;
 
-    arma::vec c(n, arma::fill::ones);
-    arma::vec d(n, arma::fill::zeros);
-
-    // Set X, compute eigen decomp, and sort values/vectors
-    arma::mat X = G + arma::diagmat(y);
-    arma::vec lambda;
-    arma::mat P;
-    if (!arma::eig_sym(lambda, P, X)) {
-        std::cout << "First Eigen decomposition failed" << std::endl;
-        return X;
-    }
-    lambda = arma::reverse(lambda);
-    P = arma::fliplr(P);
-
-    double f0;
-    gradient(y, lambda, P, b0, f0, Fy);  // modifies f0 and Fy
-
-    double f = f0;
-    b = b0 - Fy;
-    double normb = arma::norm(b, 2);
-
     arma::mat Omega12;
     omega_mat(lambda, Omega12);  // modifies Omega12
 
-    x0 = y;
+    arma::vec x0(y);
+
+    arma::vec c(n, arma::fill::ones);
+    arma::vec d(n, arma::fill::zeros);
 
     while ( (normb > err_tol) && (k < iter_outer) )
     {
-        precond_matrix(Omega12, P, c);  // modifies c
-        pre_cg(b, tol, maxit, c, Omega12, P, d);  // modifies d
+        precond_matrix(Omega12, P, c);            // modifies c
+        pre_cg(b, c, Omega12, P, tol, maxit, d);  // modifies d
 
-        double slope = arma::accu( (Fy - b0) % d );
+        double slope = arma::accu((Fy - b0) % d);
 
         y = x0 + d;
         X = G + arma::diagmat(y);
-        // arma::eig_sym(lambda, P, X);
-        if (!arma::eig_sym(lambda, P, X)) {
-            std::cout <<
-                "Eigen decomp failed at k = " << k << std::endl;
-            std::cout << "y = " << std::endl << y << std::endl;
-            return X;
-        }
+        arma::eig_sym(lambda, P, X);
         lambda = arma::reverse(lambda);
         P = arma::fliplr(P);
-        gradient(y, lambda, P, b0, f0, Fy);  // modifies f0 and Fy
+        gradient(y, lambda, P, b0, f, Fy);  // modifies f and Fy
 
         int k_inner = 1;
         while ( (k_inner <= iter_inner) &&
@@ -308,16 +330,10 @@ arma::mat nearPDcor(arma::mat G)
             y = x0 + std::pow(0.5, k_inner) * d;
             X = G + diagmat(y);
             // arma::eig_sym(lambda, P, X);
-            if (!arma::eig_sym(lambda, P, X)) {
-                std::cout <<
-                    "Eigen decomp failed at k = " << k <<
-                    " and k_inner = " << k_inner << std::endl;
-                std::cout << "y = " << std::endl << y << std::endl;
-                return X;
-            }
+            arma::eig_sym(lambda, P, X);
             lambda = arma::reverse(lambda);
             P = arma::fliplr(P);
-            gradient(y, lambda, P, b0, f0, Fy);  // modifies f0 and Fy
+            gradient(y, lambda, P, b0, f, Fy);  // modifies f0 and Fy
             k_inner++;
         }
 
@@ -331,47 +347,7 @@ arma::mat nearPDcor(arma::mat G)
         k++;
     }
 
-    // number of strictly positive eigenvalues
-    // lambda is assumed to be in descending order
-    int r = 0;
-    while(lambda(r) > 0 && r < n) r++;
-    int s = n - r;
-
-    if (r == 0)
-    {
-        X.zeros();
-    }
-    else if (r == n)
-    {
-        // do nothing
-    }
-    else if (r == 1)
-    {
-        X = lambda(0) * lambda(0) * (P.col(0) * P.col(0).t());
-    }
-    else if (r <= s)
-    {
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < r; j++) {
-                // all rows of column (r) are multiplied by lambda[r]
-                P(i,j) *= std::sqrt(lambda(j));
-            }
-        }
-        X = P.head_cols(r) * P.head_cols(r).t();
-    }
-    else // (r > s)
-    {
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = 0; j < s; j++)
-            {
-                // all rows of column (r+j) are multiplied by lambda[r+j]
-                // I.e. last columns are multiplied by last lambdas
-                P(i,r+j) *= std::sqrt(-1.0 * lambda(r+j));
-            }
-        }
-        X = P.tail_cols(s) * P.tail_cols(s).t();
-    }
-
+    // X = PCA()
+    PCA(lambda, P, X);
     return X;
 }

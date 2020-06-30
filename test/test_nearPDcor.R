@@ -7,11 +7,9 @@ rho <- matrix(c(
   0.44, 0.81, 0.23, 0.99
 ), 4, 4, byrow = TRUE)
 
-Matrix::isSymmetric(rho)
 rho <- cov2cor(rho)
-Matrix::isSymmetric(rho)
 
-rho_pd1 <- Matrix::nearPD(rho, corr = TRUE, ensureSymmetry = FALSE)$mat
+rho_pd1 <- as.matrix(Matrix::nearPD(rho, corr = TRUE, ensureSymmetry = FALSE)$mat)
 rho_pd2 <- nearPDcor(rho)
 
 round(rho, 4)
