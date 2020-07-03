@@ -2,7 +2,7 @@ import Statistics: mean, std, quantile
 import FastGaussQuadrature: gausshermite
 import Polynomials: Polynomial
 import IntervalRootFinding: roots
-import Memoize: @memoize, get_cache, clear_cache
+import Memoize: @memoize
 
 using Distributions
 using IntervalArithmetic
@@ -18,14 +18,22 @@ margins = [
 """
 The Probabilists' version of the Hermite polynomials
 """
-@memoize function H(x, n::Int)
+@memoize function He(x, n::Int)
     if n == 0
-        return ones(size(x))
+        return length(x) > 1 ? ones(length(x)) : 1
     elseif n == 1
         return x
     else
-        return x .* H(x, n-1) .- (n-1) .* H(x, n-2)
+        return x .* He(x, n-1) .- (n-1) .* He(x, n-2)
     end
+end
+
+
+"""
+The Physicists' version of the Hermite polynomials
+"""
+function H(x, n::Int)
+    return 2^(n/2) * He(x*√2, n)
 end
 
 
@@ -37,18 +45,19 @@ function z2x(margin, x)
 end
 
 
-
 function get_coefs(margin, n)
     c = Array{Float64, 1}(undef, n+1)
+    m = n+4
+    t, w = gausshermite(m)
     for k = 0:1:n
-        m = k+4
-        t, w = gausshermite(m)
         # need to do a change of variable
         X = z2x(margin, t * √2)
-        c[k+1] = (1 / √π) * sum(w .* H(t * √2, k) .* X) / factorial(k)
+        c[k+1] = (1 / √π) * sum(w .* He(t * √2, k) .* X) / factorial(k)
     end
     c
 end
+
+get_coefs(margins[1], 15)
 
 
 """
@@ -104,9 +113,9 @@ function rho_z_bounds_cc(marginᵢ, marginⱼ; n::Int=3)
     (ρx_l, ρx_u)
 end
 
-rho_z_bounds(margins[1], margins[1])
-rho_z_bounds(margins[1], margins[2])
-rho_z_bounds(margins[1], margins[3])
-rho_z_bounds(margins[2], margins[2])
-rho_z_bounds(margins[2], margins[3])
-rho_z_bounds(margins[3], margins[3])
+rho_z_bounds_cc(margins[1], margins[1])
+rho_z_bounds_cc(margins[1], margins[2])
+rho_z_bounds_cc(margins[1], margins[3])
+rho_z_bounds_cc(margins[2], margins[2])
+rho_z_bounds_cc(margins[2], margins[3])
+rho_z_bounds_cc(margins[3], margins[3])

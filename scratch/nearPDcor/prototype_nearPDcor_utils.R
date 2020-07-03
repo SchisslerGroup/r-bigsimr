@@ -69,8 +69,6 @@ R_precond_matrix <- function(Omega12, P) {
 # Verified
 R_pre_cg <- function(b, cv, Omega12, P, tol, maxit) {
     n <- nrow(P)
-    r <- nrow(Omega12)
-    s <- ncol(Omega12)
 
     n2b  <- norm(b, '2')
     tolb <- tol * n2b
@@ -164,7 +162,7 @@ R_PCA <- function(X, lambda, P) {
     } else if (r <= s) {
         P1   <- P[, 1:r, drop=FALSE]
         l1   <- sqrt(lambda[1:r])
-        P1l1 <- sweep(P1, 2, l1, '*') # column j is multiplied by lambda
+        P1l1 <- sweep(P1, 2, l1, '*') # column j is multiplied by lambda[j]
         X    <- tcrossprod(P1l1)
     } else {
         P2   <- P[, (r+1):n, drop=FALSE]
