@@ -1,5 +1,13 @@
 source("scratch/nearPDcor/prototype_nearPDcor_utils.R")
 
+readCSV <- function(file) {
+  r <- read.csv(file)
+  r <- as.matrix(r)
+  attr(r, 'dimnames') <- NULL
+  r[,-1]
+}
+
+
 nearPDcor <- function(G
   ,tau=1e-5
   ,iter_outer=200
@@ -103,8 +111,14 @@ rho <- matrix(c(
   0.59, 0.28, 1.12, 0.23,
   0.44, 0.81, 0.23, 0.99
 ), 4, 4, byrow = TRUE)
-rho <- cov2cor(rho)
+rho1 <- cov2cor(rho)
 
-r = cov2cor(nearPDcor(rho))
+rho2 <- readCSV("scratch/rho_ND_1026.csv")
+rho3 <- readCSV("scratch/rho_ND_3076.csv")
+rho4 <- readCSV("scratch/rho_ND_5127.csv")
 
-eigen(r)
+
+system.time( r1_2 <- nearPDcor(rho1) )
+system.time( r2_2 <- nearPDcor(rho2) )
+system.time( r3_2 <- nearPDcor(rho3) )
+system.time( r4_2 <- nearPDcor(rho4) )
