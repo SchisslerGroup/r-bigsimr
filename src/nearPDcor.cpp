@@ -9,28 +9,24 @@ void Jacobian(
         const arma::vec& x,
         const arma::mat& Omega12,
         const arma::mat& P,
-        arma::vec& Ax)
-{
+        arma::vec& Ax) {
+
     int n = P.n_cols;
     int r = Omega12.n_rows;
     int s = Omega12.n_cols;
 
     arma::mat Omega(r, s);
 
-    if (r == 0)
-    {
+    if (r == 0) {
         // TODO: this should probably throw an exception
         Ax.zeros();
-    }
-    else if (r == n)
-    {
+    } else if (r == n) {
         Ax = x * (1.0 + PERTURBATION);
-    }
-    else if (r < s)
-    {
+    } else if (r < s) {
         arma::mat P1 = P.head_cols(r);
         arma::mat P2 = P.tail_cols(s);
-        arma::mat H1 = P1 + x * arma::ones(1, r);
+
+        arma::mat H1 = arma::diagmat(x) * P1;
         arma::mat Omega = Omega12 % (H1.t() * P2);
 
         arma::mat HT(n, n, arma::fill::zeros);
@@ -38,20 +34,20 @@ void Jacobian(
         HT.tail_cols(s) += P1 * Omega;
 
         Ax = arma::sum(P % HT, 1) + x * PERTURBATION;
-    }
-    else // (r >= s)
-    {
+    } else { // (r >= s)
         arma::mat P1 = P.head_cols(r);
         arma::mat P2 = P.tail_cols(s);
-        arma::mat H1 = P2 % (x * arma::ones(1, s));
-        arma::mat Omega = (1.0 - Omega12) + P1.t() * H1;
+
+        arma::mat H2 = arma::diagmat(x) * P2;
+        arma::mat Omega = (1.0 - Omega12) % (P1.t() * H2);
 
         arma::mat HT(n, n, arma::fill::zeros);
         HT.head_cols(r) += P2 * Omega.t();
-        HT.tail_cols(s) += P2 * H1.t() * P2 + P1 * Omega;
+        HT.tail_cols(s) += P2 * H2.t() * P2 + P1 * Omega;
 
-        Ax = arma::sum(P % HT, 1) + x * (1.0 + PERTURBATION);
+        Ax = x * (1.0 + PERTURBATION) - arma::sum(P % HT, 1);
     }
+    return;
 }
 
 
@@ -62,8 +58,8 @@ void gradient(
     arma::mat P,
     const arma::vec& b0,
     double& f,
-    arma::vec& Fy)
-{
+    arma::vec& Fy) {
+
     int n = P.n_cols;
     int r = arma::accu(lambda > 0); // number of positive eigenvalues
 
@@ -76,64 +72,52 @@ void gradient(
         l1.elem(find(lambda < 0)).fill(0);
 
         // column j is multiplied by lambda[j]
-        for (int j = 0; j < n; j++)
-        {
-            P.col(j) *= std::sqrt(l1(j));
+        for (int j = 0; j < n; j++) {
+            P.col(j) *= l1(j);
         }
 
         Fy = arma::sum(P % P, 1);
         f = 0.5 * arma::accu(arma::pow(l1, 2.0)) - arma::accu(b0 % y);
     }
+    return;
 }
 
 
 // Verified
-void omega_mat(
-    const arma::vec& lambda,
-    arma::mat& Omega12)
-{
+void omega_mat(const arma::vec& lambda, arma::mat& Omega12) {
+
     int n = lambda.n_elem;
     int r = arma::accu(lambda > 0);
     int s = n - r;
 
-    if (r == 0)
-    {
+    if (r == 0) {
         Omega12.set_size(0,0);
-    }
-    else if (r == n)
-    {
+    } else if (r == n) {
         Omega12.set_size(n, n);
         Omega12.ones();
-    }
-    else // 0 < r < n
-    {
+    } else { // 0 < r < n
         Omega12.set_size(r, s);
         arma::vec lambda_s = lambda.tail(s);  // non-positive eigenvalues
-        for (int i = 0; i < r; i++)
-        {
-            for (int j = 0; j < s; j++)
-            {
+        for (int i = 0; i < r; i++) {
+            for (int j = 0; j < s; j++) {
                 Omega12(i, j) = lambda(i) / (lambda(i) - lambda_s(j));
             }
         }
     }
+    return;
 }
 
 
 // Verified
-void precond_matrix(
-    const arma::mat& Omega12,
-    const arma::mat& P,
-    arma::vec& c)
-{
+void precond_matrix(const arma::mat& Omega12, const arma::mat& P, arma::vec& c) {
+
     int n = P.n_cols;
     int r = Omega12.n_rows;
     int s = Omega12.n_cols;
 
     c.ones();
 
-    if (r == 0 || r == n)
-    {
+    if (r == 0 || r == n)  {
         // do not modify anything
         return;
     }
@@ -142,39 +126,28 @@ void precond_matrix(
     arma::mat H1 = H.head_rows(r);
     arma::mat H2 = H.tail_rows(s);
 
-    if (r < s)
-    {
+    if (r < s) {
         arma::mat H12 = H1.t() * Omega12;
         c  = arma::pow(arma::sum(H1, 0), 2.0);
         c += 2.0 * arma::sum(H12 * H2.t(), 1);
-    }
-    else
-    {
+    } else {
         arma::mat H12 = (1 - Omega12) * H2;
         c  = arma::pow(arma::sum(H, 0), 2.0);
         c -= arma::pow(arma::sum(H2, 0), 2.0);
-        c -= 2 * arma::sum((H1 % H12).t(), 1);
+        c -= 2 * arma::sum((H1 % H12), 0);
     }
     c.elem(find(c < 1.0e-8)).fill(1.0e-8);
+    return;
 }
 
 
 // Verified
-void pre_cg(
-    const arma::vec& b,
-    const arma::vec& c,
-    const arma::mat& Omega12,
-    const arma::mat& P,
-    const double& tol,
-    const int& maxit,
-    arma::vec& p
-) {
-    int n = P.n_cols;
-    int r = Omega12.n_rows;
-    int s = Omega12.n_cols;
+void pre_cg(const arma::vec& b, const arma::vec& c, const arma::mat& Omega12,
+    const arma::mat& P, const double& tol, const int& maxit, arma::vec& p) {
 
-    double n2b = arma::norm(b, 2);
-    double tolb = tol * n2b;
+    int n = P.n_cols;
+
+    double tolb = tol * arma::norm(b, 2);
 
     arma::vec rv(b);
     arma::vec z = rv / c;
@@ -185,10 +158,8 @@ void pre_cg(
     arma::vec d(z);
     arma::vec w(n);
 
-    for (int k = 1; k <= maxit; k++)
-    {
-        if (k > 1)
-        {
+    for (int k = 1; k <= maxit; ++k) {
+        if (k > 1) {
             d = z + d * rz1/rz2;
         }
 
@@ -198,13 +169,10 @@ void pre_cg(
         double denom = arma::accu(d % w);
         double normr = arma::norm(rv, 2);
 
-        if (denom <= 0)
-        {
+        if (denom <= 0) {
             p = d / arma::norm(d, 2);
             return;
-        }
-        else
-        {
+        } else {
             double alpha = rz1 / denom;
             p += alpha * d;
             rv -= alpha * w;
@@ -213,67 +181,70 @@ void pre_cg(
         z = rv / c;
 
         normr = arma::norm(rv, 2);
-        if (normr <= tolb)
-        {
+        if (normr <= tolb) {
             return;
-        }
-        else
-        {
+        } else {
             rz2 = rz1;
             rz1 = arma::accu(rv % z);
         }
     }
+    return;
 }
 
 
 // Probably correct
-void PCA(
-    const arma::vec& lambda,
-    const arma::mat& P,
-    arma::mat& X
-) {
+void PCA(const arma::vec& lambda, const arma::mat& P, arma::mat& X) {
+
     int n = P.n_cols;
     int r = arma::accu(lambda > 0);
     int s = n - r;
 
-    if (r == 0)
-    {
+    if (r == 0) {
         X.zeros();
-    }
-    else if (r == n)
-    {
+    } else if (r == n) {
         // X = X
         return;
-    }
-    else if (r == 1)
-    {
+    } else if (r == 1) {
         X = lambda(0) * lambda(0) * (P.col(0) * P.col(0).t());
-    }
-    else if (r <= s)
-    {
+    } else if (r <= s) {
         arma::mat P1 = P.head_cols(r);
         arma::vec l1 = arma::sqrt(lambda.head(r));
         arma::mat P1l1 = P1.each_row() % l1.t();
         X = P1l1 * P1l1.t();
-    }
-    else // (r > s)
-    {
+    } else { // (r > s)
         arma::mat P2 = P.tail_cols(s);
         arma::vec l2 = arma::sqrt(-1.0 * lambda.tail(s));
         arma::mat P2l2 = P2.each_row() % l2.t();
         X += P2l2 * P2l2.t();
     }
+    return;
 }
 
+
+void cov2cor(arma::mat& X) {
+    arma::mat D = arma::pinv(arma::diagmat(arma::sqrt(arma::diagvec(X))));
+    X = D * X * D;
+    return;
+}
+
+
 // [[Rcpp::export]]
-arma::mat nearPDcor(
-    arma::mat G)
-{
+arma::mat nearPDcor(arma::mat G, double tau=1e-5, int iter_outer=200,
+                    int iter_inner=20, int maxit=200, double tol=1e-2,
+                    double err_tol=1e-6, double sigma1=1e-4) {
+
     int n = G.n_cols;
 
     // Make G symmetric correlation matrix
     G = arma::symmatu(G);
     G.diag().ones();
+
+    arma::vec b(n, arma::fill::ones);
+    if (tau > 0) {
+        b -= tau;
+        G -= tau*arma::eye(n, n);
+    }
+    arma::vec b0(b);
 
     // Set X, compute eigen decomp, and sort values/vectors
     arma::vec y(n, arma::fill::zeros);
@@ -284,33 +255,31 @@ arma::mat nearPDcor(
     lambda = arma::reverse(lambda);
     P = arma::fliplr(P);
 
-    arma::vec b(n, arma::fill::ones);
-    arma::vec b0(b);
     arma::vec Fy(n, arma::fill::zeros);
     double f0;
     gradient(y, lambda, P, b0, f0, Fy);  // modifies f0 and Fy
     double f = f0;
     b = b0 - Fy;
-    double normb = arma::norm(b, 2);
-
-    int k = 0;
-    int iter_outer = 200;
-    int iter_inner = 20;
-    int maxit = 200;
-    double tol = 1.0e-2;
-    double err_tol = 1.0e-6;
-    double sigma1 = 1.0e-4;
 
     arma::mat Omega12;
     omega_mat(lambda, Omega12);  // modifies Omega12
 
-    arma::vec x0(y);
+    PCA(lambda, P, X);
+    double val_G    = 0.5 * std::pow(arma::norm(G, 2), 2);
+    double val_dual = val_G - f0;
+    double val_obj  = 0.5 * std::pow(arma::norm(X - G, 2), 2);
+    double gap      = (val_obj - val_dual) / (1 + std::abs(val_dual) + std::abs(val_obj));
 
+    double normb = arma::norm(b, 2);
+    double normb0 = arma::norm(b0, 2) + 1;
+    double delta_nb = normb / normb0;
+
+    arma::vec x0(y);
     arma::vec c(n, arma::fill::ones);
     arma::vec d(n, arma::fill::zeros);
 
-    while ( (normb > err_tol) && (k < iter_outer) )
-    {
+    int k = 0;
+    while ( (gap > err_tol) && (delta_nb > err_tol) && (k < iter_outer) ) {
         precond_matrix(Omega12, P, c);            // modifies c
         pre_cg(b, c, Omega12, P, tol, maxit, d);  // modifies d
 
@@ -323,31 +292,39 @@ arma::mat nearPDcor(
         P = arma::fliplr(P);
         gradient(y, lambda, P, b0, f, Fy);  // modifies f and Fy
 
-        int k_inner = 1;
+        int k_inner = 0;
         while ( (k_inner <= iter_inner) &&
-                (f > f0 + sigma1 * std::pow(0.5, k_inner) * slope + 1.0e-5) )
-        {
+                (f > f0 + sigma1 * std::pow(0.5, k_inner) * slope + 1.0e-6) ) {
+            ++k_inner;
             y = x0 + std::pow(0.5, k_inner) * d;
             X = G + diagmat(y);
-            // arma::eig_sym(lambda, P, X);
             arma::eig_sym(lambda, P, X);
             lambda = arma::reverse(lambda);
             P = arma::fliplr(P);
             gradient(y, lambda, P, b0, f, Fy);  // modifies f0 and Fy
-            k_inner++;
         }
 
         x0 = y;
         f0 = f;
+
+        PCA(lambda, P, X);
+        val_dual = val_G - f0;
+        val_obj  = 0.5 * std::pow(arma::norm(X - G, 2), 2);
+        gap      = (val_obj - val_dual) / (1 + std::abs(val_dual) + std::abs(val_obj));
+
+
         b = b0 - Fy;
         normb = arma::norm(b, 2);
+        delta_nb = normb / normb0;
 
         omega_mat(lambda, Omega12);  // modifies Omega12
 
-        k++;
+        ++k;
     }
 
-    // X = PCA()
-    PCA(lambda, P, X);
+    X += tau*arma::eye(n, n);
+    cov2cor(X);
     return X;
 }
+
+

@@ -40,5 +40,6 @@ rsconnect/
 .Rproj.user
 inst/doc
 
-/tests
-/sims_nb
+tests
+scratch/*.csv
+sims_nb

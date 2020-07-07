@@ -12,5 +12,3 @@ rho <- cov2cor(rho)
 rho_pd1 <- as.matrix(Matrix::nearPD(rho, corr = TRUE, ensureSymmetry = FALSE)$mat)
 rho_pd2 <- nearPDcor(rho)
 
-round(rho, 4)
-round(rho_pd1, 4)

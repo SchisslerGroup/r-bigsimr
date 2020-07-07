@@ -31,13 +31,20 @@ BEGIN_RCPP
 END_RCPP
 }
 // nearPDcor
-arma::mat nearPDcor(arma::mat G);
-RcppExport SEXP _bigsimr_nearPDcor(SEXP GSEXP) {
+arma::mat nearPDcor(arma::mat G, double tau, int iter_outer, int iter_inner, int maxit, double tol, double err_tol, double sigma1);
+RcppExport SEXP _bigsimr_nearPDcor(SEXP GSEXP, SEXP tauSEXP, SEXP iter_outerSEXP, SEXP iter_innerSEXP, SEXP maxitSEXP, SEXP tolSEXP, SEXP err_tolSEXP, SEXP sigma1SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type G(GSEXP);
-    rcpp_result_gen = Rcpp::wrap(nearPDcor(G));
+    Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< int >::type iter_outer(iter_outerSEXP);
+    Rcpp::traits::input_parameter< int >::type iter_inner(iter_innerSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< double >::type err_tol(err_tolSEXP);
+    Rcpp::traits::input_parameter< double >::type sigma1(sigma1SEXP);
+    rcpp_result_gen = Rcpp::wrap(nearPDcor(G, tau, iter_outer, iter_inner, maxit, tol, err_tol, sigma1));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -96,7 +103,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_bigsimr_cor2cor", (DL_FUNC) &_bigsimr_cor2cor, 2},
     {"_bigsimr_hermite", (DL_FUNC) &_bigsimr_hermite, 2},
-    {"_bigsimr_nearPDcor", (DL_FUNC) &_bigsimr_nearPDcor, 1},
+    {"_bigsimr_nearPDcor", (DL_FUNC) &_bigsimr_nearPDcor, 8},
     {"_bigsimr_rcor", (DL_FUNC) &_bigsimr_rcor, 2},
     {"_bigsimr_rmvn", (DL_FUNC) &_bigsimr_rmvn, 3},
     {"_bigsimr_rmvuu", (DL_FUNC) &_bigsimr_rmvuu, 2},

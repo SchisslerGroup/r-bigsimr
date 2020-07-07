@@ -9,8 +9,8 @@ hermite <- function(x, n) {
     .Call(`_bigsimr_hermite`, x, n)
 }
 
-nearPDcor <- function(G) {
-    .Call(`_bigsimr_nearPDcor`, G)
+nearPDcor <- function(G, tau = 1e-5, iter_outer = 200L, iter_inner = 20L, maxit = 200L, tol = 1e-2, err_tol = 1e-6, sigma1 = 1e-4) {
+    .Call(`_bigsimr_nearPDcor`, G, tau, iter_outer, iter_inner, maxit, tol, err_tol, sigma1)
 }
 
 rcor <- function(d, k = 1L) {
