@@ -8,13 +8,6 @@ using Distributions
 using IntervalArithmetic
 
 
-margins = [
-    (Beta(2, 3)),
-    (Normal(12, 2)),
-    (Exponential(3.14))
-]
-
-
 """
 The Probabilists' version of the Hermite polynomials
 """
@@ -39,10 +32,10 @@ end
 
 """
 	z2x(d::Distribution, x::AbstractArray)
+
 Convert samples from a standard normal distribution to a given marginal
 distribution
 """
 function z2x(d::Distribution, x::AbstractArray)
     quantile.(d, cdf.(Normal(0,1), x))
 end
-
