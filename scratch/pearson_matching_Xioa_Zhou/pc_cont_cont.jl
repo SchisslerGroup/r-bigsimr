@@ -1,25 +1,10 @@
 include("common.jl")
 
 margins = [
-    (Beta(2, 3)),
-    (Normal(12, 2)),
-    (Exponential(3.14))
+    Beta(2, 3),
+    Normal(12, 2),
+    Exponential(3.14)
 ]
-
-
-function get_coefs(margin, n)
-    c = Array{Float64, 1}(undef, n+1)
-    m = n+4
-    t, w = gausshermite(m)
-    for k = 0:1:n
-        # need to do a change of variable
-        X = z2x(margin, t * √2)
-        c[k+1] = (1 / √π) * sum(w .* He(t * √2, k) .* X) / factorial(k)
-    end
-    c
-end
-
-get_coefs(margins[1], 15)
 
 
 """
@@ -109,9 +94,17 @@ end
 @time P  = rho_z_cc(1.0, margins[2], margins[3])
 @time P  = rho_z_cc(1.0, margins[3], margins[3])
 
-rho_z_bounds_cc(margins[1], margins[1])
-rho_z_bounds_cc(margins[1], margins[2])
-rho_z_bounds_cc(margins[1], margins[3])
-rho_z_bounds_cc(margins[2], margins[2])
-rho_z_bounds_cc(margins[2], margins[3])
-rho_z_bounds_cc(margins[3], margins[3])
+@time rho_z_bounds_cc(margins[1], margins[1])
+@time rho_z_bounds_cc(margins[1], margins[2])
+@time rho_z_bounds_cc(margins[1], margins[3])
+@time rho_z_bounds_cc(margins[2], margins[2])
+@time rho_z_bounds_cc(margins[2], margins[3])
+@time rho_z_bounds_cc(margins[3], margins[3])
+
+@time P  = rho_z_cc(-0.9, margins[1], margins[1])
+@time P  = rho_z_cc(-0.6, margins[1], margins[1])
+@time P  = rho_z_cc(-0.3, margins[1], margins[1])
+@time P  = rho_z_cc(0.0, margins[1], margins[1])
+@time P  = rho_z_cc(0.3, margins[1], margins[1])
+@time P  = rho_z_cc(0.6, margins[1], margins[1])
+@time P  = rho_z_cc(0.9, margins[1], margins[1])
