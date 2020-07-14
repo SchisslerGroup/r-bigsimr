@@ -10,8 +10,8 @@ function rho_z_dd(ρx, dA::DiscreteUnivariateDistribution, dB::DiscreteUnivariat
     TA = eltype(dA)
     TB = eltype(dB)
 
-    maxA = isinf(maxA) ? TA(quantile(dA, 0.999)) : maxA
-    maxB = isinf(maxB) ? TB(quantile(dB, 0.999)) : maxB
+    maxA = isinf(maxA) ? TA(quantile(dA, 0.9999)) : maxA
+    maxB = isinf(maxB) ? TB(quantile(dB, 0.9999)) : maxB
 
     # Support sets
     A = range(minA, maxA, step=1.0)
@@ -84,3 +84,5 @@ end
 @test  0.310 ≈ rho_z_dd( 0.3, Binomial(20, 0.2), Binomial(20, 0.2)) atol=0.005
 @test  0.618 ≈ rho_z_dd( 0.6, Binomial(20, 0.2), Binomial(20, 0.2)) atol=0.005
 @test  0.925 ≈ rho_z_dd( 0.9, Binomial(20, 0.2), Binomial(20, 0.2)) atol=0.005
+
+rho_z_dd(0.3, NegativeBinomial(20, 0.2), NegativeBinomial(10, 0.002))
