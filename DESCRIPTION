@@ -28,7 +28,8 @@ Imports:
     parallel,
     doParallel,
     rlang,
-    assertthat
+    assertthat,
+    reticulate
 Remotes:
     douglasgscofield/fastrank
 LinkingTo: 
