@@ -37,3 +37,7 @@ notebooks/*.html
 rsconnect/
 .Rproj.user
 inst/doc
+
+# non-package directories
+scratch
+perf
