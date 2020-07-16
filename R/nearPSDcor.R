@@ -21,12 +21,12 @@
     X
   } else if (r <= n) {
     P1   <- eigvecs[,1:r,drop=FALSE]
-    l1   <- sqrt(head(eigvals, r))
+    l1   <- sqrt(utils::head(eigvals, r))
     P1l1 <- sweep(P1, 2, l1, "*")
     tcrossprod(P1l1, P1l1)
   } else {
     P2   <- eigvecs[,(r+1):n,drop=FALSE]
-    l2   <- sqrt(-tail(eigvals, s))
+    l2   <- sqrt(-utils::tail(eigvals, s))
     P2l2 <- sweep(P2, 2, l2, "*")
     X + tcrossprod(P2l2, P2l2)
   }
@@ -107,8 +107,8 @@
     matrix(1.0, n, n)
   } else {
     M  <- matrix(0, r, s)
-    lr <- head(eigvals, r)
-    ls <- tail(eigvals, s)
+    lr <- utils::head(eigvals, r)
+    ls <- utils::tail(eigvals, s)
     for (i in 1:r) {
       for (j in 1:s) {
         M[i,j] <- lr[i] / (lr[i] - ls[j])
@@ -153,6 +153,14 @@
 
 #' Compute the nearest positive semidefinite correlation matrix
 #'
+#' @param R the input correlation matrix
+#' @param tau some non-negative threshold for the smallest eigenvalue
+#' @param iter_outer the max number of iterations in the outer loop
+#' @param iter_inner the max number of iterations in the inner loop
+#' @param N the max number of iterations in the pre-conjugate gradient method
+#' @param err_tol the error tolerance for the stopping criteria
+#' @param precg_err_tol the error tolerance in the pre-conjugate gradient method
+#' @param newton_err_tol the error tolerance in Newton's method
 #' @export
 nearestPSDcor <- function(R, tau=1e-5, iter_outer=200L, iter_inner=20L, N=200L,
                           err_tol=1e-6, precg_err_tol=1e-2, newton_err_tol=1e-4) {
@@ -232,5 +240,5 @@ nearestPSDcor <- function(R, tau=1e-5, iter_outer=200L, iter_inner=20L, N=200L,
     k <- k + 1L
   }
 
-  cov2cor(X + diag(tau, n))
+  stats::cov2cor(X + diag(tau, n))
 }
