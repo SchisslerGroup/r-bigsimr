@@ -100,7 +100,6 @@ cor(x)
 cor_bounds(margins, type = "pearson")
 ```
 
-
 ## Appendix
 
 ```{r, eval=FALSE}
