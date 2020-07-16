@@ -23,7 +23,11 @@ Imports:
     pcaPP,
     Rcpp,
     RcppArmadillo,
-    fastrank
+    fastrank,
+    foreach,
+    parallel,
+    doParallel,
+    rlang
 Remotes:
     douglasgscofield/fastrank
 LinkingTo: 

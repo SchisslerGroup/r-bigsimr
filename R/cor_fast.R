@@ -4,7 +4,7 @@
 #' @param y A vector
 #' @param method The type of correlation to compute
 #' @export
-fastCor <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) {
+cor_fast <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) {
 
   method <- match.arg(method)
 

@@ -5,8 +5,12 @@ CXX_nearPDcor <- function(G, tau = 1e-5, iter_outer = 200L, iter_inner = 20L, ma
     .Call(`_bigsimr_CXX_nearPDcor`, G, tau, iter_outer, iter_inner, maxit, tol, err_tol, sigma1)
 }
 
-cor2cor <- function(X, CASE) {
-    .Call(`_bigsimr_cor2cor`, X, CASE)
+.cor_convert_double <- function(X, CASE) {
+    .Call(`_bigsimr_cor_convert_double`, X, CASE)
+}
+
+.cor_convert_matrix <- function(X, CASE) {
+    .Call(`_bigsimr_cor_convert_matrix`, X, CASE)
 }
 
 hermite <- function(x, n) {

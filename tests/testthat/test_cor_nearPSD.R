@@ -1,5 +1,4 @@
-test_that("nearestPSDcor() returns a positive semidefinite correlation matrix", {
-
+test_that("cor_nearPSD returns a positive semidefinite correlation matrix", {
   # define a negative definite correlation matrix
   p <- matrix(c(
     1.00, 0.82, 0.56, 0.44,
@@ -8,7 +7,7 @@ test_that("nearestPSDcor() returns a positive semidefinite correlation matrix", 
     0.44, 0.85, 0.22, 1.00
   ), 4, 4, byrow=TRUE)
 
-  r <- nearestPSDcor(p)
+  r <- cor_nearPSD(p)
   e <- eigen(r)
 
   # Correlation matrices must be:

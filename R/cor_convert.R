@@ -3,11 +3,10 @@
 #' @param rho A correlation matrix
 #' @param from Input correlation matrix
 #' @param to Output correlation matrix
-#'
 #' @export
-cor2cor <- function(rho,
-                    from = c("pearson", "spearman", "kendall"),
-                    to = c("pearson", "spearman", "kendall")) {
+cor_convert <- function(rho,
+                        from = c("pearson", "spearman", "kendall"),
+                        to = c("pearson", "spearman", "kendall")) {
 
   from <- match.arg(from)
   to   <- match.arg(to)
@@ -25,5 +24,9 @@ cor2cor <- function(rho,
                   -1L
   )
 
-  .Call(`_bigsimr_cor2cor`, rho, CASE)
+  if (is.matrix(rho)) {
+    .cor_convert_matrix(rho, CASE)
+  } else {
+    .cor_convert_double(rho, CASE)
+  }
 }

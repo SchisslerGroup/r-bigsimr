@@ -162,8 +162,8 @@
 #' @param precg_err_tol the error tolerance in the pre-conjugate gradient method
 #' @param newton_err_tol the error tolerance in Newton's method
 #' @export
-nearestPSDcor <- function(R, tau=1e-5, iter_outer=200L, iter_inner=20L, N=200L,
-                          err_tol=1e-6, precg_err_tol=1e-2, newton_err_tol=1e-4) {
+cor_nearPSD <- function(R, tau=1e-5, iter_outer=200L, iter_inner=20L, N=200L,
+                        err_tol=1e-6, precg_err_tol=1e-2, newton_err_tol=1e-4) {
   n <- dim(R)[1]
 
   R <- (R + t(R)) / 2

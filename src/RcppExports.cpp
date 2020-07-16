@@ -24,15 +24,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// cor2cor
-arma::mat cor2cor(const arma::mat& X, int CASE);
-RcppExport SEXP _bigsimr_cor2cor(SEXP XSEXP, SEXP CASESEXP) {
+// cor_convert_double
+double cor_convert_double(double X, int CASE);
+RcppExport SEXP _bigsimr_cor_convert_double(SEXP XSEXP, SEXP CASESEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type X(XSEXP);
+    Rcpp::traits::input_parameter< int >::type CASE(CASESEXP);
+    rcpp_result_gen = Rcpp::wrap(cor_convert_double(X, CASE));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cor_convert_matrix
+arma::mat cor_convert_matrix(const arma::mat& X, int CASE);
+RcppExport SEXP _bigsimr_cor_convert_matrix(SEXP XSEXP, SEXP CASESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
     Rcpp::traits::input_parameter< int >::type CASE(CASESEXP);
-    rcpp_result_gen = Rcpp::wrap(cor2cor(X, CASE));
+    rcpp_result_gen = Rcpp::wrap(cor_convert_matrix(X, CASE));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -51,7 +63,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bigsimr_CXX_nearPDcor", (DL_FUNC) &_bigsimr_CXX_nearPDcor, 8},
-    {"_bigsimr_cor2cor", (DL_FUNC) &_bigsimr_cor2cor, 2},
+    {"_bigsimr_cor_convert_double", (DL_FUNC) &_bigsimr_cor_convert_double, 2},
+    {"_bigsimr_cor_convert_matrix", (DL_FUNC) &_bigsimr_cor_convert_matrix, 2},
     {"_bigsimr_hermite", (DL_FUNC) &_bigsimr_hermite, 2},
     {NULL, NULL, 0}
 };
