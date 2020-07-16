@@ -11,19 +11,19 @@
 // [[Rcpp::export]]
 arma::mat cor2cor(const arma::mat& X, int CASE) {
   switch (CASE) {
-    case PEARSON_SPEARMAN:
-      return (6 / M_PI) * arma::asin(X / 2);
-    case PEARSON_KENDALL:
-      return (2 / M_PI) * arma::asin(X);
-    case SPEARMAN_PEARSON:
-      return 2 * arma::sin(X * M_PI / 6);
-    case SPEARMAN_KENDALL:
-      return (2 / M_PI) * arma::asin(2 * arma::sin(X * M_PI / 6));
-    case KENDALL_PEARSON:
-      return arma::sin(X * M_PI / 2);
-    case KENDALL_SPEARMAN:
-      return (6 / M_PI) * arma::asin(arma::sin(X * M_PI / 2) / 2);
-    default:
-      return X;
+  case PEARSON_SPEARMAN:
+    return (6 / M_PI) * arma::asin(X / 2);
+  case PEARSON_KENDALL:
+    return (2 / M_PI) * arma::asin(X);
+  case SPEARMAN_PEARSON:
+    return 2 * arma::sin(X * M_PI / 6);
+  case SPEARMAN_KENDALL:
+    return (2 / M_PI) * arma::asin(2 * arma::sin(X * M_PI / 6));
+  case KENDALL_PEARSON:
+    return arma::sin(X * M_PI / 2);
+  case KENDALL_SPEARMAN:
+    return (6 / M_PI) * arma::asin(arma::sin(X * M_PI / 2) / 2);
+  default:
+    return X;
   }
 }
