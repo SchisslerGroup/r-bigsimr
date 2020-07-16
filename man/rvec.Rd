@@ -5,7 +5,7 @@
 \title{Creates \code{n} observations from a multivariate distribution with the
 given marginals and correlation matrix.}
 \usage{
-rvec(n, rho, margins, cores = 1L, type = c("pearson", "kendall", "spearman"))
+rvec(n, rho, margins, type = c("pearson", "kendall", "spearman"))
 }
 \arguments{
 \item{n}{The number random vectors to generate.}
@@ -13,8 +13,6 @@ rvec(n, rho, margins, cores = 1L, type = c("pearson", "kendall", "spearman"))
 \item{rho}{The input correlation matrix.}
 
 \item{margins}{The marginal distributions (Typically R's "quantile functions")}
-
-\item{cores}{The number of cores to utilize.}
 
 \item{type}{The type of correlation matrix that is being passed (Assumed to
 be Pearson by default).}

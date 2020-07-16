@@ -1,0 +1,20 @@
+---
+title: "Overview of using bigsimr"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Overview of using bigsimr}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(bigsimr)
+```
+

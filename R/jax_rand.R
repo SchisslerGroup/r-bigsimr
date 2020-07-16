@@ -8,7 +8,7 @@
 #' @param sigma A symmetric positive definite covariance matrix (d x d)
 #' @export
 jax_rmvn <- function(n, mu, sigma) {
-  S    = jax$device_put(reticulate::np_array(sigma)) #
+  S    = jax$device_put(reticulate::np_array(sigma))
   m    = jax$device_put(reticulate::np_array(mu))
   key  = jax$random$PRNGKey(sample(.Random.seed, 1))
   size = reticulate::tuple(as.integer(n))
@@ -19,19 +19,16 @@ jax_rmvn <- function(n, mu, sigma) {
 
 # Internal function for random multivariate uniform
 .rmvuu <- function(n, rho) {
-  R    = reticulate::np_array(rho)
-
-  R_d  = jax$device_put(R)
-  m_d  = jax$numpy$zeros(reticulate::tuple(ncol(rho)))
+  R = jax$device_put(reticulate::np_array(rho))
+  m = jax$numpy$zeros(reticulate::tuple(ncol(rho)))
 
   key  = jax$random$PRNGKey(sample(.Random.seed, 1))
   size = reticulate::tuple(as.integer(n))
 
-  Z_d  = jax$random$multivariate_normal(key, m_d, R_d, size)
-  U_d  = jax$scipy$stats$norm$cdf(Z_d)
+  Z = jax$random$multivariate_normal(key, m, R, size)
+  U = jax$scipy$stats$norm$cdf(Z)$block_until_ready()
 
-  U    = jax$device_get(U_d)
-  reticulate::py_to_r(U)
+  reticulate::py_to_r(jax$device_get(U))
 }
 
 
