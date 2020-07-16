@@ -1,3 +1,4 @@
+# Internal function for `cor_rand_PD()`
 .rjm <- function(A, a) {
   b     <- dim(A)[1]
   idx   <- 2:(b-1)
@@ -20,23 +21,17 @@
 #' @export
 cor_rand_PD <- function(d, a=1.0) {
   if (d == 1) {
-
     matrix(1, 1, 1)
-
   } else if (d == 2) {
-
     p <- stats::runif(1)
     matrix(c(1, p, p, 1), 2, 2)
-
   } else {
-
     R <- diag(1, d, d)
     for (i in 1:(d-1)) {
       a0 <- a + (d - 2) / 2
       R[i, i+1] <- 2 * stats::rbeta(1, a0, a0) - 1
       R[i+1, i] <- R[i,i+1]
     }
-
     for (m in 2:(d-1)) {
       for (j in 1:(d-m)) {
         r_sub <- R[j:(j+m), j:(j+m),drop=FALSE]
@@ -46,7 +41,6 @@ cor_rand_PD <- function(d, a=1.0) {
       }
     }
     R
-
   }
 }
 
@@ -60,7 +54,6 @@ cor_rand_PSD <- function(d, k=d) {
   if (d == 1) {
     return(matrix(1, 1, 1))
   }
-
   assertthat::assert_that(1 <= k && k <= d)
   W  <- matrix(rnorm(d * k), d, k)
   S  <- tcrossprod(W, W) + diag(runif(d))

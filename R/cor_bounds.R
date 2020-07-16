@@ -29,7 +29,9 @@ cor_bounds <- function(margins,
     sim_data <- sapply(1:d, function(i) {
       # Replace the quantile function with the RNG function (e.g. qnorm -> rnorm)
       margins[[i]][[1]] <- q2r(margins[[i]][[1]])
+      # Add the number of reps as an argument
       margins[[i]]$n <- quote(reps)
+      # the below statement equates to: sort(rdist(n, params...))
       eval(rlang::call2("sort", margins[[i]]))
     })
 

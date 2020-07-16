@@ -1,3 +1,23 @@
+#' Simulate random data from a multivariate normal distribution
+#'
+#' This function is designed to be 'bare bones' and does not check that the
+#'   given covariance matrix is positive definite.
+#'
+#' @param n The number of random vectors to be simulated.
+#' @param mu A vector of length d, representing the mean.
+#' @param sigma A symmetric positive definite covariance matrix (d x d)
+#' @export
+jax_rmvn <- function(n, mu, sigma) {
+  S    = jax$device_put(reticulate::np_array(sigma)) #
+  m    = jax$device_put(reticulate::np_array(mu))
+  key  = jax$random$PRNGKey(sample(.Random.seed, 1))
+  size = reticulate::tuple(as.integer(n))
+  z    = jax$random$multivariate_normal(key, m, S, size)
+  reticulate::py_to_r(jax$device_get(z))
+}
+
+
+# Internal function for random multivariate uniform
 .rmvuu <- function(n, rho) {
   R    = reticulate::np_array(rho)
 
@@ -7,12 +27,13 @@
   key  = jax$random$PRNGKey(sample(.Random.seed, 1))
   size = reticulate::tuple(as.integer(n))
 
-  Z_d  = jax$random$multivariate_normal(key, m_d, R_d, size)$block_until_ready()
-  U_d  = jax$scipy$stats$norm$cdf(Z_d)$block_until_ready()
+  Z_d  = jax$random$multivariate_normal(key, m_d, R_d, size)
+  U_d  = jax$scipy$stats$norm$cdf(Z_d)
 
   U    = jax$device_get(U_d)
   reticulate::py_to_r(U)
 }
+
 
 #' Generate random data from a multivariate uniform distribution
 #'
@@ -21,7 +42,7 @@
 #' @param min either a single number or a vector of length d
 #' @param max either a single number or a vector of length d
 #' @export
-rmvu <- function(n, rho, min = 0, max = 1) {
+jax_rmvu <- function(n, rho, min = 0, max = 1) {
   d <- ncol(rho)
 
   rho <- cov2cor(rho)
