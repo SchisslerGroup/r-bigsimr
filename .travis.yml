@@ -4,5 +4,16 @@ R:
   - 3.4
   - 3.6
   - release
+
+notifications:
+  email: false
+
+os:
+  - linux
+arch:
+  - x64
+dist:
+  - bionic
+
 pandoc: false
 latex: false

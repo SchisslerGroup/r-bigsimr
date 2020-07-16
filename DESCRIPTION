@@ -8,8 +8,6 @@ Authors@R:
            email = "aknudson@nevada.unr.edu")
 Description: This package simulates multivariate data with arbitrary marginal distributions.
 Depends: R (>= 3.4.0)
-Imports:
-Remotes:
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
