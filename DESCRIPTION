@@ -7,7 +7,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "aknudson@nevada.unr.edu")
 Description: This package simulates multivariate data with arbitrary marginal distributions.
-Depends: R (>= 3.4.0)
+Depends: R (>= 3.5.0)
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
