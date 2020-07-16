@@ -27,7 +27,8 @@ Imports:
     foreach,
     parallel,
     doParallel,
-    rlang
+    rlang,
+    assertthat
 Remotes:
     douglasgscofield/fastrank
 LinkingTo: 
