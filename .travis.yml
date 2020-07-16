@@ -1,12 +1,12 @@
 language: R
-cache: packages
+cache:
+  packages: true
+  directories:
+    - "$HOME/.cache/pip"
 R:
   - 3.5
   - 3.6
   - release
-
-notifications:
-  email: false
 
 os:
   - linux
@@ -15,5 +15,21 @@ arch:
 dist:
   - bionic
 
+addons:
+  apt:
+    sources: ubuntu-toolchain-r-test
+    packages:
+      - python-dev
+
+before_install:
+  - pip install --user numpy
+  - pip install --user scipy
+  - pip install --user --upgrade jax jaxlib
+
 pandoc: false
 latex: false
+
+warnings_are_errors: false
+
+notifications:
+  email: false
