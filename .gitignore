@@ -28,8 +28,6 @@ vignettes/*.pdf
 notebooks/*_cache/
 notebooks/*_files/
 notebooks/*.html
-notebooks/sims*
-/cache/
 
 # Temporary files created by R markdown
 *.utf8.md
@@ -39,7 +37,3 @@ notebooks/sims*
 rsconnect/
 .Rproj.user
 inst/doc
-
-tests
-scratch/*.csv
-sims_nb

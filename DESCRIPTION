@@ -1,6 +1,6 @@
 Package: bigsimr
 Title: An R Package for Generating High-Dimensional Random Vectors
-Version: 0.6.0
+Version: 0.0.1
 Authors@R: 
     person(given = "Alexander",
            family = "Knudson",
@@ -8,23 +8,14 @@ Authors@R:
            email = "aknudson@nevada.unr.edu")
 Description: This package simulates multivariate data with arbitrary marginal distributions.
 Depends: R (>= 3.4.0)
-Imports:
-    fastrank,
-    coop,
-    pcaPP,
-    rlang,
-    Rcpp,
-    RcppArmadillo
-Remotes:
-    douglasgscofield/fastrank
-License: GNU GPLv3
+License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
 VignetteBuilder: knitr
-LinkingTo: 
-    Rcpp,
-    RcppArmadillo
+Imports: 
+    Matrix
