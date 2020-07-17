@@ -8,6 +8,9 @@ Authors@R:
              email = "aknudson@nevada.unr.edu"),
       person(given = "Grant",
              family = "Schissler",
+             role = "aut"),
+      person(given = "Richard",
+             family = "Foote",
              role = "aut"))
 Description: This package simulates multivariate data with arbitrary marginal distributions.
 Depends: R (>= 3.5.0)
