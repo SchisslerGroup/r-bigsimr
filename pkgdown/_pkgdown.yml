@@ -1,0 +1,18 @@
+authors:
+  Alex Knudson:
+    href: https://github.com/adknudson
+  Grant Schissler:
+    href: http://www.grantschissler.com/
+
+reference:
+  - title: Main Functions
+    contents:
+    - rvec
+
+  - title: Correlation Operations
+    contents:
+    - starts_with("cor_")
+
+  - title: Jax Implementations
+    contents:
+    - starts_with("jax_")

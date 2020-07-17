@@ -13,12 +13,13 @@ knitr::opts_chunk$set(
 )
 ```
 
-# bigsimr <a href='https://github.com/adknudson/bigsimr'><img src='man/figures/logo.png' align="right" height="139" /></a>
-
-<!-- badges: start -->
-<!-- badges: end -->
+# bigsimr <a href='https://github.com/SchisslerGroup/bigsimr'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
 Simulate arbitrary multivariate distributions efficiently in R.
+
+<!-- badges: start -->
+[![Travis build status](https://travis-ci.com/adknudson/bigsimr.svg?branch=master)](https://travis-ci.com/adknudson/bigsimr)
+<!-- badges: end -->
 
 ## Installation
 
@@ -26,7 +27,7 @@ You can install the released version of bigsimr from [github](https://github.com
 
 ```{r, eval=FALSE}
 # install.packages("devtools")
-remotes::install_github("adknudson/bigsimr")
+devtools::install_github("SchisslerGroup/bigsimr")
 ```
 
 This package relies on [reticulate](https://rstudio.github.io/reticulate/) to draw on the speed of Google's [jax](https://github.com/google/jax) library. The easiest way to get a working python environment is to use miniconda and create a new environment. We provide a handy function for making the conda environment.
@@ -38,12 +39,12 @@ install_bigsimr(method = "conda", envname = "bigsimr")
 
 ### Development version
 
-To get a bug fix or to use a feature from the development version, you can install 
+To get a bug fix or to use a feature from the development version, you can install
 the development version of bigsimr from GitHub:
 
-``` r
+```{r, eval=FALSE}
 # install.packages("devtools")
-devtools::install_github("adknudson/bigsimr", ref="develop")
+devtools::install_github("SchisslerGroup/bigsimr", ref="develop")
 ```
 
 ### GPU version
@@ -53,19 +54,21 @@ Since jax has the ability to compile code to the CPU and GPU, bigsimr also has t
 ## Overview
 
 * `rvec()` simulates multivariate data with specified marginal distributions and correlation
-* `rcor()` generate a random correlation matrix
-* `convertCor()` convert _from_ one correlation _to_ another
-* `computeCorBounds()` compute the theoretical lower and upper correlations for a target multivariate distribution
+* `cor_rand_PD()` generate a random postitive definite correlation matrix
+* `cor_rand_PSD()` generate a random postitive semidefinite correlation matrix
+* `cor_convert()` convert _from_ one correlation _to_ another
+* `cor_bounds()` compute the theoretical lower and upper correlations for a target multivariate distribution
 
 ## Usage
 
+Reticulate needs to be able to find the python binary with `jax` installed. It is recommended to use Miniconda.
+
 ```{r}
+# reticulate::use_condaenv("bigsimr-cpu")
 library(bigsimr)
-# Reticulate needs to be able to find the python binary with `jax` installed
-reticulate::use_condaenv("bigsimr-cpu")
 ```
 
-to generate multivariate data, we need a list of marginals (and their parameters), and a correlation structure (matrix). The marginal distributions can be built up using R's special `alist` function. This allows one to enter the distributions without evaluating anything (yet).
+to generate multivariate data, we need a list of marginals (and their parameters), and a correlation structure (matrix). The marginal distributions can be built up using R's special `alist` function. This means that you can enter the distributions without evaluation.
 
 ```{r}
 margins = alist(
@@ -75,20 +78,16 @@ margins = alist(
 )
 ```
 
-The next step is to define a correlation structure for the multivariate distribution. This correlation matrix can either come from observed data, or we can set it ourselves, or we can generate a random correlation matrix via `bigsimr::rcor()`.
+The next step is to define a correlation structure for the multivariate distribution. This correlation matrix can either come from observed data, or we can set it ourselves, or we can generate a random correlation matrix via `bigsimr::cor_rand_PSD()`.
 
 ```{r}
-# rho <- rcor(d = 3)
-
-rho <- matrix(0.5, nrow = 3, ncol = 3)
-diag(rho) <- 1.0
-rho
+rho <- cor_rand_PSD(d = 3)
 ```
 
 Finally we can generate a random vector with our specified marginals and correlation structure. The last argument, `type`, is looking to know what kind of correlation matrix it is receiving. Right now it can handle the Pearson product-moment correlation, Spearman's $\rho$, or Kendall's $\tau$.
 
-```{r, warning=FALSE, message=FALSE}
-x <- rvec(100, rho = rho, margins = margins, type = "pearson")
+```{r}
+x <- rvec(100, rho, margins, type = "pearson")
 ```
 
 ```{r}
@@ -98,7 +97,7 @@ cor(x)
 
 ```{r}
 # Estimated upper and lower correlation bounds
-computeCorBounds(margins, type = "pearson")
+cor_bounds(margins, type = "pearson")
 ```
 
 ## Appendix

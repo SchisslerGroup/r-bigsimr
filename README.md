@@ -3,11 +3,12 @@
 
 # bigsimr <a href='https://github.com/SchisslerGroup/bigsimr'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
+Simulate arbitrary multivariate distributions efficiently in R.
+
+
 <!-- badges: start -->
 
 <!-- badges: end -->
-
-Simulate arbitrary multivariate distributions efficiently in R.
 
 ## Installation
 
@@ -16,7 +17,7 @@ You can install the released version of bigsimr from
 
 ``` r
 # install.packages("devtools")
-remotes::install_github("SchisslerGroup/bigsimr")
+devtools::install_github("SchisslerGroup/bigsimr")
 ```
 
 This package relies on
@@ -52,23 +53,28 @@ getting a GPU version.
 
   - `rvec()` simulates multivariate data with specified marginal
     distributions and correlation
-  - `rcor()` generate a random correlation matrix
-  - `convertCor()` convert *from* one correlation *to* another
-  - `computeCorBounds()` compute the theoretical lower and upper
-    correlations for a target multivariate distribution
+  - `cor_rand_PD()` generate a random postitive definite correlation
+    matrix
+  - `cor_rand_PSD()` generate a random postitive semidefinite
+    correlation matrix
+  - `cor_convert()` convert *from* one correlation *to* another
+  - `cor_bounds()` compute the theoretical lower and upper correlations
+    for a target multivariate distribution
 
 ## Usage
 
+Reticulate needs to be able to find the python binary with `jax`
+installed. It is recommended to use Miniconda.
+
 ``` r
+# reticulate::use_condaenv("bigsimr-cpu")
 library(bigsimr)
-# Reticulate needs to be able to find the python binary with `jax` installed
-reticulate::use_condaenv("bigsimr-cpu")
 ```
 
 to generate multivariate data, we need a list of marginals (and their
 parameters), and a correlation structure (matrix). The marginal
 distributions can be built up using R’s special `alist` function. This
-allows one to enter the distributions without evaluating anything (yet).
+means that you can enter the distributions without evaluation.
 
 ``` r
 margins = alist(
@@ -81,18 +87,10 @@ margins = alist(
 The next step is to define a correlation structure for the multivariate
 distribution. This correlation matrix can either come from observed
 data, or we can set it ourselves, or we can generate a random
-correlation matrix via `bigsimr::rcor()`.
+correlation matrix via `bigsimr::cor_rand_PSD()`.
 
 ``` r
-# rho <- rcor(d = 3)
-
-rho <- matrix(0.5, nrow = 3, ncol = 3)
-diag(rho) <- 1.0
-rho
-#>      [,1] [,2] [,3]
-#> [1,]  1.0  0.5  0.5
-#> [2,]  0.5  1.0  0.5
-#> [3,]  0.5  0.5  1.0
+rho <- cor_rand_PSD(d = 3)
 ```
 
 Finally we can generate a random vector with our specified marginals and
@@ -102,32 +100,32 @@ the Pearson product-moment correlation, Spearman’s \(\rho\), or
 Kendall’s \(\tau\).
 
 ``` r
-x <- rvec(100, rho = rho, margins = margins, type = "pearson")
+x <- rvec(100, rho, margins, type = "pearson")
 ```
 
 ``` r
 # Sample correlation
 cor(x)
-#>           [,1]      [,2]      [,3]
-#> [1,] 1.0000000 0.4959944 0.5525602
-#> [2,] 0.4959944 1.0000000 0.5496653
-#> [3,] 0.5525602 0.5496653 1.0000000
+#>            [,1]       [,2]       [,3]
+#> [1,]  1.0000000 -0.3594361 -0.1796841
+#> [2,] -0.3594361  1.0000000  0.3796276
+#> [3,] -0.1796841  0.3796276  1.0000000
 ```
 
 ``` r
 # Estimated upper and lower correlation bounds
-computeCorBounds(margins, type = "pearson")
+cor_bounds(margins, type = "pearson")
 #> $upper
 #>           [,1]      [,2]      [,3]
-#> [1,] 1.0000000 0.9533036 0.9708210
-#> [2,] 0.9533036 1.0000000 0.9828064
-#> [3,] 0.9708210 0.9828064 1.0000000
+#> [1,] 1.0000000 0.9537691 0.9708819
+#> [2,] 0.9537691 1.0000000 0.9831462
+#> [3,] 0.9708819 0.9831462 1.0000000
 #> 
 #> $lower
 #>            [,1]       [,2]       [,3]
-#> [1,]  1.0000000 -0.9534858 -0.9706092
-#> [2,] -0.9534858  1.0000000 -0.8696132
-#> [3,] -0.9706092 -0.8696132  1.0000000
+#> [1,]  1.0000000 -0.9525312 -0.9700770
+#> [2,] -0.9525312  1.0000000 -0.8680406
+#> [3,] -0.9700770 -0.8680406  1.0000000
 ```
 
 ## Appendix

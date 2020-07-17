@@ -5,3 +5,11 @@
 ^doc$
 ^Meta$
 ^README\.Rmd$
+^\.travis\.yml$
+
+^perf$
+^scratch$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$

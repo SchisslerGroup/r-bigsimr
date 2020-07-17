@@ -1,8 +1,8 @@
 ---
-title: "Using bigsimr::rvec"
+title: "Overview of using bigsimr"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{using-rvec}
+  %\VignetteIndexEntry{Overview of using bigsimr}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,15 +12,11 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-
-reticulate::use_condaenv("bigsimr-cpu")
-devtools::load_all()
 ```
 
-
-# Installation
-
-This package requires a working python distribution (typically via a conda environment). As of right now, we cannot automatically create the necessary environment for you, but you can do so by installing Anaconda or Miniconda, and then installing `jax` and `jaxlib` ([see here](https://github.com/google/jax#installation)). There is an option for install `jax` with GPU support. This is recommended if possible, otherwise `bigsimr` will simply throw a warning stating that it has fallen back onto the CPU.
+```{r setup}
+library(bigsimr)
+```
 
 # Basics
 
@@ -31,7 +27,7 @@ The main function is `bigsimr::rvec` which mirrors some of the conventions found
 
 ```{r}
 # Generating samples from a normal distribution
-# We need three things: 
+# We need three things:
 #   1) The number of samples to generate
 #   2) The location of the normal distribution (mean)
 #   3) The scale of the normal distribution (standard deviation)
@@ -95,24 +91,23 @@ margins = alist(
 The next step is to define a correlation structure for the multivariate distribution. This correlation matrix can either come from observed data, or we can set it ourselves, or we can generate a random correlation matrix via `bigsimr::rcor`. Let's create a simple correlation matrix where all off-diagonal elements are 0.5. Since we have 3 marginals, we need a $3\times 3$ matrix.
 
 ```{r}
-rho <- matrix(0.5, nrow = 4, ncol = 4)
-diag(rho) <- 1.0
-rho
+rho <- cor_rand_PD(4)
 ```
 
+```{r, echo=FALSE}
+round(rho, 3)
+```
+
+
 Finally we can generate a random vector with our specified marginals and correlation structure. The last argument, `type`, is looking to know what kind of correlation matrix it is receiving. Right now it can handle Pearson, Spearman, or Kendall.
+
+If you have the CPU version of JAX installed, you may see an error similar to `warning.warn('No GPU/TPU found, falling back to CPU.')`. This is just a message letting you know that JAX is running on the CPU instead.
 
 ```{r}
 x <- rvec(10, rho = rho, margins = margins, type = "pearson")
 ```
 
-On my machine, there is no dedicated GPU, so I would see the following warning message once per session.
-
-```{r, echo=FALSE}
-warning("warning.warn('No GPU/TPU found, falling back to CPU.')")
-```
-
-Taking a look at our random vector, we see that it hs 10 rows and 3 columns, one column for each marginal.
+Taking a look at our random vector, we see that it has 10 rows and 4 columns, one column for each marginal distribution.
 
 ```{r}
 x
@@ -120,10 +115,11 @@ x
 
 We can simulate many more samples and then check the histogram of each margin, as well as the estimated correlation between the columns.
 
-```{r, fig.width=7}
-x = rvec(10000, rho = rho, margins = margins, type = "pearson")
+```{r}
+x <- rvec(10000, rho = rho, margins = margins, type = "pearson")
+```
 
-par(mfrow=c(2,2))
+```{r, echo=FALSE}
 hist(x[,1], breaks = 30, xlab = "", main = "Normal")
 hist(x[,2], breaks = 30, xlab = "", main = "Beta")
 hist(x[,3], breaks = 30, xlab = "", main = "Negative Binomial")
@@ -131,10 +127,14 @@ hist(x[,4], breaks = 30, xlab = "", main = "Pareto")
 ```
 
 ```{r}
-cor(x)
+round(cor(x), 2)
 ```
 
-We can see that even with 10,000 samples, the estimated correlation of the simulated data is not exactly the same as the target correlation. This can be explained by the fact that some correlations are simply not possible due to the discrete nature of certain distributions. Another possibility is that the copula algorithm is biased and needs correction. 
+```{r}
+round(rho, 2)
+```
+
+We can see that even with 10,000 samples, the estimated correlation of the simulated data is not exactly the same as the target correlation. This can be explained by the fact that some correlations are simply not possible due to the discrete nature of certain distributions. Another possibility is that the copula algorithm is biased and needs correction.
 
 # Appendix
 
