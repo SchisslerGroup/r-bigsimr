@@ -6,15 +6,45 @@
 
 using namespace Rcpp;
 
-// cor2cor
-arma::mat cor2cor(const arma::mat& X, int CASE);
-RcppExport SEXP _bigsimr_cor2cor(SEXP XSEXP, SEXP CASESEXP) {
+// CXX_nearPDcor
+arma::mat CXX_nearPDcor(arma::mat G, double tau, int iter_outer, int iter_inner, int maxit, double tol, double err_tol, double sigma1);
+RcppExport SEXP _bigsimr_CXX_nearPDcor(SEXP GSEXP, SEXP tauSEXP, SEXP iter_outerSEXP, SEXP iter_innerSEXP, SEXP maxitSEXP, SEXP tolSEXP, SEXP err_tolSEXP, SEXP sigma1SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type G(GSEXP);
+    Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< int >::type iter_outer(iter_outerSEXP);
+    Rcpp::traits::input_parameter< int >::type iter_inner(iter_innerSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< double >::type err_tol(err_tolSEXP);
+    Rcpp::traits::input_parameter< double >::type sigma1(sigma1SEXP);
+    rcpp_result_gen = Rcpp::wrap(CXX_nearPDcor(G, tau, iter_outer, iter_inner, maxit, tol, err_tol, sigma1));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cor_convert_double
+double cor_convert_double(double X, int CASE);
+RcppExport SEXP _bigsimr_cor_convert_double(SEXP XSEXP, SEXP CASESEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type X(XSEXP);
+    Rcpp::traits::input_parameter< int >::type CASE(CASESEXP);
+    rcpp_result_gen = Rcpp::wrap(cor_convert_double(X, CASE));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cor_convert_matrix
+arma::mat cor_convert_matrix(const arma::mat& X, int CASE);
+RcppExport SEXP _bigsimr_cor_convert_matrix(SEXP XSEXP, SEXP CASESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
     Rcpp::traits::input_parameter< int >::type CASE(CASESEXP);
-    rcpp_result_gen = Rcpp::wrap(cor2cor(X, CASE));
+    rcpp_result_gen = Rcpp::wrap(cor_convert_matrix(X, CASE));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -30,84 +60,12 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// nearPDcor
-arma::mat nearPDcor(arma::mat G, double tau, int iter_outer, int iter_inner, int maxit, double tol, double err_tol, double sigma1);
-RcppExport SEXP _bigsimr_nearPDcor(SEXP GSEXP, SEXP tauSEXP, SEXP iter_outerSEXP, SEXP iter_innerSEXP, SEXP maxitSEXP, SEXP tolSEXP, SEXP err_tolSEXP, SEXP sigma1SEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type G(GSEXP);
-    Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< int >::type iter_outer(iter_outerSEXP);
-    Rcpp::traits::input_parameter< int >::type iter_inner(iter_innerSEXP);
-    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
-    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    Rcpp::traits::input_parameter< double >::type err_tol(err_tolSEXP);
-    Rcpp::traits::input_parameter< double >::type sigma1(sigma1SEXP);
-    rcpp_result_gen = Rcpp::wrap(nearPDcor(G, tau, iter_outer, iter_inner, maxit, tol, err_tol, sigma1));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcor
-arma::mat rcor(int d, int k);
-RcppExport SEXP _bigsimr_rcor(SEXP dSEXP, SEXP kSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type d(dSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcor(d, k));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rmvn
-arma::mat rmvn(int n, arma::colvec mu, arma::mat sigma);
-RcppExport SEXP _bigsimr_rmvn(SEXP nSEXP, SEXP muSEXP, SEXP sigmaSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< arma::colvec >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type sigma(sigmaSEXP);
-    rcpp_result_gen = Rcpp::wrap(rmvn(n, mu, sigma));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rmvuu
-arma::mat rmvuu(int n, arma::mat rho);
-RcppExport SEXP _bigsimr_rmvuu(SEXP nSEXP, SEXP rhoSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type rho(rhoSEXP);
-    rcpp_result_gen = Rcpp::wrap(rmvuu(n, rho));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rmvu
-arma::mat rmvu(int n, arma::mat rho, arma::rowvec min, arma::rowvec max);
-RcppExport SEXP _bigsimr_rmvu(SEXP nSEXP, SEXP rhoSEXP, SEXP minSEXP, SEXP maxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< arma::rowvec >::type min(minSEXP);
-    Rcpp::traits::input_parameter< arma::rowvec >::type max(maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(rmvu(n, rho, min, max));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_bigsimr_cor2cor", (DL_FUNC) &_bigsimr_cor2cor, 2},
+    {"_bigsimr_CXX_nearPDcor", (DL_FUNC) &_bigsimr_CXX_nearPDcor, 8},
+    {"_bigsimr_cor_convert_double", (DL_FUNC) &_bigsimr_cor_convert_double, 2},
+    {"_bigsimr_cor_convert_matrix", (DL_FUNC) &_bigsimr_cor_convert_matrix, 2},
     {"_bigsimr_hermite", (DL_FUNC) &_bigsimr_hermite, 2},
-    {"_bigsimr_nearPDcor", (DL_FUNC) &_bigsimr_nearPDcor, 8},
-    {"_bigsimr_rcor", (DL_FUNC) &_bigsimr_rcor, 2},
-    {"_bigsimr_rmvn", (DL_FUNC) &_bigsimr_rmvn, 3},
-    {"_bigsimr_rmvuu", (DL_FUNC) &_bigsimr_rmvuu, 2},
-    {"_bigsimr_rmvu", (DL_FUNC) &_bigsimr_rmvu, 4},
     {NULL, NULL, 0}
 };
 
