@@ -5,10 +5,9 @@
 
 Simulate arbitrary multivariate distributions efficiently in R.
 
+
 <!-- badges: start -->
 
-[![Travis build
-status](https://travis-ci.com/adknudson/bigsimr.svg?branch=master)](https://travis-ci.com/adknudson/bigsimr)
 <!-- badges: end -->
 
 ## Installation
