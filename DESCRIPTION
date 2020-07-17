@@ -2,7 +2,7 @@ Package: bigsimr
 Title: An R Package for Generating High-Dimensional Random Vectors
 Version: 0.7.0
 Authors@R:
-    c(person(given = "Alexander",
+    c(person(given = "Alex",
              family = "Knudson",
              role = c("aut", "cre"),
              email = "aknudson@nevada.unr.edu"),
