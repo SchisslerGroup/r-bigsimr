@@ -1,0 +1,96 @@
+---
+title: "Installation and Setup"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Installation and Setup}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+## Installation
+
+You can install the release version of the package from GitHub using devtools:
+
+```{r}
+devtools::install_github("SchisslerGroup/bigsimr")
+```
+
+or the development version:
+
+```{r}
+devtools::install_github("SchisslerGroup/bigsimr", ref="develop")
+```
+
+then load the package
+
+```{r}
+library(bigsimr)
+```
+
+---
+
+## Python
+
+bigsimr utilizes numpy and JAX python libraries to carry out some of the computationally heavy tasks. This requires that you have a working installation of python on your machine that can be found in the PATH. To check you can call
+
+```{r}
+reticulate::py_available()
+```
+
+or the bigsimr helper function
+
+```{r}
+have_python()
+```
+
+If your system does not have python, you can install it simply with [Anaconda](https://www.anaconda.com/products/individual) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html)^[a lightweight command line version of Anaconda].
+
+### numpy and JAX
+
+If you install Python with Anaconda or Miniconda, you can install the necessary python libraries with:
+
+```{r}
+install_bigsimr(method = "conda")
+```
+
+This installs the libraries to the "base" conda environment. This should be fine for most users. If you would like finer control, you can create your own virtual environment through the command line or with reticulate:
+
+```{r}
+reticulate::conda_install(envname = "bigsimr-env",
+                          packages = c("numpy", "jax", "jaxlib"),
+                          pip = TRUE,
+                          conda = "auto",
+                          python_version = "3.7")
+```
+
+This creates a conda virtual environment called `bigsimr-env` with Python 3.7 and the three necessary libraries. The use of pip is necessary to install JAX. For more in depth JAX installation instructions or to install the GPU version of JAX, please visit the [JAX GitHub](https://github.com/google/jax#installation) page.
+
+To ensure that the bigsimr uses the desired environment, please see the [Setup](#setup) section.
+
+## Setup
+
+If your Python binary can be discovered by reticulate and has the necessary libraries, then you are good to start using bigsimr! If not, then you can do one of two things: **1)** tell reticulate where to find the Python path, or **2)** edit your `.Rprofile` to set the desired Python path. The first method allows you to specify a python or conda version for each script. The second method sets a default python or conda environment whenever you start up R or open a project.
+
+The following instructions can be found in more detail on [reticulates website](https://rstudio.github.io/reticulate/articles/versions.html).
+
+**First method**
+
+```{r}
+# Must be set before loading bigsimr
+reticulate::use_condaenv("bigsimr-env")
+library(bigsimr)
+```
+
+
+**Second method: .Rprofile**
+
+This will set a default python version each time you load up R or open R from a project folder. This is generally not recommended.
+

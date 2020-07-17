@@ -23,13 +23,14 @@
 #'   [reticulate::virtualenv_install()].
 #'
 #' @export
-install_bigsimr <- function(method = c("auto", "virtualenv", "conda"),
+install_bigsimr <- function(method = c("auto", "conda", "virtualenv"),
                             conda = "auto",
                             envname = NULL,
                             restart_session = TRUE,
                             conda_python_version = "3.7",
                             ...) {
-  packages = c("jax", "jaxlib")
+
+  packages = c("numpy", "jax", "jaxlib")
 
   method <- match.arg(method)
 
