@@ -41,5 +41,5 @@ inst/doc
 # non-package directories
 scratch
 perf
-doc
 Meta
+docs

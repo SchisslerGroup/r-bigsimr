@@ -9,3 +9,6 @@
 
 ^perf$
 ^scratch$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

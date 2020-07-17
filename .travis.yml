@@ -19,14 +19,14 @@ addons:
   apt:
     sources: ubuntu-toolchain-r-test
     packages:
-      - python-dev
+      - python3-dev
 
 before_install:
-  - pip install --user numpy
-  - pip install --user scipy
-  - pip install --user --upgrade jax jaxlib
+  - pip3 install --user numpy
+  - pip3 install --user scipy
+  - pip3 install --user --upgrade jax jaxlib
 
-pandoc: false
+pandoc: true
 latex: false
 
 warnings_are_errors: false
