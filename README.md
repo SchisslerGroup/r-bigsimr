@@ -36,6 +36,8 @@ of Google’s [jax](https://github.com/google/jax) library. Please see the
 <!-- badges: start -->
 
 [![Documentation](https://img.shields.io/badge/docs-release-blue.svg)](https://schisslergroup.github.io/bigsimr/reference/index.html)
+[![Build
+Status](https://travis-ci.com/SchisslerGroup/bigsimr.svg?branch=master)](https://travis-ci.com/SchisslerGroup/bigsimr)
 [![Licence](https://img.shields.io/github/license/schisslergroup/bigsimr)](https://choosealicense.com/licenses/gpl-3.0/)
 ![Release](https://img.shields.io/github/v/tag/schisslergroup/bigsimr?label=release&sort=semver)
 <!-- badges: end -->
