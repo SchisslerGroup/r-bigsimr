@@ -73,11 +73,13 @@ reticulate::conda_install(envname = "bigsimr-env",
 
 This creates a conda virtual environment called `bigsimr-env` with Python 3.7 and the three necessary libraries. The use of pip is necessary to install JAX. For more in depth JAX installation instructions or to install the GPU version of JAX, please visit the [JAX GitHub](https://github.com/google/jax#installation) page.
 
-To ensure that the bigsimr uses the desired environment, please see the [Setup](#setup) section.
+To ensure that the bigsimr uses the desired environment, please see the setup section.
+
+---
 
 ## Setup
 
-If your Python binary can be discovered by reticulate and has the necessary libraries, then you are good to start using bigsimr! If not, then you can do one of two things: **1)** tell reticulate where to find the Python path, or **2)** edit your `.Rprofile` to set the desired Python path. The first method allows you to specify a python or conda version for each script. The second method sets a default python or conda environment whenever you start up R or open a project.
+If your Python binary can be discovered by reticulate and has the necessary libraries, then you are good to start using bigsimr! If not, then you can do one of two things: **1)** tell reticulate where to find the Python path for each script, or **2)** edit your `.Rprofile` to set the desired Python path so that it is found each time you launch R.
 
 The following instructions can be found in more detail on [reticulates website](https://rstudio.github.io/reticulate/articles/versions.html).
 
@@ -87,10 +89,41 @@ The following instructions can be found in more detail on [reticulates website](
 # Must be set before loading bigsimr
 reticulate::use_condaenv("bigsimr-env")
 library(bigsimr)
+
+# Do stuff with bigsimr
 ```
 
 
 **Second method: .Rprofile**
 
-This will set a default python version each time you load up R or open R from a project folder. This is generally not recommended.
+This will set a default python version each time you load up R or open R from a project folder. You can set the default by user
 
+```{r}
+usethis::edit_r_profile("user")
+```
+
+If using Rstudio, this opens up the `.Rprofile` file for the user. Add the line
+
+```{r}
+reticulate::use_condaenv("bigsimr-env")
+# reticulate::use_python("/usr/local/bin/python")
+# reticulate::use_condaenv("myenv")
+```
+
+then save and restart your R session. Now whenever you launch R or Rstudio, reticulate will use the specified Python binary.
+
+You can also set the value by project. Open up a project folder in Rstudio.
+
+```{r}
+usethis::edit_r_profile("project")
+```
+
+This creates and opens `.Rprofile` within the project directory. Add the line
+
+```{r}
+reticulate::use_condaenv("project-env")
+# reticulate::use_python("/usr/local/bin/python")
+# reticulate::use_condaenv("myenv")
+```
+
+then save and restart your R session. Now whenever you open that project, reticulate will know to use a specific conda environment.
