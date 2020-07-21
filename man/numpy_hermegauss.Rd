@@ -2,7 +2,7 @@
 % Please edit documentation in R/numpy_hermite_probabilists.R
 \name{numpy_hermegauss}
 \alias{numpy_hermegauss}
-\title{Gauss-Hermite quadrature "Probabilists"}
+\title{Gauss-Hermite quadrature - "Probabilists"}
 \usage{
 numpy_hermegauss(n = 1L)
 }

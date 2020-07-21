@@ -20,7 +20,7 @@
     eigvals[1]^2 * tcrossprod(eigvecs[,1,drop=FALSE], eigvecs[,1,drop=FALSE])
   } else if (r == n) {
     X
-  } else if (r <= n) {
+  } else if (r <= s) {
     P1   <- eigvecs[,1:r,drop=FALSE]
     l1   <- sqrt(head(eigvals, r))
     P1l1 <- sweep(P1, 2, l1, "*")

@@ -11,14 +11,21 @@
 #' @param rho The input correlation matrix.
 #' @param margins The marginal distributions (Typically R's "quantile functions")
 #' @param type The type of correlation matrix that is being passed (Assumed to
-#'   be Pearson by default).
+#'    be Pearson by default).
+#' @param ensure_PSD Ensure that the converted correlation matrix is positive
+#'    semi-definite. More import if the input correlation type is Kendall or
+#'    Spearman.
 #' @return A matrix of random vectors generated from the specified marginals
 #'   and parameters.
 #' @export
-rvec <- function(n, rho, margins, type = c("pearson", "kendall", "spearman")){
+rvec <- function(n, rho, margins, type = c("pearson", "kendall", "spearman"),
+                 ensure_PSD=FALSE){
 
   type  <- match.arg(type)
   rho   <- cor_convert(rho, from = type, to = "pearson")
+
+  if (ensure_PSD)
+    rho <- cor_nearPSD(rho)
 
   # generate multivariate uniform distribution (via Z -> U)
   U <- .rmvuu(n, rho)

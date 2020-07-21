@@ -2,7 +2,7 @@
 % Please edit documentation in R/numpy_hermite_physicists.R
 \name{numpy_hermgauss}
 \alias{numpy_hermgauss}
-\title{Gauss-Hermite quadrature "Physicists"}
+\title{Gauss-Hermite quadrature - "Physicists"}
 \usage{
 numpy_hermgauss(n = 1L)
 }

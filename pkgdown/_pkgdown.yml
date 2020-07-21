@@ -29,6 +29,11 @@ reference:
     contents:
     - starts_with("jax_")
 
+  - title: Utilities
+    contents:
+    - install_bigsimr
+    - starts_with("have_")
+
 articles:
 - title: Articles
   navbar: Get Started

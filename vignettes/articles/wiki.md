@@ -83,7 +83,7 @@ See [object documentation](https://r-pkgs.org/man.html). `@import` and `@importF
 * [Kevlin Henney](https://www.youtube.com/watch?v=azoucC_fwzw) has a lot to say about good unit testing and communication
 * Unit tests must be written in the `./tests/testthat` directory and named clearly
 * Tests should check a concept
-  * E.g. `cor_rand_PD()` must generate a correlation matrix. What are the requirements for a matrix to be a correlation matrix?
+  * E.g. `cor_randPD()` must generate a correlation matrix. What are the requirements for a matrix to be a correlation matrix?
     * symmetric
     * positive definite
     * ones in the diagonal
