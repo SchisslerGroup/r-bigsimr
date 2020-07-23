@@ -89,7 +89,7 @@
 
   if (r < s) {
     H12 <- crossprod(H1, Omega0)
-    cv  <- colSums(H1)^2 + 2 * rowSums(tcrossprod(H12, H2))
+    cv  <- colSums(H1)^2 + 2 * rowSums(H12 * t(H2))
   } else {
     H12 <- (1.0 - Omega0) %*% H2
     cv  <- colSums(H)^2 - colSums(H2)^2 - 2 * colSums(H1 * H12)

@@ -127,7 +127,7 @@ void precond_matrix(const arma::mat& Omega12, const arma::mat& P, arma::vec& c) 
   if (r < s) {
     arma::mat H12 = H1.t() * Omega12;
     c  = arma::pow(arma::sum(H1, 0).t(), 2.0);
-    c += 2.0 * arma::sum(H12 * H2.t(), 1);
+    c += 2.0 * arma::sum(H12 % H2.t(), 1);
   } else {
     arma::mat H12 = (1 - Omega12) * H2;
     c  = arma::pow(arma::sum(H, 0).t(), 2.0);
