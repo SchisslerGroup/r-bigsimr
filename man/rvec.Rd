@@ -10,7 +10,8 @@ rvec(
   rho,
   margins,
   type = c("pearson", "kendall", "spearman"),
-  ensure_PSD = FALSE
+  ensure_PSD = FALSE,
+  cores = 1L
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ be Pearson by default).}
 \item{ensure_PSD}{Ensure that the converted correlation matrix is positive
 semi-definite. More import if the input correlation type is Kendall or
 Spearman.}
+
+\item{cores}{The number of cores to run on}
 }
 \value{
 A matrix of random vectors generated from the specified marginals
