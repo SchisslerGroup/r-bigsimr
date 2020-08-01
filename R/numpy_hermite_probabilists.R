@@ -19,3 +19,18 @@ numpy_hermegauss <- function(n = 1L) {
   names(ret) <- c("nodes", "weights")
   ret
 }
+
+
+#' Hermite polynomial evaluation - "Probabilists"
+#'
+#' Evaluate the nth degree Hermite polynomial at x
+#'
+#' @param x a scalar or vector of numerical values
+#' @param n The degree of the Hermite polynomial
+#' @export
+numpy_hermite_e <- function(x, n) {
+  reticulate::source_python(file = "R/py_hermite_e.py", convert = FALSE)
+  ret <- py_hermite_e(reticulate::np_array(x), as.integer(n))
+  unlist(reticulate::py_to_r(ret))
+}
+

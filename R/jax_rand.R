@@ -54,7 +54,7 @@ jax_rmvu <- function(n, rho, min = 0, max = 1) {
 
   if (length(max) > 1) {
     if (length(max) != d)
-      stop("'min' must either be length 1 or the same length as the number of dimensions.")
+      stop("'max' must either be length 1 or the same length as the number of dimensions.")
     u <- matrix(1, n, 1) %*% max
   } else {
     u <- matrix(max, n, d)
