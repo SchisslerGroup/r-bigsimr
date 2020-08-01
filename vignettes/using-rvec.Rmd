@@ -91,7 +91,7 @@ margins = alist(
 The next step is to define a correlation structure for the multivariate distribution. This correlation matrix can either come from observed data, or we can set it ourselves, or we can generate a random correlation matrix via `bigsimr::rcor`. Let's create a simple correlation matrix where all off-diagonal elements are 0.5. Since we have 3 marginals, we need a $3\times 3$ matrix.
 
 ```{r}
-rho <- cor_rand_PD(4)
+rho <- cor_randPD(4)
 ```
 
 ```{r, echo=FALSE}

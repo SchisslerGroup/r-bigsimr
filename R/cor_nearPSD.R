@@ -20,7 +20,7 @@
     eigvals[1]^2 * tcrossprod(eigvecs[,1,drop=FALSE], eigvecs[,1,drop=FALSE])
   } else if (r == n) {
     X
-  } else if (r <= n) {
+  } else if (r <= s) {
     P1   <- eigvecs[,1:r,drop=FALSE]
     l1   <- sqrt(head(eigvals, r))
     P1l1 <- sweep(P1, 2, l1, "*")
@@ -89,7 +89,7 @@
 
   if (r < s) {
     H12 <- crossprod(H1, Omega0)
-    cv  <- colSums(H1)^2 + 2 * rowSums(tcrossprod(H12, H2))
+    cv  <- colSums(H1)^2 + 2 * rowSums(H12 * t(H2))
   } else {
     H12 <- (1.0 - Omega0) %*% H2
     cv  <- colSums(H)^2 - colSums(H2)^2 - 2 * colSums(H1 * H12)

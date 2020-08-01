@@ -5,7 +5,7 @@
 \title{Install bigsimr and its dependencies}
 \usage{
 install_bigsimr(
-  method = c("auto", "virtualenv", "conda"),
+  method = c("auto", "conda", "virtualenv"),
   conda = "auto",
   envname = NULL,
   restart_session = TRUE,

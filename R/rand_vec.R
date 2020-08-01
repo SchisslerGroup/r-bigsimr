@@ -11,14 +11,27 @@
 #' @param rho The input correlation matrix.
 #' @param margins The marginal distributions (Typically R's "quantile functions")
 #' @param type The type of correlation matrix that is being passed (Assumed to
-#'   be Pearson by default).
+#'    be Pearson by default).
+#' @param ensure_PSD Ensure that the converted correlation matrix is positive
+#'    semi-definite. More import if the input correlation type is Kendall or
+#'    Spearman.
+#' @param cores The number of cores to run on
 #' @return A matrix of random vectors generated from the specified marginals
 #'   and parameters.
 #' @export
-rvec <- function(n, rho, margins, type = c("pearson", "kendall", "spearman")){
+rvec <- function(n, rho, margins, type = c("pearson", "kendall", "spearman"),
+                 ensure_PSD=FALSE, cores = 1L){
 
   type  <- match.arg(type)
   rho   <- cor_convert(rho, from = type, to = "pearson")
+
+  if (ensure_PSD)
+    rho <- cor_nearPSD(rho)
+
+  if (!is.integer(cores)) {
+    warning("The number of cores must be a positive integer. Defaulting to 1 core.")
+    cores <- 1L
+  }
 
   # generate multivariate uniform distribution (via Z -> U)
   U <- .rmvuu(n, rho)
@@ -26,9 +39,26 @@ rvec <- function(n, rho, margins, type = c("pearson", "kendall", "spearman")){
   # Apply the copula algorithm
   d <- nrow(rho)
 
-  rv <- sapply(1:d, function(i){
-    .u2m(U[,i], margins[[i]])
-  })
+  if (cores <= 1L) {
+
+    rv <- sapply(1:d, function(i){
+      .u2m(U[,i], margins[[i]])
+    })
+
+
+  } else {
+
+    `%dopar%` <- foreach::`%dopar%`
+    cl <- parallel::makeCluster(cores, type = "FORK")
+    doParallel::registerDoParallel(cl)
+
+    rv <- foreach::foreach(i = 1:d, .combine = 'cbind') %dopar% {
+      .u2m(U[,i], margins[[i]])
+    }
+
+    parallel::stopCluster(cl)
+
+  }
 
   rv
 }
