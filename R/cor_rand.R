@@ -52,7 +52,7 @@ cor_randPD <- function(d, a=1.0) {
 #'
 #' @param d A positive integer number of dimensions
 #' @param k A tuning parameter
-#' @importFrom stats rnorm runif
+#' @importFrom stats rnorm runif cov2cor
 #' @export
 cor_randPSD <- function(d, k=d) {
   if (d == 1) {

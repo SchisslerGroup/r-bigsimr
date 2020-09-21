@@ -4,7 +4,6 @@
 #define PERTURBATION 1.0e-9
 
 
-// Verified
 void Jacobian(
     const arma::vec& x,
     const arma::mat& Omega12,
@@ -49,7 +48,6 @@ void Jacobian(
 }
 
 
-// Verified
 void gradient(
     const arma::vec& y,
     const arma::vec& lambda,
@@ -81,7 +79,6 @@ void gradient(
 }
 
 
-// Verified
 void omega_mat(const arma::vec& lambda, arma::mat& Omega12) {
 
   int n = lambda.n_elem;
@@ -106,7 +103,6 @@ void omega_mat(const arma::vec& lambda, arma::mat& Omega12) {
 }
 
 
-// Verified
 void precond_matrix(const arma::mat& Omega12, const arma::mat& P, arma::vec& c) {
 
   int n = P.n_cols;
@@ -139,7 +135,6 @@ void precond_matrix(const arma::mat& Omega12, const arma::mat& P, arma::vec& c) 
 }
 
 
-// Verified
 void pre_cg(const arma::vec& b, const arma::vec& c, const arma::mat& Omega12,
             const arma::mat& P, const double& precg_err_tol, const int& maxit, arma::vec& p) {
 
@@ -189,7 +184,6 @@ void pre_cg(const arma::vec& b, const arma::vec& c, const arma::mat& Omega12,
 }
 
 
-// Probably correct
 void PCA(const arma::vec& lambda, const arma::mat& P, arma::mat& X) {
 
   int n = P.n_cols;
@@ -224,12 +218,27 @@ void PCA(const arma::vec& lambda, const arma::mat& P, arma::mat& X) {
 void cov2cor(arma::mat& X) {
   arma::mat D = arma::pinv(arma::diagmat(arma::sqrt(arma::diagvec(X))));
   X = D * X * D;
+  for (int i = 0; i < X.n_cols; ++i) {
+    X(i, i) = 1.0;
+  }
   return;
 }
 
-
+//' Calculate the nearest positive semi-definite correlation matrix
+//'
+//' @param G the input correlation matrix
+//' @param tau A user-dependent tuning parameter that determines the accuracy
+//'     of the final correlation matrix. Smaller values generally mean faster
+//'     convergence
+//' @param iter_outer the max number of iterations in the outer loop
+//' @param iter_inner the max number of iterations in the inner loop
+//' @param maxit Maximum number of iterations in the pre_cg routine
+//' @param err_tol the error tolerance for the stopping criteria
+//' @param precg_err_tol the error tolerance in the pre-conjugate gradient method
+//' @param newton_err_tol the error tolerance in Newton's method
+//' @export
 // [[Rcpp::export]]
-arma::mat CXX_cor_nearPSD(
+arma::mat cor_nearPSD(
     arma::mat G,
     double tau=1e-5,
     int iter_outer=200,
@@ -331,5 +340,3 @@ arma::mat CXX_cor_nearPSD(
   cov2cor(X);
   return X;
 }
-
-
