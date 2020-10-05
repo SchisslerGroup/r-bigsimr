@@ -99,6 +99,5 @@ cor_bounds <- function(margins,
     parallel::stopCluster(cl)
   }
 
-  list(upper = rho_upper,
-       lower = rho_lower)
+  list(lower = rho_lower, upper = rho_upper)
 }

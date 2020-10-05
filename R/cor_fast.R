@@ -23,10 +23,10 @@ cor_fast <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) 
 
   } else if (method == "spearman") {
     if (is.null(y)) {
-      coop::pcor(apply(x, 2, fastrank::fastrank_average))
+      coop::pcor(apply(x, 2, fastrank::fastrank_num_avg))
     } else {
-      coop::pcor(fastrank::fastrank_average(x),
-                 fastrank::fastrank_average(y))
+      coop::pcor(fastrank::fastrank_num_avg(x),
+                 fastrank::fastrank_num_avg(y))
     }
 
   } else {
