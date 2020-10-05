@@ -12,7 +12,6 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-reticulate::use_condaenv("bigsimr-cpu")
 ```
 
 ```{r setup}
@@ -123,7 +122,6 @@ x <- bigsimr::rvec(10000, rho = rho, margins = margins, type = "pearson")
 ```
 
 ```{r, echo=FALSE}
-par(mfrow=c(2,2))
 hist(x[,1], breaks = 30, xlab = "", main = "Normal")
 hist(x[,2], breaks = 30, xlab = "", main = "Beta")
 hist(x[,3], breaks = 30, xlab = "", main = "Negative Binomial")
