@@ -11,7 +11,7 @@ Pearson, Spearman, or Kendall, and we use a matching algorithm to ensure
 that the estimated correlation of the simulated data is the same as the
 input correlation.
 
-### See the [website](https://schisslergroup.github.io/bigsimr/) for more information, including [installation instructions](#), [tutorials](https://schisslergroup.github.io/bigsimr/articles/using-rvec.html), and [package documentation](https://schisslergroup.github.io/bigsimr/reference/index.html).
+### See the [website](https://schisslergroup.github.io/bigsimr/) for more information, including [installation instructions](https://schisslergroup.github.io/bigsimr/articles/install-bigsimr.html), [tutorials](https://schisslergroup.github.io/bigsimr/articles/using-rvec.html), and [package documentation](https://schisslergroup.github.io/bigsimr/reference/index.html).
 
 You can install the release version of the package from GitHub:
 

@@ -12,6 +12,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+reticulate::use_condaenv("bigsimr-cpu")
 ```
 
 ```{r setup}
@@ -26,22 +27,22 @@ The main function is `bigsimr::rvec` which mirrors some of the conventions found
 
 
 ```{r}
-# Generating samples from a normal distribution
-# We need three things:
+# To generate normally distributed samples, three things are needed:
 #   1) The number of samples to generate
 #   2) The location of the normal distribution (mean)
 #   3) The scale of the normal distribution (standard deviation)
-
 rnorm(n = 16, mean = 5, sd = 1.5)
 ```
 
+
+The function `rvec` behaves similarly. It takes in as arguments the number of samples to generate, a correlation matrix, and a list of margins. The parameters of the margins can be arbitrary and the correlation matrix can take on values within a broad range constrained by the theoretical bounds. In the following sections we will go through the basic usage of `bigsimr` and the functionality within.
 
 # Building a Multivariate Distribution
 
 As stated earlier, to generate multivariate data, we need a list of marginals (and their parameters), and a correlation structure (matrix). The marginal distributions can be built up using R's special `alist` function. This allows one to enter the distributions without evaluating anything (yet).
 
 ```{r}
-margins = alist(
+margins <- alist(
   qnorm(mean = 3.14, sd = 0.1),
   qbeta(shape1 = 1, shape2 = 4),
   qnbinom(size = 10, prob = 0.75)
@@ -68,18 +69,18 @@ qpareto <- function(p, scale, shape) {
 }
 ```
 
-Writing a RNG function for our new distribution is as simple as calling the quantile function of a unit uniform distribution.
+Writing a RNG function for our new distribution can be accomplished by calling the quantile function on the output of a unit uniform distribution.
 
 ```{r}
 rpareto <- function(n, scale, shape) {
-  qpareto(runif(n))
+  qpareto(runif(n), scale, shape)
 }
 ```
 
 The new distribution can then be used in the list of marginals.
 
 ```{r}
-margins = alist(
+margins <- alist(
   qnorm(mean = 3.14, sd = 0.1),
   qbeta(shape1 = 1, shape2 = 4),
   qnbinom(size = 10, prob = 0.75),
@@ -88,10 +89,12 @@ margins = alist(
 ```
 
 
-The next step is to define a correlation structure for the multivariate distribution. This correlation matrix can either come from observed data, or we can set it ourselves, or we can generate a random correlation matrix via `bigsimr::rcor`. Let's create a simple correlation matrix where all off-diagonal elements are 0.5. Since we have 3 marginals, we need a $3\times 3$ matrix.
+The next step is to define a correlation structure for the multivariate distribution. This correlation matrix can either come from observed data, or we can set it ourselves, or we can generate a random correlation matrix via `bigsimr::cor_randPSD`. Since we have 4 marginals, we need a $4\times 4$ matrix.
 
 ```{r}
-rho <- cor_randPD(4)
+set.seed(12)
+# rho <- bigsimr::cor_randPD(4)
+rho <- bigsimr::cor_randPSD(4)
 ```
 
 ```{r, echo=FALSE}
@@ -101,10 +104,10 @@ round(rho, 3)
 
 Finally we can generate a random vector with our specified marginals and correlation structure. The last argument, `type`, is looking to know what kind of correlation matrix it is receiving. Right now it can handle Pearson, Spearman, or Kendall.
 
-If you have the CPU version of JAX installed, you may see an error similar to `warning.warn('No GPU/TPU found, falling back to CPU.')`. This is just a message letting you know that JAX is running on the CPU instead.
+If you have the CPU version of JAX installed, you may see an error similar to `warning.warn('No GPU/TPU found, falling back to CPU.')`. This message indicates that JAX is running on the CPU rather than a GPU/TPU.
 
 ```{r}
-x <- rvec(10, rho = rho, margins = margins, type = "pearson")
+x <- bigsimr::rvec(10, rho = rho, margins = margins, type = "pearson")
 ```
 
 Taking a look at our random vector, we see that it has 10 rows and 4 columns, one column for each marginal distribution.
@@ -116,10 +119,11 @@ x
 We can simulate many more samples and then check the histogram of each margin, as well as the estimated correlation between the columns.
 
 ```{r}
-x <- rvec(10000, rho = rho, margins = margins, type = "pearson")
+x <- bigsimr::rvec(10000, rho = rho, margins = margins, type = "pearson")
 ```
 
 ```{r, echo=FALSE}
+par(mfrow=c(2,2))
 hist(x[,1], breaks = 30, xlab = "", main = "Normal")
 hist(x[,2], breaks = 30, xlab = "", main = "Beta")
 hist(x[,3], breaks = 30, xlab = "", main = "Negative Binomial")
@@ -127,14 +131,21 @@ hist(x[,4], breaks = 30, xlab = "", main = "Pareto")
 ```
 
 ```{r}
-round(cor(x), 2)
+round(bigsimr::cor_fast(x, method = "pearson"), 2)
 ```
 
 ```{r}
 round(rho, 2)
 ```
 
-We can see that even with 10,000 samples, the estimated correlation of the simulated data is not exactly the same as the target correlation. This can be explained by the fact that some correlations are simply not possible due to the discrete nature of certain distributions. Another possibility is that the copula algorithm is biased and needs correction.
+We can see that even with 10,000 samples, the estimated correlation of the simulated data is not exactly the same as the target correlation. This can be explained by the fact that some correlations are simply not possible due to the discrete nature of certain distributions.
+
+We can check the theoretical correlation bounds in bigsimr
+
+```{r}
+bigsimr::cor_bounds(margins, type = "pearson")
+```
+
 
 # Appendix
 
