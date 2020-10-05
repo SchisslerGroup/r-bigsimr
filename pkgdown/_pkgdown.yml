@@ -1,3 +1,9 @@
+url: https://schisslergroup.github.io/bigsimr/
+
+template:
+  params:
+    bootswatch: flatly
+
 authors:
   Alex Knudson:
     href: https://github.com/adknudson
@@ -7,7 +13,7 @@ authors:
     href: https://github.com/rdlfoote
 
 reference:
-  - title: Main Functions
+  - title: Primary Functions
     contents:
     - rvec
 
@@ -15,6 +21,22 @@ reference:
     contents:
     - starts_with("cor_")
 
+  - title: Numpy Implementations
+    contents:
+    - starts_with("numpy_")
+
   - title: Jax Implementations
     contents:
     - starts_with("jax_")
+
+  - title: Utilities
+    contents:
+    - install_bigsimr
+    - starts_with("have_")
+
+articles:
+- title: Articles
+  navbar: Get Started
+  contents:
+  - install-bigsimr
+  - using-rvec

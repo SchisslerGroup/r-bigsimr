@@ -16,6 +16,7 @@
 
 # RStudio files
 .Rproj.user/
+.Rprofile
 
 # produced vignettes
 vignettes/*.html
@@ -43,3 +44,4 @@ scratch
 perf
 Meta
 docs
+doc

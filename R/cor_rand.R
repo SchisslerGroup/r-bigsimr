@@ -1,6 +1,3 @@
-#' Internal function for `cor_rand_PD()`
-#' @param A The submatrix
-#' @param a The parameters for `rbeta`
 #' @importFrom stats rbeta
 .rjm <- function(A, a) {
   b     <- dim(A)[1]
@@ -23,7 +20,7 @@
 #' @param a A tuning parameter
 #' @importFrom stats runif rbeta
 #' @export
-cor_rand_PD <- function(d, a=1.0) {
+cor_randPD <- function(d, a=1.0) {
   if (d == 1) {
     matrix(1, 1, 1)
   } else if (d == 2) {
@@ -49,13 +46,15 @@ cor_rand_PD <- function(d, a=1.0) {
 }
 
 
-#' Compute a random positive semi-definite correlation matrix
+#' Compute a random positive semidefinite correlation matrix
+#'
+#' This method is generally faster than \code{\link{cor_randPD}}
 #'
 #' @param d A positive integer number of dimensions
 #' @param k A tuning parameter
-#' @importFrom stats rnorm runif
+#' @importFrom stats rnorm runif cov2cor
 #' @export
-cor_rand_PSD <- function(d, k=d) {
+cor_randPSD <- function(d, k=d) {
   if (d == 1) {
     return(matrix(1, 1, 1))
   }

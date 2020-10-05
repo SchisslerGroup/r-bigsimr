@@ -4,7 +4,6 @@
 #define PERTURBATION 1.0e-9
 
 
-// Verified
 void Jacobian(
     const arma::vec& x,
     const arma::mat& Omega12,
@@ -14,8 +13,6 @@ void Jacobian(
   int n = P.n_cols;
   int r = Omega12.n_rows;
   int s = Omega12.n_cols;
-
-  arma::mat Omega(r, s);
 
   if (r == 0) {
     // TODO: this should probably throw an exception
@@ -51,7 +48,6 @@ void Jacobian(
 }
 
 
-// Verified
 void gradient(
     const arma::vec& y,
     const arma::vec& lambda,
@@ -73,7 +69,7 @@ void gradient(
 
     // column j is multiplied by lambda[j]
     for (int j = 0; j < n; j++) {
-      P.col(j) *= l1(j);
+      P.col(j) *= std::sqrt(l1(j));
     }
 
     Fy = arma::sum(P % P, 1);
@@ -83,7 +79,6 @@ void gradient(
 }
 
 
-// Verified
 void omega_mat(const arma::vec& lambda, arma::mat& Omega12) {
 
   int n = lambda.n_elem;
@@ -108,7 +103,6 @@ void omega_mat(const arma::vec& lambda, arma::mat& Omega12) {
 }
 
 
-// Verified
 void precond_matrix(const arma::mat& Omega12, const arma::mat& P, arma::vec& c) {
 
   int n = P.n_cols;
@@ -128,26 +122,25 @@ void precond_matrix(const arma::mat& Omega12, const arma::mat& P, arma::vec& c) 
 
   if (r < s) {
     arma::mat H12 = H1.t() * Omega12;
-    c  = arma::pow(arma::sum(H1, 0), 2.0);
-    c += 2.0 * arma::sum(H12 * H2.t(), 1);
+    c  = arma::pow(arma::sum(H1, 0).t(), 2.0);
+    c += 2.0 * arma::sum(H12 % H2.t(), 1);
   } else {
     arma::mat H12 = (1 - Omega12) * H2;
-    c  = arma::pow(arma::sum(H, 0), 2.0);
-    c -= arma::pow(arma::sum(H2, 0), 2.0);
-    c -= 2 * arma::sum((H1 % H12), 0);
+    c  = arma::pow(arma::sum(H, 0).t(), 2.0);
+    c -= arma::pow(arma::sum(H2, 0).t(), 2.0);
+    c -= 2 * arma::sum((H1 % H12), 0).t();
   }
   c.elem(find(c < 1.0e-8)).fill(1.0e-8);
   return;
 }
 
 
-// Verified
 void pre_cg(const arma::vec& b, const arma::vec& c, const arma::mat& Omega12,
-            const arma::mat& P, const double& tol, const int& maxit, arma::vec& p) {
+            const arma::mat& P, const double& precg_err_tol, const int& maxit, arma::vec& p) {
 
   int n = P.n_cols;
 
-  double tolb = tol * arma::norm(b, 2);
+  double tolb = precg_err_tol * arma::norm(b, 2);
 
   arma::vec rv(b);
   arma::vec z = rv / c;
@@ -178,12 +171,11 @@ void pre_cg(const arma::vec& b, const arma::vec& c, const arma::mat& Omega12,
       rv -= alpha * w;
     }
 
-    z = rv / c;
-
     normr = arma::norm(rv, 2);
     if (normr <= tolb) {
       return;
     } else {
+      z = rv / c;
       rz2 = rz1;
       rz1 = arma::accu(rv % z);
     }
@@ -192,7 +184,6 @@ void pre_cg(const arma::vec& b, const arma::vec& c, const arma::mat& Omega12,
 }
 
 
-// Probably correct
 void PCA(const arma::vec& lambda, const arma::mat& P, arma::mat& X) {
 
   int n = P.n_cols;
@@ -206,16 +197,19 @@ void PCA(const arma::vec& lambda, const arma::mat& P, arma::mat& X) {
     return;
   } else if (r == 1) {
     X = lambda(0) * lambda(0) * (P.col(0) * P.col(0).t());
+    return;
   } else if (r <= s) {
     arma::mat P1 = P.head_cols(r);
     arma::vec l1 = arma::sqrt(lambda.head(r));
     arma::mat P1l1 = P1.each_row() % l1.t();
     X = P1l1 * P1l1.t();
+    return;
   } else { // (r > s)
     arma::mat P2 = P.tail_cols(s);
     arma::vec l2 = arma::sqrt(-1.0 * lambda.tail(s));
     arma::mat P2l2 = P2.each_row() % l2.t();
     X += P2l2 * P2l2.t();
+    return;
   }
   return;
 }
@@ -224,20 +218,35 @@ void PCA(const arma::vec& lambda, const arma::mat& P, arma::mat& X) {
 void cov2cor(arma::mat& X) {
   arma::mat D = arma::pinv(arma::diagmat(arma::sqrt(arma::diagvec(X))));
   X = D * X * D;
+  for (int i = 0; i < X.n_cols; ++i) {
+    X(i, i) = 1.0;
+  }
   return;
 }
 
-
+//' Calculate the nearest positive semi-definite correlation matrix
+//'
+//' @param G the input correlation matrix
+//' @param tau A user-dependent tuning parameter that determines the accuracy
+//'     of the final correlation matrix. Smaller values generally mean faster
+//'     convergence
+//' @param iter_outer the max number of iterations in the outer loop
+//' @param iter_inner the max number of iterations in the inner loop
+//' @param maxit Maximum number of iterations in the pre_cg routine
+//' @param err_tol the error tolerance for the stopping criteria
+//' @param precg_err_tol the error tolerance in the pre-conjugate gradient method
+//' @param newton_err_tol the error tolerance in Newton's method
+//' @export
 // [[Rcpp::export]]
-arma::mat CXX_nearPDcor(
+arma::mat cor_nearPSD(
     arma::mat G,
     double tau=1e-5,
     int iter_outer=200,
     int iter_inner=20,
     int maxit=200,
-    double tol=1e-2,
     double err_tol=1e-6,
-    double sigma1=1e-4) {
+    double precg_err_tol=1e-2,
+    double newton_err_tol=1e-4) {
 
   int n = G.n_cols;
 
@@ -261,7 +270,7 @@ arma::mat CXX_nearPDcor(
   lambda = arma::reverse(lambda);
   P = arma::fliplr(P);
 
-  arma::vec Fy(n, arma::fill::zeros);
+  arma::vec Fy(n);
   double f0;
   gradient(y, lambda, P, b0, f0, Fy);  // modifies f0 and Fy
   double f = f0;
@@ -269,6 +278,7 @@ arma::mat CXX_nearPDcor(
 
   arma::mat Omega12;
   omega_mat(lambda, Omega12);  // modifies Omega12
+  arma::vec x0(y);
 
   PCA(lambda, P, X);
   double val_G    = 0.5 * std::pow(arma::norm(G, 2), 2);
@@ -280,14 +290,13 @@ arma::mat CXX_nearPDcor(
   double normb0 = arma::norm(b0, 2) + 1;
   double delta_nb = normb / normb0;
 
-  arma::vec x0(y);
   arma::vec c(n, arma::fill::ones);
   arma::vec d(n, arma::fill::zeros);
 
   int k = 0;
   while ( (gap > err_tol) && (delta_nb > err_tol) && (k < iter_outer) ) {
-    precond_matrix(Omega12, P, c);            // modifies c
-    pre_cg(b, c, Omega12, P, tol, maxit, d);  // modifies d
+    precond_matrix(Omega12, P, c);                      // modifies c
+    pre_cg(b, c, Omega12, P, precg_err_tol, maxit, d);  // modifies d
 
     double slope = arma::accu((Fy - b0) % d);
 
@@ -300,9 +309,9 @@ arma::mat CXX_nearPDcor(
 
     int k_inner = 0;
     while ( (k_inner <= iter_inner) &&
-            (f > f0 + sigma1 * std::pow(0.5, k_inner) * slope + 1.0e-6) ) {
+            (f > f0 + newton_err_tol * slope * std::pow(0.5, k_inner) + 1.0e-6) ) {
       ++k_inner;
-      y = x0 + std::pow(0.5, k_inner) * d;
+      y = x0 + d * std::pow(0.5, k_inner);
       X = G + diagmat(y);
       arma::eig_sym(lambda, P, X);
       lambda = arma::reverse(lambda);
@@ -318,7 +327,6 @@ arma::mat CXX_nearPDcor(
     val_obj  = 0.5 * std::pow(arma::norm(X - G, 2), 2);
     gap      = (val_obj - val_dual) / (1 + std::abs(val_dual) + std::abs(val_obj));
 
-
     b = b0 - Fy;
     normb = arma::norm(b, 2);
     delta_nb = normb / normb0;
@@ -332,5 +340,3 @@ arma::mat CXX_nearPDcor(
   cov2cor(X);
   return X;
 }
-
-

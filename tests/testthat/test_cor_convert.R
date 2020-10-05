@@ -3,9 +3,9 @@ test_that("cor_convert works for scalars, vectors, and matrices", {
   K <- "kendall"
   P <- "pearson"
 
-  rs <- cor_rand_PD(4)
-  rk <- cor_rand_PD(4)
-  rp <- cor_rand_PD(4)
+  rs <- cor_randPD(4)
+  rk <- cor_randPD(4)
+  rp <- cor_randPD(4)
 
   rsk <- cor_convert(rs, S, K)
   rsp <- cor_convert(rs, S, P)
