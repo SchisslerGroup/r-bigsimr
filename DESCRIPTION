@@ -1,6 +1,6 @@
 Package: bigsimr
 Title: An R Package for Generating High-Dimensional Random Vectors
-Version: 0.7.0
+Version: 0.7.2
 Authors@R:
     c(person(given = "Alex",
              family = "Knudson",
@@ -20,7 +20,9 @@ RoxygenNote: 7.1.1
 Suggests:
     knitr,
     rmarkdown,
-    testthat
+    testthat,
+    tidyverse,
+    patchwork
 VignetteBuilder: knitr
 Imports:
     Matrix,

@@ -14,6 +14,8 @@ cor_fast <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) 
     x <- as.matrix(x)
   }
 
+  storage.mode(x) <- "double"
+
   if (method == "pearson") {
     if (is.null(y)) {
       coop::pcor(x)

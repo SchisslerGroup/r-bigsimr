@@ -5,15 +5,196 @@ vignette: >
   %\VignetteIndexEntry{Get Started}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{tidyverse, patchwork}
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 6,
+  fig.height = 4
 )
 ```
 
+## Installation
+
+Please see the [Installation and Setup](https://schisslergroup.github.io/bigsimr/articles/install-bigsimr.html) page for getting `bigsimr` up and running. `bigsimr` requires a working version of Python that can be found in the path variable. It is also required that the version of python has `numpy` and `jax` installed.
+
+## Usage
+
 ```{r setup}
 library(bigsimr)
+library(tidyverse)
+library(patchwork)
 ```
+
+We're going to show the basic use and syntax of `bigsimr` by using the New York air quality data set (`airquality`) included in the R `datasets` package. We will focus specifically on the temperature (degrees Fahrenheit) and ozone level (parts per billion).
+
+```{r}
+df <- airquality %>%
+  select(Ozone, Temp) %>%
+  drop_na()
+
+glimpse(df)
+```
+
+Let's look at the joint distribution of the Ozone and Temperature
+
+```{r}
+p0 <- ggplot(df, aes(Temp, Ozone)) +
+  geom_point(size = 1) +
+  theme(legend.position = "none") +
+  labs(x = "Temperature")
+
+pTemp <- ggplot(df, aes(Temp)) + 
+  geom_density() +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+pOzone <- ggplot(df, aes(Ozone)) + 
+  geom_density() + 
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank()) +
+  coord_flip() 
+
+pTemp + plot_spacer() + p0 + pOzone + 
+  plot_layout(widths = c(3,1), heights = c(1, 3))
+```
+
+We can see that not all margins are normally distributed; the ozone level is highly skewed. Though we don't know the true distribution of ozone levels, we can go forward assuming that it is log-normally distributed.
+
+To simulate observations from this joint distribution, we need to estimate the correlation and the marginal parameters.
+
+### Estimating Correlation
+
+To estimate the correlation, we can use `R`'s function `cor` or we can use the convenience function `bigsimr::cor_fast` which can estimate Pearson, Spearman, or Kendall correlation using the fastest methods available from other packages.
+
+```{r}
+(rho <- cor_fast(df, method = "pearson"))
+```
+
+### Defining Marginal Distributions
+
+Next we can estimate the marginal parameters. Assuming that `Temperature` is normally distributed, it has parameters
+
+```{r}
+df %>% select(Temp) %>% summarise_all(.funs = c(mean = mean, sd = sd))
+```
+
+and assuming that `Ozone` is log-normally distributed, it has parameters
+
+```{r}
+mle_mean <- function(x) mean(log(x))
+mle_sd <- function(x) mean( (log(x) - mean(log(x)))^2 )
+
+df %>% select(Ozone) %>% 
+  summarise_all(.funs = c(meanlog = mle_mean, sdlog = mle_sd))
+```
+
+Finally we take the parameters and put them into an `alist` of margins.
+
+```{r}
+margins <- alist(
+  qlnorm(meanlog = 3.42, sdlog = 0.743),
+  qnorm(mean = 77.9, sd = 9.49)
+)
+```
+
+Right now the marginal parameters must be filled in manually with the quantile function of the distribution. If the margins are homogeneous, then some automation can be implemented.
+
+### Correlation Bounds
+
+Given a list of margins, the theoretical lower and upper correlation coefficients can be estimated.
+
+```{r}
+cor_bounds(margins = margins, type = "pearson")
+```
+
+Since our estimated correlation is within the theoretical bounds (assuming the distributions are correct), we should be able to achieve a similar correlation in the simulated data.
+
+### Simulating Multivariate Distributions
+
+Let's now simulate 10,000 observations from the joint distribution using `bigsimr::rvec`
+
+```{r}
+x <- rvec(10000, rho, margins, "pearson")
+
+df_sim <- as.data.frame(x)
+colnames(df_sim) <- colnames(df)
+```
+
+and visualize the joint distribution
+
+```{r}
+p1 <- df_sim %>%
+  ggplot(aes(Temp, Ozone)) +
+  geom_density_2d_filled() +
+  theme(legend.position = "none") +
+  labs(x = "Temperature", y = "Ozone") +
+  scale_y_continuous(limits = c(0, max(df$Ozone))) +
+  scale_x_continuous(limits = range(df$Temp))
+
+p1Temp <- ggplot(df_sim, aes(Temp)) + 
+  geom_density(alpha = 0.5, fill = "lightseagreen") +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+p1Ozone <- ggplot(df_sim, aes(Ozone)) + 
+  geom_density(alpha = 0.5, fill = "lightseagreen") + 
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank()) +
+  coord_flip() 
+
+p1Temp + plot_spacer() + p1 + p1Ozone + 
+  plot_layout(widths = c(3,1), heights = c(1, 3))
+```
+
+## Comparison to Uncorrelated Samples
+
+We can compare the bivariate distribution above to one where no correlation is taken into account.
+
+```{r}
+df_sim2 <- data.frame(
+  Ozone = rlnorm(10000, mle_mean(df$Ozone), mle_sd(df$Ozone)),
+  Temp = rnorm(10000, mean(df$Temp), sd(df$Temp))
+)
+```
+
+```{r, echo=FALSE, warning=FALSE}
+p2 <- df_sim2 %>%
+  ggplot(aes(Temp, Ozone)) +
+  geom_density_2d_filled() +
+  theme(legend.position = "none") +
+  labs(x = "Temperature", y = "Ozone") +
+  scale_y_continuous(limits = c(0, max(df$Ozone))) +
+  scale_x_continuous(limits = range(df$Temp))
+
+p2Temp <- ggplot(df_sim2, aes(Temp)) + 
+  geom_density(alpha = 0.5, fill = "lightseagreen") +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+p2Ozone <- ggplot(df_sim2, aes(Ozone)) + 
+  geom_density(alpha = 0.5, fill = "lightseagreen") + 
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank()) +
+  coord_flip() 
+
+p2Temp + plot_spacer() + p2 + p2Ozone + 
+  plot_layout(widths = c(3,1), heights = c(1, 3))
+```
+
+Notice that this uncorrelated bivariate distribution has the same marginal distributions as the correlated example above.
