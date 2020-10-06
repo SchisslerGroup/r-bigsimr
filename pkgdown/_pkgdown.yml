@@ -31,6 +31,7 @@ reference:
 
   - title: Utilities
     contents:
+    # - mlist
     - install_bigsimr
     - starts_with("have_")
 
