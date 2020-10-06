@@ -4,7 +4,6 @@ cache:
   directories:
     - "$HOME/.cache/pip"
 R:
-  - 3.5
   - 3.6
   - release
 
