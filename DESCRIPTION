@@ -9,6 +9,7 @@ Authors@R:
       person(given = "Grant",
              family = "Schissler",
              role = "aut"))
+Maintainer: Alex Knudson <aknudson@nevada.unr.edu>
 Description: This package simulates multivariate data with arbitrary marginal distributions.
 URL: https://github.com/SchisslerGroup/bigsimr
 BugReports: https://github.com/SchisslerGroup/bigsimr/issues
@@ -38,8 +39,6 @@ Imports:
     assertthat,
     reticulate,
     rstudioapi
-Remotes:
-    douglasgscofield/fastrank
 LinkingTo:
     Rcpp,
     RcppArmadillo

@@ -22,15 +22,16 @@
 rvec <- function(n, rho, margins, type = c("pearson", "kendall", "spearman"),
                  ensure_PSD=FALSE, cores = 1L){
 
-  type  <- match.arg(type)
-  rho   <- cor_convert(rho, from = type, to = "pearson")
+  type <- match.arg(type)
+  rho  <- cor_convert(rho, from = type, to = "pearson")
+  d    <- length(margins)
 
   if (ensure_PSD)
     rho <- cor_nearPSD(rho)
 
   if (!is.integer(cores)) {
-    warning("The number of cores must be a positive integer. Defaulting to 1 core.")
-    cores <- 1L
+    message("Number of cores implicitly cast as an integer.")
+    cores <- as.integer(cores)
   }
 
   # generate multivariate uniform distribution (via Z -> U)

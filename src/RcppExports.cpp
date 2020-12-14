@@ -61,11 +61,14 @@ BEGIN_RCPP
 END_RCPP
 }
 
+RcppExport SEXP fastrank_num_avg_(SEXP);
+
 static const R_CallMethodDef CallEntries[] = {
     {"_bigsimr_cor_convert_double", (DL_FUNC) &_bigsimr_cor_convert_double, 2},
     {"_bigsimr_cor_convert_matrix", (DL_FUNC) &_bigsimr_cor_convert_matrix, 2},
     {"_bigsimr_cor_nearPSD", (DL_FUNC) &_bigsimr_cor_nearPSD, 8},
     {"_bigsimr_hermite", (DL_FUNC) &_bigsimr_hermite, 2},
+    {"fastrank_num_avg_", (DL_FUNC) &fastrank_num_avg_, 1},
     {NULL, NULL, 0}
 };
 
