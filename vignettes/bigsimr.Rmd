@@ -90,7 +90,7 @@ and assuming that `Ozone` is log-normally distributed, it has parameters
 
 ```{r}
 mle_mean <- function(x) mean(log(x))
-mle_sd <- function(x) mean( (log(x) - mean(log(x)))^2 )
+mle_sd <- function(x) sqrt(mean( (log(x) - mean(log(x)))^2 ))
 
 df %>% select(Ozone) %>% 
   summarise_all(.funs = c(meanlog = mle_mean, sdlog = mle_sd))
@@ -100,7 +100,7 @@ Finally we take the parameters and put them into an `alist` of margins.
 
 ```{r}
 margins <- alist(
-  qlnorm(meanlog = 3.42, sdlog = 0.743),
+  qlnorm(meanlog = 3.42, sdlog = 0.862),
   qnorm(mean = 77.9, sd = 9.49)
 )
 ```
