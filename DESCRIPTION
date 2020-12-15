@@ -31,7 +31,6 @@ Imports:
     pcaPP,
     Rcpp,
     RcppArmadillo,
-    fastrank,
     foreach,
     parallel,
     doParallel,
