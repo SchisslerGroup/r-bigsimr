@@ -1,7 +1,6 @@
 language: R
 R:
   - 3.6
-  - release
 
 os:
   - linux
@@ -13,23 +12,16 @@ dist:
 r_packages:
   - reticulate
   - testthat
+
 cache:
   packages: true
   directories:
     - "$HOME/.cache/pip"
-addons:
-  apt:
-    sources: ubuntu-toolchain-r-test
 
 before_install:
-  - sudo apt-get update
-  - sudo apt-get install python3
-  - which pip
-  - which python
-  - which python3
-  - pip install --user numpy
-  - pip install --user scipy
-  - pip install --user --upgrade jax jaxlib
+  - pip3 install --user numpy
+  - pip3 install --user scipy
+  - pip3 install --user --upgrade jax jaxlib
 
 pandoc: true
 latex: false
