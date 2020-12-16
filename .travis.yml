@@ -1,8 +1,4 @@
 language: R
-cache:
-  packages: true
-  directories:
-    - "$HOME/.cache/pip"
 R:
   - 3.6
   - release
@@ -14,13 +10,22 @@ arch:
 dist:
   - bionic
 
+r_packages:
+  - reticulate
+  - testthat
+cache:
+  packages: true
+  directories:
+    - "$HOME/.cache/pip"
 addons:
   apt:
     sources: ubuntu-toolchain-r-test
-    packages:
-      - python3-dev
 
 before_install:
+  - sudo apt-get update
+  - sudo apt-get install python3
+  - which pip
+  - Rscript -e "reticulate::py_config()"
   - pip install --user numpy
   - pip install --user scipy
   - pip install --user --upgrade jax jaxlib
