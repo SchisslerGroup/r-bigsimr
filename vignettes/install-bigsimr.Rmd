@@ -19,19 +19,19 @@ knitr::opts_chunk$set(
 
 You can install the release version of the package from GitHub using devtools:
 
-```{r}
+```{r, eval=FALSE}
 devtools::install_github("SchisslerGroup/bigsimr")
 ```
 
 or the development version:
 
-```{r}
+```{r, eval=FALSE}
 devtools::install_github("SchisslerGroup/bigsimr", ref="develop")
 ```
 
 then load the package
 
-```{r}
+```{r, eval=FALSE}
 library(bigsimr)
 ```
 
@@ -41,13 +41,13 @@ library(bigsimr)
 
 bigsimr utilizes numpy and JAX python libraries to carry out some of the computationally heavy tasks. This requires that you have a working installation of python on your machine that can be found in the PATH. To check you can call
 
-```{r}
+```{r, eval=FALSE}
 reticulate::py_available()
 ```
 
 or the bigsimr helper function
 
-```{r}
+```{r, eval=FALSE}
 have_python()
 ```
 
@@ -57,13 +57,13 @@ If your system does not have python, you can install it simply with [Anaconda](h
 
 If you install Python with Anaconda or Miniconda, you can install the necessary python libraries with:
 
-```{r}
+```{r, eval=FALSE}
 install_bigsimr(method = "conda")
 ```
 
 This installs the libraries to the "base" conda environment. This should be fine for most users. If you would like finer control, you can create your own virtual environment through the command line or with reticulate:
 
-```{r}
+```{r, eval=FALSE}
 reticulate::conda_install(envname = "bigsimr-env",
                           packages = c("numpy", "jax", "jaxlib"),
                           pip = TRUE,
@@ -85,7 +85,7 @@ The following instructions can be found in more detail on [reticulates website](
 
 **First method**
 
-```{r}
+```{r, eval=FALSE}
 # Must be set before loading bigsimr
 reticulate::use_condaenv("bigsimr-env")
 library(bigsimr)
@@ -98,13 +98,13 @@ library(bigsimr)
 
 This will set a default python version each time you load up R or open R from a project folder. You can set the default by user
 
-```{r}
+```{r, eval=FALSE}
 usethis::edit_r_profile("user")
 ```
 
 If using Rstudio, this opens up the `.Rprofile` file for the user. Add the line
 
-```{r}
+```{r, eval=FALSE}
 reticulate::use_condaenv("bigsimr-env")
 # reticulate::use_python("/usr/local/bin/python")
 # reticulate::use_condaenv("myenv")
@@ -114,13 +114,13 @@ then save and restart your R session. Now whenever you launch R or Rstudio, reti
 
 You can also set the value by project. Open up a project folder in Rstudio.
 
-```{r}
+```{r, eval=FALSE}
 usethis::edit_r_profile("project")
 ```
 
 This creates and opens `.Rprofile` within the project directory. Add the line
 
-```{r}
+```{r, eval=FALSE}
 reticulate::use_condaenv("project-env")
 # reticulate::use_python("/usr/local/bin/python")
 # reticulate::use_condaenv("myenv")

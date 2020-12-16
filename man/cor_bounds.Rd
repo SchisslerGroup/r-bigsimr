@@ -17,7 +17,7 @@ cor_bounds(
 
 \item{type}{The type of correlation matrix that is being passed.}
 
-\item{cores}{The number of cores to utilize.}
+\item{cores}{NOT YET IMPLEMENTED}
 
 \item{reps}{The number of sims used to estimate the bounds.}
 }

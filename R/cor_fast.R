@@ -25,10 +25,10 @@ cor_fast <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) 
 
   } else if (method == "spearman") {
     if (is.null(y)) {
-      coop::pcor(apply(x, 2, fastrank::fastrank_num_avg))
+      coop::pcor(apply(x, 2, fastrank_num_avg))
     } else {
-      coop::pcor(fastrank::fastrank_num_avg(x),
-                 fastrank::fastrank_num_avg(y))
+      coop::pcor(fastrank_num_avg(x),
+                 fastrank_num_avg(y))
     }
 
   } else {
@@ -40,4 +40,8 @@ cor_fast <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) 
 
   }
 
+}
+
+fastrank_num_avg <- function(x) {
+  .Call("fastrank_num_avg_", x, PACKAGE = "bigsimr")
 }
