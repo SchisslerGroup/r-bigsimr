@@ -1,7 +1,7 @@
 language: R
 R:
   - 3.6
-python: 3.8.1
+  - release
 
 os:
   - linux
