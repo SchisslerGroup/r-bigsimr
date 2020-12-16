@@ -25,7 +25,8 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install python3
   - which pip
-  - Rscript -e "reticulate::py_config()"
+  - which python
+  - which python3
   - pip install --user numpy
   - pip install --user scipy
   - pip install --user --upgrade jax jaxlib
