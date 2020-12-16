@@ -1,3 +1,5 @@
+reticulate::py_config()
+
 library(testthat)
 library(bigsimr)
 
