@@ -1,6 +1,6 @@
 Package: bigsimr
 Title: An R Package for Generating High-Dimensional Random Vectors
-Version: 0.8.0
+Version: 0.8.1
 Authors@R:
     c(person(given = "Alex",
              family = "Knudson",
@@ -8,6 +8,9 @@ Authors@R:
              email = "aknudson@nevada.unr.edu"),
       person(given = "Grant",
              family = "Schissler",
+             role = "aut"),
+      person(given = "Duc",
+             family = "Tran",
              role = "aut"))
 Maintainer: Alex Knudson <aknudson@nevada.unr.edu>
 Description: Simulate multivariate data with arbitrary marginal distributions.
@@ -31,11 +34,8 @@ Imports:
     pcaPP,
     Rcpp,
     RcppArmadillo,
-    foreach,
     parallel,
-    doParallel,
     rlang,
-    assertthat,
     reticulate,
     rstudioapi
 LinkingTo:

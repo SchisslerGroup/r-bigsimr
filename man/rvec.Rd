@@ -2,33 +2,21 @@
 % Please edit documentation in R/rand_vec.R
 \name{rvec}
 \alias{rvec}
-\title{Creates \code{n} observations from a multivariate distribution with the
-given marginals and correlation matrix.}
+\title{Simulate correlated multivariate data}
 \usage{
-rvec(
-  n,
-  rho,
-  margins,
-  type = c("pearson", "kendall", "spearman"),
-  ensure_PSD = FALSE,
-  cores = 1L
-)
+rvec(n, rho, margins, cores = 1L, ensure_PSD = FALSE)
 }
 \arguments{
 \item{n}{The number random vectors to generate.}
 
-\item{rho}{The input correlation matrix.}
+\item{rho}{The input (Pearson) correlation matrix.}
 
 \item{margins}{The marginal distributions (Typically R's "quantile functions")}
 
-\item{type}{The type of correlation matrix that is being passed (Assumed to
-be Pearson by default).}
+\item{cores}{The number of cores to run on.}
 
 \item{ensure_PSD}{Ensure that the converted correlation matrix is positive
-semi-definite. More import if the input correlation type is Kendall or
-Spearman.}
-
-\item{cores}{The number of cores to run on}
+semi-definite.}
 }
 \value{
 A matrix of random vectors generated from the specified marginals
@@ -36,5 +24,6 @@ A matrix of random vectors generated from the specified marginals
 }
 \description{
 Creates \code{n} observations from a multivariate distribution with the
-given marginals and correlation matrix.
+  given marginals and correlation matrix. The correlation matrix is always
+  assumed to be a Pearson correlation matrix
 }
