@@ -26,7 +26,7 @@ cor_convert <- function(rho,
 
   if (is.matrix(rho)) {
     x <- .cor_convert_matrix(rho, CASE)
-    x[] <- (x + t(x)) / 2
+    x <- (x + t(x)) / 2
     diag(x) <- 1
     return(x)
   } else {
