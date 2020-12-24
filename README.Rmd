@@ -35,7 +35,7 @@ devtools::install_github("SchisslerGroup/bigsimr", ref="develop")
 
 This package depends on
 [reticulate](https://rstudio.github.io/reticulate/) to draw on the speed
-of Google’s [jax](https://github.com/google/jax) library. Please see the [bigsimr installation instructions](#) for more details.
+of Google’s [jax](https://github.com/google/jax) library. Please see the [bigsimr installation instructions](https://schisslergroup.github.io/bigsimr/articles/install-bigsimr.html) for more details.
 
 ---
 

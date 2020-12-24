@@ -7,9 +7,7 @@
 
 bigsimr lets you simulate multivariate data given a correlation matrix
 and a list of distributions. The correlation matrix can be of type
-Pearson, Spearman, or Kendall, and we use a matching algorithm to ensure
-that the estimated correlation of the simulated data is the same as the
-input correlation.
+Pearson, Spearman, or Kendall.
 
 ### See the [website](https://schisslergroup.github.io/bigsimr/) for more information, including [installation instructions](https://schisslergroup.github.io/bigsimr/articles/install-bigsimr.html), [tutorials](https://schisslergroup.github.io/bigsimr/articles/using-rvec.html), and [package documentation](https://schisslergroup.github.io/bigsimr/reference/index.html).
 
@@ -29,7 +27,9 @@ devtools::install_github("SchisslerGroup/bigsimr", ref="develop")
 This package depends on
 [reticulate](https://rstudio.github.io/reticulate/) to draw on the speed
 of Google’s [jax](https://github.com/google/jax) library. Please see the
-[bigsimr installation instructions](#) for more details.
+[bigsimr installation
+instructions](https://schisslergroup.github.io/bigsimr/articles/install-bigsimr.html)
+for more details.
 
 -----
 
