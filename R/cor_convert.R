@@ -25,8 +25,11 @@ cor_convert <- function(rho,
   )
 
   if (is.matrix(rho)) {
-    .cor_convert_matrix(rho, CASE)
+    x <- .cor_convert_matrix(rho, CASE)
+    x[] <- (x + t(x)) / 2
+    diag(x) <- 1
+    return(x)
   } else {
-    .cor_convert_double(rho, CASE)
+    return(.cor_convert_double(rho, CASE))
   }
 }
