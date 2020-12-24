@@ -22,6 +22,7 @@
 rvec <- function(n, rho, margins, cores = 1L, ensure_PSD = FALSE) {
 
   d <- length(margins)
+  rho_names <- colnames(rho) # save dimnames for rv colnames
 
   if (ensure_PSD)
     rho <- cor_nearPSD(rho)
@@ -60,5 +61,7 @@ rvec <- function(n, rho, margins, cores = 1L, ensure_PSD = FALSE) {
 
   }
 
+  colnames(rv) <- rho_names
   rv
+
 }
