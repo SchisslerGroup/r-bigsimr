@@ -12,6 +12,10 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+options(use_jax = FALSE)
+
+set.seed(2020-12-23)
 ```
 
 ```{r setup}

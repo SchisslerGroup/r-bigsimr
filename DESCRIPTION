@@ -37,7 +37,8 @@ Imports:
     parallel,
     rlang,
     reticulate,
-    rstudioapi
+    rstudioapi,
+    mvnfast
 LinkingTo:
     Rcpp,
     RcppArmadillo

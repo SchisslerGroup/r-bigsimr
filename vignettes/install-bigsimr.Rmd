@@ -13,6 +13,10 @@ knitr::opts_chunk$set(
   comment = "#>",
   eval = FALSE
 )
+
+options(use_jax = FALSE)
+
+set.seed(2020-12-23)
 ```
 
 ## Installation

@@ -32,7 +32,11 @@ rvec <- function(n, rho, margins, cores = 1L, ensure_PSD = FALSE) {
   }
 
   # generate multivariate uniform distribution (via Z -> U)
-  U <- .rmvuu(n, rho)
+  if (getOption("use_jax", FALSE)) {
+    U <- .rmvuu(n, rho)
+  } else {
+    U <- stats::pnorm(mvnfast::rmvn(n, rep(0, d), rho, cores))
+  }
 
   # Apply the copula algorithm
   d <- nrow(rho)

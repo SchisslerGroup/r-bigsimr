@@ -11,4 +11,10 @@ numpy <- NULL
                                delay_load = TRUE,
                                convert = FALSE)
 
+  if (.Platform$OS.type == "windows" || !have_jax()) {
+    options(use_jax = FALSE)
+  } else {
+    options(use_jax = TRUE)
+  }
+
 }
