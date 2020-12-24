@@ -31,6 +31,23 @@ of Google’s [jax](https://github.com/google/jax) library. Please see the
 instructions](https://schisslergroup.github.io/bigsimr/articles/install-bigsimr.html)
 for more details.
 
+### Windows Users
+
+If on Windows or a system without Python, then the package will default
+to alternative methods. The option can be toggled with
+
+``` r
+options(use_jax = FALSE)
+```
+
+Currently Google’s jax library does not have ready-to-use binaries for
+Windows. The recommendation is to use Windows Subsystem for Linux (WSL),
+otherwise you will need to build `jaxlib` from source ([see
+here](https://jax.readthedocs.io/en/latest/developer.html#additional-notes-for-building-jaxlib-from-source-on-windows)).
+
+Additionally, Windows does not allow for forked multiprocessing, so
+there will be no performance enhancement on a multicore Windows machine.
+
 -----
 
 <!-- badges: start -->
