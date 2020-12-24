@@ -14,7 +14,7 @@ numpy <- NULL
   if (.Platform$OS.type == "windows" || !have_jax()) {
     options(use_jax = FALSE)
   } else {
-    options(use_jax = TRUE)
+    options(use_jax = getOption("use_jax", TRUE))
   }
 
 }
