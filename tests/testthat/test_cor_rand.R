@@ -1,4 +1,5 @@
 test_that("cor_randPD and cor_randPSD generate random correlation matrices", {
+
   # Correlation matrices must be:
   # 1. symmetric
   # 2. have ones on diagonal
@@ -19,4 +20,5 @@ test_that("cor_randPD and cor_randPSD generate random correlation matrices", {
   expect_true(all(diag(rho_PSD) == 1))
   expect_true(all(e$values >= 0))
   expect_true(all((-1 <= rho_PSD) & (rho_PSD <= 1)))
+
 })
