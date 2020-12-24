@@ -16,7 +16,7 @@ Maintainer: Alex Knudson <aknudson@nevada.unr.edu>
 Description: Simulate multivariate data with arbitrary marginal distributions.
 URL: https://github.com/SchisslerGroup/bigsimr
 BugReports: https://github.com/SchisslerGroup/bigsimr/issues
-Depends: R (>= 3.5.0)
+Depends: R (>= 3.6.0)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

@@ -1,6 +1,5 @@
 language: R
 R:
-  - 3.5
   - 3.6
   - release
 
