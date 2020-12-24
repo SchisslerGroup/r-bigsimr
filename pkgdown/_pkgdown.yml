@@ -9,8 +9,8 @@ authors:
     href: https://github.com/adknudson
   Grant Schissler:
     href: http://www.grantschissler.com/
-  Richard Foote:
-    href: https://github.com/rdlfoote
+  Duc Tran:
+    href: https://github.com/duct317
 
 reference:
   - title: Primary Functions
@@ -39,5 +39,6 @@ articles:
 - title: Articles
   navbar: Get Started
   contents:
+  - bigsimr
   - install-bigsimr
   - using-rvec

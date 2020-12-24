@@ -51,14 +51,14 @@ cor_randPD <- function(d, a=1.0) {
 #' This method is generally faster than \code{\link{cor_randPD}}
 #'
 #' @param d A positive integer number of dimensions
-#' @param k A tuning parameter
+#' @param k A tuning parameter between 1 and d
 #' @importFrom stats rnorm runif cov2cor
 #' @export
 cor_randPSD <- function(d, k=d) {
   if (d == 1) {
     return(matrix(1, 1, 1))
   }
-  assertthat::assert_that(1 <= k && k <= d)
+  stopifnot(1 <= k && k <= d)
   W  <- matrix(rnorm(d * k), d, k)
   S  <- tcrossprod(W, W) + diag(runif(d))
   S2 <- diag(1 / sqrt(diag(S)))

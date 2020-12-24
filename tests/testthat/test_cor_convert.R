@@ -1,4 +1,5 @@
 test_that("cor_convert works for scalars, vectors, and matrices", {
+
   S <- "spearman"
   K <- "kendall"
   P <- "pearson"
@@ -48,4 +49,5 @@ test_that("cor_convert works for scalars, vectors, and matrices", {
   expect_equal(cor_convert(-1.0, P, K), -1.0)
   expect_equal(cor_convert(-1.0, P, P), -1.0)
   expect_equal(cor_convert(-1.0, S, S), -1.0)
+
 })

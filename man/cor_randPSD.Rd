@@ -9,7 +9,7 @@ cor_randPSD(d, k = d)
 \arguments{
 \item{d}{A positive integer number of dimensions}
 
-\item{k}{A tuning parameter}
+\item{k}{A tuning parameter between 1 and d}
 }
 \description{
 This method is generally faster than \code{\link{cor_randPD}}

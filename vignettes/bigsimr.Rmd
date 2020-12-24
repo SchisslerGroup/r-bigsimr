@@ -15,6 +15,10 @@ knitr::opts_chunk$set(
   fig.width = 6,
   fig.height = 4
 )
+
+options(use_jax = FALSE)
+
+set.seed(2020-12-23)
 ```
 
 ## Installation
@@ -23,7 +27,7 @@ Please see the [Installation and Setup](https://schisslergroup.github.io/bigsimr
 
 ## Usage
 
-```{r, eval=FALSE}
+```{r setup, echo=TRUE, message=FALSE, warning=FALSE}
 library(bigsimr)
 library(tidyverse)
 library(patchwork)
@@ -31,7 +35,7 @@ library(patchwork)
 
 We're going to show the basic use and syntax of `bigsimr` by using the New York air quality data set (`airquality`) included in the R `datasets` package. We will focus specifically on the temperature (degrees Fahrenheit) and ozone level (parts per billion).
 
-```{r, eval=FALSE}
+```{r}
 df <- airquality %>%
   select(Ozone, Temp) %>%
   drop_na()
@@ -41,7 +45,7 @@ glimpse(df)
 
 Let's look at the joint distribution of the Ozone and Temperature
 
-```{r, eval=FALSE}
+```{r}
 p0 <- ggplot(df, aes(Temp, Ozone)) +
   geom_point(size = 1) +
   theme(legend.position = "none") +
@@ -74,7 +78,7 @@ To simulate observations from this joint distribution, we need to estimate the c
 
 To estimate the correlation, we can use `R`'s function `cor` or we can use the convenience function `bigsimr::cor_fast` which can estimate Pearson, Spearman, or Kendall correlation using the fastest methods available from other packages.
 
-```{r, eval=FALSE}
+```{r}
 (rho <- cor_fast(df, method = "pearson"))
 ```
 
@@ -82,35 +86,44 @@ To estimate the correlation, we can use `R`'s function `cor` or we can use the c
 
 Next we can estimate the marginal parameters. Assuming that `Temperature` is normally distributed, it has parameters
 
-```{r, eval=FALSE}
+```{r}
 df %>% select(Temp) %>% summarise_all(.funs = c(mean = mean, sd = sd))
 ```
 
 and assuming that `Ozone` is log-normally distributed, it has parameters
 
-```{r, eval=FALSE}
+```{r}
 mle_mean <- function(x) mean(log(x))
 mle_sd <- function(x) sqrt(mean( (log(x) - mean(log(x)))^2 ))
+
 df %>% select(Ozone) %>% 
   summarise_all(.funs = c(meanlog = mle_mean, sdlog = mle_sd))
 ```
 
 Finally we take the parameters and put them into an `alist` of margins.
 
-```{r, eval=FALSE}
+```{r}
 margins <- alist(
   qlnorm(meanlog = 3.42, sdlog = 0.862),
   qnorm(mean = 77.9, sd = 9.49)
 )
 ```
 
-Right now the marginal parameters must be filled in manually with the quantile function of the distribution. If the margins are homogeneous, then some automation can be implemented.
+It is a bit inconvenient to have to fill in the parameter values manually each time, so we provide a convenience function `mlist` which behaves similarly to `alist`, except that it will evaluate the right hand side of argument values within the list. This is intended to help when scaling up your code to high dimensions when there are many marginals to specify.
+
+```{r}
+margins <- mlist(
+  qlnorm(meanlog = mle_mean(df$Ozone), sdlog = mle_sd(df$Ozone)),
+  qnorm(mean = mean(df$Temp), sd = sd(df$Temp))
+)
+margins
+```
 
 ### Correlation Bounds
 
 Given a list of margins, the theoretical lower and upper correlation coefficients can be estimated.
 
-```{r, eval=FALSE}
+```{r}
 cor_bounds(margins = margins, type = "pearson")
 ```
 
@@ -120,8 +133,8 @@ Since our estimated correlation is within the theoretical bounds (assuming the d
 
 Let's now simulate 10,000 observations from the joint distribution using `bigsimr::rvec`
 
-```{r, eval=FALSE}
-x <- rvec(10000, rho, margins, "pearson")
+```{r}
+x <- rvec(10000, rho, margins)
 
 df_sim <- as.data.frame(x)
 colnames(df_sim) <- colnames(df)
@@ -129,7 +142,7 @@ colnames(df_sim) <- colnames(df)
 
 and visualize the joint distribution
 
-```{r, eval=FALSE}
+```{r}
 p1 <- df_sim %>%
   ggplot(aes(Temp, Ozone)) +
   geom_density_2d_filled() +
@@ -161,14 +174,14 @@ p1Temp + plot_spacer() + p1 + p1Ozone +
 
 We can compare the bivariate distribution above to one where no correlation is taken into account.
 
-```{r, eval=FALSE}
+```{r}
 df_sim2 <- data.frame(
   Ozone = rlnorm(10000, mle_mean(df$Ozone), mle_sd(df$Ozone)),
   Temp = rnorm(10000, mean(df$Temp), sd(df$Temp))
 )
 ```
 
-```{r, echo=FALSE, warning=FALSE, eval=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 p2 <- df_sim2 %>%
   ggplot(aes(Temp, Ozone)) +
   geom_density_2d_filled() +

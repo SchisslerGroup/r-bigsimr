@@ -1,4 +1,7 @@
 test_that("jax_rmvn generates random multivariate normal data", {
+
+  skip_if_not(have_jax(), "jax is not available for testing")
+
   # Should fail for negative definite matrices
   nd_cor <- matrix(c(
     1.00, 0.82, 0.56, 0.44,

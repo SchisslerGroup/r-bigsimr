@@ -14,7 +14,9 @@ cor_fast <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) 
     x <- as.matrix(x)
   }
 
-  storage.mode(x) <- "double"
+  storage.mode(x) <- "numeric"
+  if (!is.null(y))
+    storage.mode(y) <- "numeric"
 
   if (method == "pearson") {
     if (is.null(y)) {
@@ -41,6 +43,7 @@ cor_fast <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) 
   }
 
 }
+
 
 fastrank_num_avg <- function(x) {
   .Call("fastrank_num_avg_", x, PACKAGE = "bigsimr")
