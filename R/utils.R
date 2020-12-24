@@ -27,7 +27,6 @@ mlist <- function(...) {
 
 
 #' Check if conda is available
-#' @importFrom reticulate conda_binary
 #' @export
 have_conda <- function() {
   conda_bin <- tryCatch(
@@ -39,7 +38,6 @@ have_conda <- function() {
 }
 
 #' Check if python is available
-#' @importFrom reticulate py_available
 #' @export
 have_python <- function() {
   tryCatch(
@@ -50,14 +48,12 @@ have_python <- function() {
 }
 
 #' Check if numpy is available
-#' @importFrom reticulate py_module_available
 #' @export
 have_numpy <- function() {
   reticulate::py_module_available("numpy")
 }
 
 #' Check if jax is available
-#' @importFrom reticulate py_module_available
 #' @export
 have_jax <- function() {
   reticulate::py_module_available("jax")

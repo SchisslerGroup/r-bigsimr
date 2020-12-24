@@ -6,7 +6,6 @@
 #' @param cores NOT YET IMPLEMENTED
 #' @param reps The number of sims used to estimate the bounds.
 #' @return A list containing the theoretical upper and lower bounds
-#' @importFrom utils combn
 #' @export
 cor_bounds <- function(margins,
                        type = c("pearson", "kendall", "spearman"),
@@ -15,7 +14,7 @@ cor_bounds <- function(margins,
 
   type <- match.arg(type)
   d <- length(margins)
-  index_mat <- combn(x = d, m = 2)
+  index_mat <- utils::combn(x = d, m = 2)
 
   # Replace the quantile function with the RNG function (e.g. qnorm -> rnorm)
   q2r <- function(x) {

@@ -221,6 +221,7 @@ void cov2cor(arma::mat& X) {
   for (int i = 0; i < X.n_cols; ++i) {
     X(i, i) = 1.0;
   }
+  X = arma::symmatu(X);
   return;
 }
 
