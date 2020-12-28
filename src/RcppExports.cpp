@@ -48,6 +48,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cor_randPSD
+arma::mat cor_randPSD(int d, int k);
+RcppExport SEXP _bigsimr_cor_randPSD(SEXP dSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type d(dSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(cor_randPSD(d, k));
+    return rcpp_result_gen;
+END_RCPP
+}
 // hermite
 arma::vec hermite(const arma::vec& x, int n);
 RcppExport SEXP _bigsimr_hermite(SEXP xSEXP, SEXP nSEXP) {
@@ -67,6 +79,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bigsimr_cor_convert_double", (DL_FUNC) &_bigsimr_cor_convert_double, 2},
     {"_bigsimr_cor_convert_matrix", (DL_FUNC) &_bigsimr_cor_convert_matrix, 2},
     {"_bigsimr_cor_nearPSD", (DL_FUNC) &_bigsimr_cor_nearPSD, 8},
+    {"_bigsimr_cor_randPSD", (DL_FUNC) &_bigsimr_cor_randPSD, 2},
     {"_bigsimr_hermite", (DL_FUNC) &_bigsimr_hermite, 2},
     {"fastrank_num_avg_", (DL_FUNC) &fastrank_num_avg_, 1},
     {NULL, NULL, 0}

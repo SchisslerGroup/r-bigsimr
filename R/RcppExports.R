@@ -26,6 +26,10 @@ cor_nearPSD <- function(G, tau = 1e-5, iter_outer = 200L, iter_inner = 20L, maxi
     .Call(`_bigsimr_cor_nearPSD`, G, tau, iter_outer, iter_inner, maxit, err_tol, precg_err_tol, newton_err_tol)
 }
 
+.cor_nearPSD <- function(d, k) {
+    .Call(`_bigsimr_cor_randPSD`, d, k)
+}
+
 hermite <- function(x, n) {
     .Call(`_bigsimr_hermite`, x, n)
 }

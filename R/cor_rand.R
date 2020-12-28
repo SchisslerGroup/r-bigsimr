@@ -53,13 +53,8 @@ cor_randPD <- function(d, a=1.0) {
 #' @param k A tuning parameter between 1 and d
 #' @export
 cor_randPSD <- function(d, k=d) {
-  if (d == 1) {
-    return(matrix(1, 1, 1))
-  }
+  stopifnot(d >= 1)
   stopifnot(1 <= k && k <= d)
-  W  <- matrix(stats::rnorm(d * k), d, k)
-  S  <- tcrossprod(W, W) + diag(stats::runif(d))
-  S2 <- diag(1 / sqrt(diag(S)))
-  R <- stats::cov2cor(S2 %*% S %*% S2)
-  (R + t(R)) / 2
+
+  .cor_nearPSD(d, k)
 }

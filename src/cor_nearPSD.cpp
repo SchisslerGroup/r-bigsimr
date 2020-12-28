@@ -218,7 +218,7 @@ void PCA(const arma::vec& lambda, const arma::mat& P, arma::mat& X) {
 void cov2cor(arma::mat& X) {
   arma::mat D = arma::pinv(arma::diagmat(arma::sqrt(arma::diagvec(X))));
   X = D * X * D;
-  for (int i = 0; i < X.n_cols; ++i) {
+  for (unsigned int i = 0; i < X.n_cols; ++i) {
     X(i, i) = 1.0;
   }
   X = arma::symmatu(X);
