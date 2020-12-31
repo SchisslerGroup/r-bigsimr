@@ -145,7 +145,7 @@ We can see that even with 10,000 samples, the estimated correlation of the simul
 We can check the theoretical correlation bounds in bigsimr
 
 ```{r}
-bigsimr::cor_bounds(margins, type = "pearson")
+bigsimr::cor_bounds(margins, method = "pearson")
 ```
 
 

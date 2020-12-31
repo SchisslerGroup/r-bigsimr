@@ -4,12 +4,12 @@
 \alias{cor_randPD}
 \title{Compute a random positive definite correlation matrix}
 \usage{
-cor_randPD(d, a = 1)
+cor_randPD(d, k = d)
 }
 \arguments{
 \item{d}{A positive integer number of dimensions}
 
-\item{a}{A tuning parameter}
+\item{k}{A tuning parameter between 1 and d}
 }
 \description{
 Compute a random positive definite correlation matrix

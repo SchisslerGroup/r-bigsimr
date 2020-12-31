@@ -2,20 +2,19 @@
 #'   given a set of marginals
 #'
 #' @param margins The parameters of the marginals.
-#' @param type The type of correlation matrix that is being passed.
+#' @param method The type of correlation matrix that is being passed.
 #' @param cores NOT YET IMPLEMENTED
 #' @param reps The number of sims used to estimate the bounds.
 #' @return A list containing the theoretical upper and lower bounds
-#' @importFrom utils combn
 #' @export
 cor_bounds <- function(margins,
-                       type = c("pearson", "kendall", "spearman"),
+                       method = c("pearson", "kendall", "spearman"),
                        cores = 1,
                        reps = 1e5){
 
-  type <- match.arg(type)
+  method <- match.arg(method)
   d <- length(margins)
-  index_mat <- combn(x = d, m = 2)
+  index_mat <- utils::combn(x = d, m = 2)
 
   # Replace the quantile function with the RNG function (e.g. qnorm -> rnorm)
   q2r <- function(x) {
@@ -36,14 +35,14 @@ cor_bounds <- function(margins,
   })
 
   # Upper bounds
-  rho_upper <- cor_fast(sim_data, method = type)
+  rho_upper <- cor_fast(sim_data, method = method)
 
   # Lower bounds
   rho_lower_values <- apply(index_mat, 2, function(index, data, ...){
     cor_fast(data[, index[1]],
              rev(data[, index[2]]),
-             method = type)
-  }, data = sim_data, method = type)
+             method = method)
+  }, data = sim_data, method = method)
 
   rho_lower <- matrix(0, d, d)
   diag(rho_lower) <- 0.5

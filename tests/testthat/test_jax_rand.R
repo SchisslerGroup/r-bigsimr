@@ -14,7 +14,7 @@ test_that("jax_rmvn generates random multivariate normal data", {
   # expect_error(jax_rmvn(10, rep(0, d), nd_cor))
 
   n       <- 1e6
-  pd_cor  <- cor_nearPSD(nd_cor)
+  pd_cor  <- cor_nearPD(nd_cor)
   mu      <- stats::rnorm(d, 10, 10)
   x       <- jax_rmvn(n, mu, pd_cor)
   mu_hat  <- colMeans(x)

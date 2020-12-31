@@ -124,7 +124,7 @@ margins
 Given a list of margins, the theoretical lower and upper correlation coefficients can be estimated.
 
 ```{r}
-cor_bounds(margins = margins, type = "pearson")
+cor_bounds(margins = margins, method = "pearson")
 ```
 
 Since our estimated correlation is within the theoretical bounds (assuming the distributions are correct), we should be able to achieve a similar correlation in the simulated data.

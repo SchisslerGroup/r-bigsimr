@@ -7,7 +7,7 @@
 \usage{
 cor_bounds(
   margins,
-  type = c("pearson", "kendall", "spearman"),
+  method = c("pearson", "kendall", "spearman"),
   cores = 1,
   reps = 1e+05
 )
@@ -15,7 +15,7 @@ cor_bounds(
 \arguments{
 \item{margins}{The parameters of the marginals.}
 
-\item{type}{The type of correlation matrix that is being passed.}
+\item{method}{The type of correlation matrix that is being passed.}
 
 \item{cores}{NOT YET IMPLEMENTED}
 

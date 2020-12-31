@@ -42,7 +42,7 @@ jax_rmvn <- function(n, mu, sigma) {
 jax_rmvu <- function(n, rho, min = 0, max = 1) {
   d <- ncol(rho)
 
-  rho <- cov2cor(rho)
+  rho <- stats::cov2cor(rho)
 
   if (length(min) > 1) {
     if (length(min) != d)
