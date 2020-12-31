@@ -1,6 +1,6 @@
 Package: bigsimr
 Title: Fast Generation of High-Dimensional Random Vectors
-Version: 0.9.3
+Version: 0.10.0
 Authors@R:
     c(person(given = "Alex",
              family = "Knudson",
@@ -38,7 +38,8 @@ Imports:
     rlang,
     reticulate,
     rstudioapi,
-    mvnfast
+    mvnfast,
+    matrixcalc
 LinkingTo:
     Rcpp,
     RcppArmadillo

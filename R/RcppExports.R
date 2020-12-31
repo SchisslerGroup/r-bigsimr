@@ -9,24 +9,7 @@
     .Call(`_bigsimr_cor_convert_matrix`, X, CASE)
 }
 
-#' Calculate the nearest positive semi-definite correlation matrix
-#'
-#' @param G the input correlation matrix
-#' @param tau A user-dependent tuning parameter that determines the accuracy
-#'     of the final correlation matrix. Smaller values generally mean faster
-#'     convergence
-#' @param iter_outer the max number of iterations in the outer loop
-#' @param iter_inner the max number of iterations in the inner loop
-#' @param maxit Maximum number of iterations in the pre_cg routine
-#' @param err_tol the error tolerance for the stopping criteria
-#' @param precg_err_tol the error tolerance in the pre-conjugate gradient method
-#' @param newton_err_tol the error tolerance in Newton's method
-#' @export
-cor_nearPSD <- function(G, tau = 1e-5, iter_outer = 200L, iter_inner = 20L, maxit = 200L, err_tol = 1e-6, precg_err_tol = 1e-2, newton_err_tol = 1e-4) {
-    .Call(`_bigsimr_cor_nearPSD`, G, tau, iter_outer, iter_inner, maxit, err_tol, precg_err_tol, newton_err_tol)
-}
-
-.cor_nearPSD <- function(d, k) {
+.cor_randPSD <- function(d, k) {
     .Call(`_bigsimr_cor_randPSD`, d, k)
 }
 

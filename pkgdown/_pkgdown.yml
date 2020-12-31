@@ -20,6 +20,7 @@ reference:
   - title: Correlation Operations
     contents:
     - starts_with("cor_")
+    - is_valid_correlation
 
   - title: Numpy Implementations
     contents:

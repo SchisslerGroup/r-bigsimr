@@ -25,7 +25,7 @@ rvec <- function(n, rho, margins, cores = 1L, ensure_PSD = FALSE) {
   rho_names <- colnames(rho) # save dimnames for rv colnames
 
   if (ensure_PSD)
-    rho <- cor_nearPSD(rho)
+    rho <- cor_nearPD(rho, 1e-10)
 
   if (!is.integer(cores)) {
     message("Number of cores implicitly cast as an integer.")

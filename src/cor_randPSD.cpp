@@ -2,7 +2,7 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 
 
-// [[Rcpp::export(.cor_nearPSD)]]
+// [[Rcpp::export(.cor_randPSD)]]
 arma::mat cor_randPSD(int d, int k) {
   if(d == 1) return arma::ones<arma::mat>(1,1);
 
