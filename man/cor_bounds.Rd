@@ -5,19 +5,13 @@
 \title{Computes the theoretical upper and lower bounds of possible correlations
   given a set of marginals}
 \usage{
-cor_bounds(
-  margins,
-  method = c("pearson", "kendall", "spearman"),
-  cores = 1,
-  reps = 1e+05
-)
+cor_bounds(margins, method = c("pearson", "kendall", "spearman"), reps = 1e+05)
 }
 \arguments{
-\item{margins}{The parameters of the marginals.}
+\item{margins}{A list containing the marginal distributions which are
+distributions from the `distr6` package}
 
 \item{method}{The type of correlation matrix that is being passed.}
-
-\item{cores}{NOT YET IMPLEMENTED}
 
 \item{reps}{The number of sims used to estimate the bounds.}
 }

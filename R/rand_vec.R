@@ -1,9 +1,3 @@
-# Convert uniform to marginal via X := F^-1(U)
-.u2m <- function(u, margin) {
-  margin$p <- quote(u)
-  eval(margin)
-}
-
 #' Simulate correlated multivariate data
 #'
 #' Creates \code{n} observations from a multivariate distribution with the
@@ -12,7 +6,8 @@
 #'
 #' @param n The number random vectors to generate.
 #' @param rho The input (Pearson) correlation matrix.
-#' @param margins The marginal distributions (Typically R's "quantile functions")
+#' @param margins A list containing the marginal distributions which are
+#'     distributions from the `distr6` package
 #' @param cores The number of cores to run on.
 #' @param ensure_PSD Ensure that the converted correlation matrix is positive
 #'    semi-definite.
@@ -39,26 +34,17 @@ rvec <- function(n, rho, margins, cores = 1L, ensure_PSD = FALSE) {
     U <- stats::pnorm(mvnfast::rmvn(n, rep(0, d), rho, cores))
   }
 
-  # Apply the copula algorithm
-  d <- nrow(rho)
-
+  # Apply the NORTA algorithm
   if (cores <= 1L) {
-
     rv <- vapply(1:d, function(i){
-      .u2m(U[,i], margins[[i]])
+      margins[[i]]$quantile(U[,i])
     }, numeric(n))
-
-
   } else {
-
     cl <- parallel::makeCluster(spec = cores, type = "FORK")
-
     rv <- parallel::parSapply(cl = cl, 1:d, function(i) {
-      .u2m(U[,i], margins[[i]])
+      margins[[i]]$quantile(U[,i])
     }, simplify = TRUE)
-
     parallel::stopCluster(cl)
-
   }
 
   colnames(rv) <- rho_names

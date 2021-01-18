@@ -18,9 +18,12 @@ cor_fast <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) 
   if (!is.null(y))
     storage.mode(y) <- "numeric"
 
+
   if (method == "pearson") {
     if (is.null(y)) {
       coop::pcor(x)
+    } else if (is.matrix(y)) {
+      cor(x, y)
     } else {
       coop::pcor(x, y)
     }
@@ -28,6 +31,9 @@ cor_fast <- function(x, y = NULL, method = c("pearson", "kendall", "spearman")) 
   } else if (method == "spearman") {
     if (is.null(y)) {
       coop::pcor(apply(x, 2, fastrank_num_avg))
+    } else if (is.matrix(y)) {
+      cor(apply(x, 2, fastrank_num_avg),
+          apply(y, 2, fastrank_num_avg))
     } else {
       coop::pcor(fastrank_num_avg(x),
                  fastrank_num_avg(y))
