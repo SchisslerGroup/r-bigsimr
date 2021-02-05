@@ -34,12 +34,12 @@ cor_fastPD <- function(R, tau=1e-6) {
   } else if (r <= s) {
     P1 <- P[,1:r,drop=FALSE]
     l1 <- sqrt(l[1:r])
-    P1l1 <- sweep(P1, 2, l1, "*")
+    P1l1 <- eachrow(P1, l1, "*")
     return (tcrossprod(P1l1))
   } else {
     P2 <- P[,(r+1):n,drop=FALSE]
     l2 <- sqrt(-l[(r+1):n])
-    P2l2 <- sweep(P2, 2, l2, "*")
+    P2l2 <- eachrow(P2, l2, "*")
     return (R + tcrossprod(P2l2))
   }
 

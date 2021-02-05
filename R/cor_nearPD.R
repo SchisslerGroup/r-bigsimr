@@ -135,7 +135,7 @@ npd_gradient <- function(y, lambda, P, b, n) {
     P1 <- P[, 1:r, drop=FALSE]
     l1 <- lambda[1:r]
 
-    Fy <- matrix(rowSums(sweep(P1, 2, l1, '*') * P1), n, 1)
+    Fy <- matrix(rowSums(eachrow(P1, l1, "*")), n, 1)
     f  <- 0.5 * sum(l1 * l1) - sum(b * y)
   }
 
@@ -160,12 +160,12 @@ npd_pca <- function(X, lambda, P, b, n) {
   } else if (r == 2) {
     P1   <- P[,1:r]
     l1   <- sqrt(lambda[1:r])
-    P1l1 <- sweep(P1, 2, l1, '*')
+    P1l1 <- eachrow(P1, l1, "*")
     X    <- tcrossprod(P1l1)
   } else { # (r > s)
     P2   <- P[,(r+1):n, drop=FALSE]
     l2   <- sqrt(-lambda[(r+1):n])
-    P2l2 <- sweep(P2, 2, l2, '*')
+    P2l2 <- eachrow(P2, l2, "*")
     X <- X + tcrossprod(P2l2)
   }
 
@@ -195,7 +195,7 @@ npd_omega_matrix <- function(lambda, n) {
 
     Omega12 <- matrix(1, r, s)
     Omega12[] <- apply(Omega12, 2, function(x) x * l1)
-    Omega12[] <- sweep(Omega12, 2, l2, function(x, y) x / (x - y))
+    Omega12[] <- eachrow(Omega12, l2, function(x, y) x / (x - y))
 
     return (Omega12)
   }
@@ -219,7 +219,7 @@ npd_jacobian_matrix <- function(d, Omega12, P, n) {
   P1 <- P[,1:r, drop=FALSE]
   P2 <- P[,(r+1):n, drop=FALSE]
 
-  O12 <- Omega12 * (t(P1) %*% sweep(P2, 1, d, '*'))
+  O12 <- Omega12 * (t(P1) %*% eachcol(P2, d, '*'))
   PO <- P1 %*% O12
 
   hh <- 2 * rowSums(PO * P2)

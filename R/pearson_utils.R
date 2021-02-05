@@ -39,5 +39,6 @@ pm_getcoef <- function(margin, n=7) {
   # factorial(k) for k in 0:n
   f <- factorial(0:n)
 
-  colSums(sweep(sweep(H, 1, w*X, "*"), 2, f, "/")) / sqrt(pi)
+  colSums(eachrow(eachcol(H, w*X, "*"), f, "/")) / sqrt(pi)
+
 }
