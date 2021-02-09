@@ -7,12 +7,12 @@
 bigsimr_setup(pkg_check = TRUE, ...)
 }
 \arguments{
-\item{pkg_check}{logical, check for MvSim.jl package and install if necessary}
+\item{pkg_check}{logical, check for Bigsimr.jl package and install if necessary}
 
 \item{...}{Parameters are passed down to JuliaCall::julia_setup}
 }
 \description{
-This function initializes Julia and the MvSim.jl package.
+This function initializes Julia and the Bigsimr.jl package.
 The first time will be long since it includes precompilation.
 Additionally, this will install Julia and the required packages
 if they are missing.
