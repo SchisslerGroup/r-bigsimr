@@ -42,52 +42,14 @@ The function `rvec` behaves similarly. It takes in as arguments the number of sa
 
 # Building a Multivariate Distribution
 
-As stated earlier, to generate multivariate data, we need a list of marginals (and their parameters), and a correlation structure (matrix). The marginal distributions can be built up using R's special `alist` function. This allows one to enter the distributions without evaluating anything (yet).
+As stated earlier, to generate multivariate data, we need a list of marginals (and their parameters), and a correlation structure (matrix).
 
 ```{r}
-margins <- alist(
-  qnorm(mean = 3.14, sd = 0.1),
-  qbeta(shape1 = 1, shape2 = 4),
-  qnbinom(size = 10, prob = 0.75)
-)
-```
-
-Notice that we use the *quantile* function for the marginals, as that is the workhorse of the `rvec` function. By using an `alist`, users can also specify their own custom distributions. **It is highly recommended that users follow R's naming convention for probability distributions**. I.e. prefixing distributions with `r` and `q`. In the future we hope to be able to handle any arbitrary function name. If one wishes to compute the theoretical correlation bounds, then one should also specify the RNG function for their custom distribution. For example, R does not have any functions for the *Pareto* distribution. We can write a quantile and RNG function as follows:
-
-The Pareto CDF is defined as
-
-$$
-1 - \left(\frac{x_m}{x}\right)^\alpha
-$$
-
-for $x_m > 0$ scale and $\alpha > 0$ shape, with support $x \in \left[x_m, \infty\right)$. From the CDF, we compute the inverse CDF
-
-$$
-\frac{x_m}{\left(1 - p\right)^\frac{1}{\alpha}}
-$$
-
-```{r}
-qpareto <- function(p, scale, shape) {
-  scale / (1 - p)^(1/shape)
-}
-```
-
-Writing a RNG function for our new distribution can be accomplished by calling the quantile function on the output of a unit uniform distribution.
-
-```{r}
-rpareto <- function(n, scale, shape) {
-  qpareto(runif(n), scale, shape)
-}
-```
-
-The new distribution can then be used in the list of marginals.
-
-```{r}
-margins <- alist(
-  qnorm(mean = 3.14, sd = 0.1),
-  qbeta(shape1 = 1, shape2 = 4),
-  qnbinom(size = 10, prob = 0.75),
-  qpareto(scale = 1.11, shape = 5.55)
+margins <- list(
+  Normal$new(mean = 3.14, sd = 0.1),
+  Beta$new(shape1 = 1, shape2 = 4),
+  NegativeBinomial$new(size = 10, prob = 0.75),
+  Pareto$new(scale = 1.11, shape = 5.55)
 )
 ```
 
@@ -95,7 +57,6 @@ margins <- alist(
 The next step is to define a correlation structure for the multivariate distribution. This correlation matrix can either come from observed data, or we can set it ourselves, or we can generate a random correlation matrix via `bigsimr::cor_randPSD`. Since we have 4 marginals, we need a $4\times 4$ matrix.
 
 ```{r}
-set.seed(12)
 # rho <- bigsimr::cor_randPD(4)
 rho <- bigsimr::cor_randPSD(4)
 ```
@@ -146,31 +107,4 @@ We can check the theoretical correlation bounds in bigsimr
 
 ```{r}
 bigsimr::cor_bounds(margins, method = "pearson")
-```
-
-
-# Appendix
-
-```{r, eval=FALSE}
-all_dists <- alist(
-  qbeta( shape1, shape2 ),
-  qbinom( size, prob ),
-  qcauchy( location, scale ),
-  qchisq( df ),
-  qexp( rate ),
-  qf( df1, df2 ),
-  qgamma( shape, rate ),
-  qgeom( prob ),
-  qhyper( m, n, k ),
-  qlogis( location, scale ),
-  qlnorm( meanlog, sdlog ),
-  qnbinom( size, prob ),
-  qnorm( mean, sd ),
-  qpois( lambda ),
-  qt( df ),
-  qunif( min, max ),
-  qweibull( shape, scale ),
-  qwilcox( m, n ),
-  qsignrank( n )
-)
 ```

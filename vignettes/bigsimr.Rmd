@@ -100,21 +100,12 @@ df %>% select(Ozone) %>%
   summarise_all(.funs = c(meanlog = mle_mean, sdlog = mle_sd))
 ```
 
-Finally we take the parameters and put them into an `alist` of margins.
+Finally we take the parameters and put them into a `list` of margins.
 
 ```{r}
-margins <- alist(
-  qlnorm(meanlog = 3.42, sdlog = 0.862),
-  qnorm(mean = 77.9, sd = 9.49)
-)
-```
-
-It is a bit inconvenient to have to fill in the parameter values manually each time, so we provide a convenience function `mlist` which behaves similarly to `alist`, except that it will evaluate the right hand side of argument values within the list. This is intended to help when scaling up your code to high dimensions when there are many marginals to specify.
-
-```{r}
-margins <- mlist(
-  qlnorm(meanlog = mle_mean(df$Ozone), sdlog = mle_sd(df$Ozone)),
-  qnorm(mean = mean(df$Temp), sd = sd(df$Temp))
+margins <- list(
+  Lognormal$new(meanlog = mle_mean(df$Ozone), sdlog = mle_sd(df$Ozone)),
+  Normal$new(mean = mean(df$Temp), sd = sd(df$Temp))
 )
 margins
 ```

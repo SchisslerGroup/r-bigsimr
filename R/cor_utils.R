@@ -12,3 +12,10 @@ is_valid_correlation <- function(rho) {
     matrixcalc::is.positive.semi.definite(rho) &&
     matrixcalc::is.symmetric.matrix(rho)
 }
+
+
+#' Constrain a value between -1 and 1
+#'
+#' @param x A numeric value
+#' @export
+clampcor <- function(x) pmax(pmin(x, 1), -1)

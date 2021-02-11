@@ -54,6 +54,46 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Hn
+double Hn(double x, int n);
+RcppExport SEXP _bigsimr_Hn(SEXP xSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(Hn(x, n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Hp
+double Hp(double x, int n);
+RcppExport SEXP _bigsimr_Hp(SEXP xSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(Hp(x, n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Gn0d
+double Gn0d(const arma::vec& A, const arma::vec& B, const arma::vec& a, const arma::vec& b, double sAsB_inv, int k);
+RcppExport SEXP _bigsimr_Gn0d(SEXP ASEXP, SEXP BSEXP, SEXP aSEXP, SEXP bSEXP, SEXP sAsB_invSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type B(BSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< double >::type sAsB_inv(sAsB_invSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(Gn0d(A, B, a, b, sAsB_inv, k));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 RcppExport SEXP fastrank_num_avg_(SEXP);
 
@@ -62,6 +102,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bigsimr_cor_convert_matrix", (DL_FUNC) &_bigsimr_cor_convert_matrix, 2},
     {"_bigsimr_cor_randPSD", (DL_FUNC) &_bigsimr_cor_randPSD, 2},
     {"_bigsimr_hermite", (DL_FUNC) &_bigsimr_hermite, 2},
+    {"_bigsimr_Hn", (DL_FUNC) &_bigsimr_Hn, 2},
+    {"_bigsimr_Hp", (DL_FUNC) &_bigsimr_Hp, 2},
+    {"_bigsimr_Gn0d", (DL_FUNC) &_bigsimr_Gn0d, 6},
     {"fastrank_num_avg_", (DL_FUNC) &fastrank_num_avg_, 1},
     {NULL, NULL, 0}
 };

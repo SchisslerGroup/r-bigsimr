@@ -11,7 +11,8 @@ rvec(n, rho, margins, cores = 1L, ensure_PSD = FALSE)
 
 \item{rho}{The input (Pearson) correlation matrix.}
 
-\item{margins}{The marginal distributions (Typically R's "quantile functions")}
+\item{margins}{A list containing the marginal distributions which are
+distributions from the `distr6` package}
 
 \item{cores}{The number of cores to run on.}
 

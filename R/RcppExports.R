@@ -17,3 +17,15 @@ hermite <- function(x, n) {
     .Call(`_bigsimr_hermite`, x, n)
 }
 
+Hn <- function(x, n) {
+    .Call(`_bigsimr_Hn`, x, n)
+}
+
+Hp <- function(x, n) {
+    .Call(`_bigsimr_Hp`, x, n)
+}
+
+Gn0d <- function(A, B, a, b, sAsB_inv, k) {
+    .Call(`_bigsimr_Gn0d`, A, B, a, b, sAsB_inv, k)
+}
+

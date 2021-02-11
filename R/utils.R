@@ -1,3 +1,14 @@
+# Apply a set of stats to each column of a matrix
+eachcol <- function(X, STATS, FUN) {
+  sweep(X, 1, STATS, FUN)
+}
+
+# Apply a set of stats to each row of a matrix
+eachrow <- function(X, STATS, FUN) {
+  sweep(X, 2, STATS, FUN)
+}
+
+
 #' A helper function for creating a list of marginal distributions
 #'
 #' Similar to `alist`, except that the right hand side of arguments are
