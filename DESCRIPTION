@@ -1,6 +1,6 @@
 Package: bigsimr
 Title: Fast Generation of High-Dimensional Random Vectors
-Version: 0.10.0
+Version: 0.10.1
 Authors@R:
     c(person(given = "Alex",
              family = "Knudson",

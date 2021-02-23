@@ -13,7 +13,7 @@ bigsimr_setup <- function (pkg_check = TRUE, ...){
   julia <- JuliaCall::julia_setup(installJulia = TRUE, ...)
 
   if (pkg_check) {
-    JuliaCall::julia_install_package_if_needed("Bigsimr")
+    JuliaCall::julia_install_package_if_needed("Bigsimr@0.8.0")
   }
 
   JuliaCall::julia_library("Bigsimr")
@@ -27,9 +27,6 @@ bigsimr_setup <- function (pkg_check = TRUE, ...){
   bs$Pearson  <- JuliaCall::julia_eval("Pearson")
   bs$Spearman <- JuliaCall::julia_eval("Spearman")
   bs$Kendall  <- JuliaCall::julia_eval("Kendall")
-
-  JuliaCall::autowrap("MvDistribution")
-  JuliaCall::autowrap("GSDistribution")
 
   bs
 }
