@@ -13,7 +13,8 @@ bigsimr_setup <- function (pkg_check = TRUE, ...){
   julia <- JuliaCall::julia_setup(installJulia = TRUE, ...)
 
   if (pkg_check) {
-    JuliaCall::julia_install_package_if_needed("Bigsimr@0.8.0")
+    JuliaCall::julia_install_package("Bigsimr@0.8.0")
+    # JuliaCall::julia_install_package_if_needed("Bigsimr@0.8.0")
   }
 
   JuliaCall::julia_library("Bigsimr")
