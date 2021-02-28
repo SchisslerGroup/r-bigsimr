@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# bigsimr <a href='https://github.com/SchisslerGroup/bigsimr'><img src='man/figures/logo.png' align="right" height="139" /></a>
+# bigsimr <a href='https://github.com/SchisslerGroup/r-bigsimr'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
 `bigsimr` is an R package for simulating high-dimensional multivariate
 data with a target correlation and arbitrary marginal distributions via
@@ -31,14 +31,14 @@ routines. For full documentation and examples, please see the
 You can install the release version of the package from GitHub:
 
 ``` r
-remotes::install_github("SchisslerGroup/bigsimr")
+remotes::install_github("SchisslerGroup/r-bigsimr")
 ```
 
 To get a bug fix or to use a new feature, you can install the
 development version from GitHub:
 
 ``` r
-remotes::install_github("SchisslerGroup/bigsimr", ref="develop")
+remotes::install_github("SchisslerGroup/r-bigsimr", ref="develop")
 ```
 
 Note that the first invocation of `bigsimr::bigsimr_setup()` will
