@@ -1,6 +1,6 @@
 Package: bigsimr
 Title: Fast Generation of High-Dimensional Random Vectors
-Version: 0.10.1
+Version: 0.11.0
 Authors@R:
     c(person(given = "Alex",
              family = "Knudson",
@@ -21,13 +21,10 @@ Depends:
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
+SystemRequirements: Julia (>= 1.5), Bigsimr.jl, Distributions.jl
 RoxygenNote: 7.1.1
-Suggests:
-    knitr,
-    rmarkdown,
-    testthat,
-    tidyverse,
-    patchwork
-VignetteBuilder: knitr
 Imports:
     JuliaCall
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

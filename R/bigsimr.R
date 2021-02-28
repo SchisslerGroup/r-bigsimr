@@ -12,17 +12,15 @@
 bigsimr_setup <- function (pkg_check = TRUE, ...){
   julia <- JuliaCall::julia_setup(installJulia = TRUE, ...)
 
-  if (pkg_check) {
-    JuliaCall::julia_install_package("Bigsimr@0.8.0")
-    # JuliaCall::julia_install_package_if_needed("Bigsimr@0.8.0")
-  }
-
+  if (pkg_check) JuliaCall::julia_install_package_if_needed("Bigsimr")
   JuliaCall::julia_library("Bigsimr")
+
+  JuliaCall::julia_install_package_if_needed("Distributions")
 
   functions <- JuliaCall::julia_eval(
     "filter(isascii, replace.(string.(propertynames(Bigsimr)),\"!\"=>\"_bang\"))"
   )
-  functions <- c(functions, "rand")
+  functions <- c(functions, "rand", "iscorrelation")
   bs <- JuliaCall::julia_pkg_import("Bigsimr", functions)
 
   bs$Pearson  <- JuliaCall::julia_eval("Pearson")
