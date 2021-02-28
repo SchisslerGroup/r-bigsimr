@@ -3,58 +3,142 @@
 
 # bigsimr <a href='https://github.com/SchisslerGroup/bigsimr'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
-### bigsimr is an R package for simulating high-dimensional multivariate data with arbitrary marginal distributions
+`bigsimr` is an R package for simulating high-dimensional multivariate
+data with a target correlation and arbitrary marginal distributions via
+Gaussian copula. It utilizes
+[Bigsimr.jl](https://github.com/adknudson/Bigsimr.jl) for its core
+routines. For full documentation and examples, please see the
+[Bigsimr.jl docs](https://adknudson.github.io/Bigsimr.jl/stable/).
 
-bigsimr lets you simulate multivariate data given a correlation matrix
-and a list of distributions. The correlation matrix can be of type
-Pearson, Spearman, or Kendall.
+## Features
 
-### See the [website](https://schisslergroup.github.io/bigsimr/) for more information, including [installation instructions](https://schisslergroup.github.io/bigsimr/articles/install-bigsimr.html), [tutorials](https://schisslergroup.github.io/bigsimr/articles/using-rvec.html), and [package documentation](https://schisslergroup.github.io/bigsimr/reference/index.html).
+-   **Pearson matching** - employs a matching algorithm (Xiao and
+    Zhou 2019) to account for the non-linear transformation in the
+    Normal-to-Anything (NORTA) step
+-   **Spearman and Kendall matching** - Use explicit transformations
+    (Lebrun and Dutfoy 2009)
+-   **Nearest Correlation Matrix** - Calculate the nearest positive
+    [semi]definite correlation matrix (Qi and Sun 2006)
+-   **Fast Approximate Correlation Matrix** - Calculate an approximation
+    to the nearest positive definite correlation matrix
+-   **Random Correlation Matrix** - Generate random positive
+    [semi]definite correlation matrices
+-   **Fast Multivariate Normal Generation** - Utilize multithreading to
+    generate multivariate normal samples in parallel
+
+## Installation
 
 You can install the release version of the package from GitHub:
 
 ``` r
-devtools::install_github("SchisslerGroup/bigsimr")
+remotes::install_github("SchisslerGroup/bigsimr")
 ```
 
 To get a bug fix or to use a new feature, you can install the
 development version from GitHub:
 
 ``` r
-devtools::install_github("SchisslerGroup/bigsimr", ref="develop")
+remotes::install_github("SchisslerGroup/bigsimr", ref="develop")
 ```
 
-This package depends on
-[reticulate](https://rstudio.github.io/reticulate/) to draw on the speed
-of Google’s [jax](https://github.com/google/jax) library. Please see the
-[bigsimr installation
-instructions](https://schisslergroup.github.io/bigsimr/articles/install-bigsimr.html)
-for more details.
+Note that the first invocation of `bigsimr::bigsimr_setup()` will
+install both Julia and the required packages if they are missing. If you
+wish to have it use an existing Julia binary, make sure that `julia` is
+found in the path. For more information see the `julia_setup()` function
+from [JuliaCall](https://github.com/Non-Contradiction/JuliaCall).
 
-### Windows Users
-
-If on Windows or a system without Python, then the package will default
-to alternative methods. The option can be toggled with
+## Usage
 
 ``` r
-options(use_jax = FALSE)
+library(bigsimr)
+Sys.setenv(JULIA_NUM_THREADS = parallel::detectCores()) # activate multithreading
+bs <- bigsimr_setup()
+dist <- distributions_setup()
+
+set.seed(2020-02-28)
 ```
 
-Currently Google’s jax library does not have ready-to-use binaries for
-Windows. The recommendation is to use Windows Subsystem for Linux (WSL),
-otherwise you will need to build `jaxlib` from source ([see
-here](https://jax.readthedocs.io/en/latest/developer.html#additional-notes-for-building-jaxlib-from-source-on-windows)).
+### Examples
 
-Additionally, Windows does not allow for forked multiprocessing, so
-there will be no performance enhancement on a multicore Windows machine.
+Pearson matching
 
------
+``` r
+(target_corr <- bs$cor_randPD(3))
+#>            [,1]       [,2]       [,3]
+#> [1,]  1.0000000 -0.6499761 -0.4650075
+#> [2,] -0.6499761  1.0000000  0.4249699
+#> [3,] -0.4650075  0.4249699  1.0000000
+margins <- c(dist$Binomial(20, 0.2), dist$Beta(2, 3), dist$LogNormal(3, 1))
+(adjusted_corr <- bs$pearson_match(target_corr, margins))
+#>            [,1]       [,2]       [,3]
+#> [1,]  1.0000000 -0.6699159 -0.6484545
+#> [2,] -0.6699159  1.0000000  0.5510696
+#> [3,] -0.6484545  0.5510696  1.0000000
+x <- bs$rvec(100000, adjusted_corr, margins)
+bs$cor(x, bs$Pearson)
+#>            [,1]       [,2]       [,3]
+#> [1,]  1.0000000 -0.6494003 -0.4684822
+#> [2,] -0.6494003  1.0000000  0.4301399
+#> [3,] -0.4684822  0.4301399  1.0000000
+```
+
+Spearman/Kendall matching
+
+``` r
+(spearman_corr <- bs$cor_randPD(3))
+#>            [,1]       [,2]       [,3]
+#> [1,]  1.0000000  0.7330679 -0.1263919
+#> [2,]  0.7330679  1.0000000 -0.1690453
+#> [3,] -0.1263919 -0.1690453  1.0000000
+(adjusted_corr <- bs$cor_convert(spearman_corr, bs$Spearman, bs$Pearson))
+#>            [,1]       [,2]       [,3]
+#> [1,]  1.0000000  0.7489555 -0.1322607
+#> [2,]  0.7489555  1.0000000 -0.1767928
+#> [3,] -0.1322607 -0.1767928  1.0000000
+x <- bs$rvec(100000, adjusted_corr, margins)
+bs$cor(x, bs$Spearman)
+#>            [,1]      [,2]       [,3]
+#> [1,]  1.0000000  0.721592 -0.1261553
+#> [2,]  0.7215920  1.000000 -0.1729510
+#> [3,] -0.1261553 -0.172951  1.0000000
+```
+
+Nearest correlation matrix
+
+``` r
+s <- bs$cor_randPSD(200)
+r <- bs$cor_convert(s, bs$Spearman, bs$Pearson)
+bs$iscorrelation(r)
+#> [1] FALSE
+```
+
+``` r
+p <- bs$cor_nearPD(r)
+bs$iscorrelation(p)
+#> [1] TRUE
+```
+
+Fast approximate nearest correlation matrix
+
+``` r
+s = bs$cor_randPSD(2000)
+r = bs$cor_convert(s, bs$Spearman, bs$Pearson)
+bs$iscorrelation(r)
+#> [1] FALSE
+```
+
+``` r
+p = bs$cor_fastPD(r)
+bs$iscorrelation(p)
+#> [1] TRUE
+```
+
+------------------------------------------------------------------------
 
 <!-- badges: start -->
 
 [![Documentation](https://img.shields.io/badge/docs-release-blue.svg)](https://schisslergroup.github.io/bigsimr/reference/index.html)
 [![Build
 Status](https://travis-ci.com/SchisslerGroup/bigsimr.svg?branch=master)](https://travis-ci.com/SchisslerGroup/bigsimr)
-[![Licence](https://img.shields.io/github/license/schisslergroup/bigsimr)](https://choosealicense.com/licenses/gpl-3.0/)
 ![Release](https://img.shields.io/github/v/tag/schisslergroup/bigsimr?label=release&sort=semver)
 <!-- badges: end -->
