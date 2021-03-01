@@ -100,20 +100,3 @@ bs$iscorrelation(r)
 p = bs$cor_fastPD(r)
 bs$iscorrelation(p)
 ```
-
----
-
-<!-- badges: start -->
-[![Documentation][docs-stable-img]][docs-stable-url]
-[![Build Status][travis-img]][travis-url]
-![Release][release-img]
-<!-- badges: end -->
-
-
-[docs-stable-img]: https://img.shields.io/badge/docs-release-blue.svg
-[docs-stable-url]: https://schisslergroup.github.io/bigsimr/reference/index.html
-
-[release-img]: https://img.shields.io/github/v/tag/schisslergroup/bigsimr?label=release&sort=semver
-
-[travis-img]: https://travis-ci.com/SchisslerGroup/bigsimr.svg?branch=master
-[travis-url]: https://travis-ci.com/SchisslerGroup/bigsimr
