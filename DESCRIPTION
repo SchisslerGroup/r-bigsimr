@@ -1,6 +1,6 @@
 Package: bigsimr
 Title: Fast Generation of High-Dimensional Random Vectors
-Version: 0.11.0
+Version: 0.11.1
 Authors@R:
     c(person(given = "Alex",
              family = "Knudson",
@@ -8,9 +8,6 @@ Authors@R:
              email = "aknudson@nevada.unr.edu"),
       person(given = "Grant",
              family = "Schissler",
-             role = "aut"),
-      person(given = "Duc",
-             family = "Tran",
              role = "aut"))
 Maintainer: Alex Knudson <aknudson@nevada.unr.edu>
 Description: Simulate multivariate data with arbitrary marginal distributions.

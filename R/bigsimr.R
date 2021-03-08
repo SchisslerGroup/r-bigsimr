@@ -20,7 +20,9 @@ bigsimr_setup <- function (pkg_check = TRUE, ...){
   functions <- JuliaCall::julia_eval(
     "filter(isascii, replace.(string.(propertynames(Bigsimr)),\"!\"=>\"_bang\"))"
   )
-  functions <- c(functions, "rand", "iscorrelation")
+  # TODO: Deprecate importing of specific functions (i.e. "iscorrelation") and
+  #       Export all necessary functions in Bigsimr.jl
+  functions <- c(functions, "iscorrelation")
   bs <- JuliaCall::julia_pkg_import("Bigsimr", functions)
 
   bs$Pearson  <- JuliaCall::julia_eval("Pearson")
