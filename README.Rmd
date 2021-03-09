@@ -100,3 +100,7 @@ bs$iscorrelation(r)
 p = bs$cor_fastPD(r)
 bs$iscorrelation(p)
 ```
+
+## Issues
+
+This package is just a wrapper for the Julia package. Please file any bug reports or feature requests over at the [Bigsimr.jl](https://github.com/adknudson/Bigsimr.jl/issues) package repo.
