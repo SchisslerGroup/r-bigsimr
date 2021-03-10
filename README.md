@@ -6,9 +6,9 @@
 `bigsimr` is an R package for simulating high-dimensional multivariate
 data with a target correlation and arbitrary marginal distributions via
 Gaussian copula. It utilizes
-[Bigsimr.jl](https://github.com/adknudson/Bigsimr.jl) for its core
+[Bigsimr.jl](https://github.com/SchisslerGroup/Bigsimr.jl) for its core
 routines. For full documentation and examples, please see the
-[Bigsimr.jl docs](https://adknudson.github.io/Bigsimr.jl/stable/).
+[Bigsimr.jl docs](https://SchisslerGroup.github.io/Bigsimr.jl/stable/).
 
 ## Features
 
@@ -64,43 +64,43 @@ Pearson matching
 
 ``` r
 (target_corr <- bs$cor_randPD(3))
-#>             [,1]        [,2]       [,3]
-#> [1,]  1.00000000  0.09956102 -0.3067858
-#> [2,]  0.09956102  1.00000000 -0.6178251
-#> [3,] -0.30678576 -0.61782514  1.0000000
+#>            [,1]       [,2]       [,3]
+#> [1,]  1.0000000 -0.3566613 -0.4686234
+#> [2,] -0.3566613  1.0000000  0.6501013
+#> [3,] -0.4686234  0.6501013  1.0000000
 margins <- c(dist$Binomial(20, 0.2), dist$Beta(2, 3), dist$LogNormal(3, 1))
 (adjusted_corr <- bs$pearson_match(target_corr, margins))
 #>            [,1]       [,2]       [,3]
-#> [1,]  1.0000000  0.1021234 -0.4207023
-#> [2,]  0.1021234  1.0000000 -0.8903455
-#> [3,] -0.4207023 -0.8903455  1.0000000
+#> [1,]  1.0000000 -0.3670106 -0.6537634
+#> [2,] -0.3670106  1.0000000  0.8431715
+#> [3,] -0.6537634  0.8431715  1.0000000
 x <- bs$rvec(100000, adjusted_corr, margins)
 bs$cor(x, bs$Pearson)
 #>            [,1]       [,2]       [,3]
-#> [1,]  1.0000000  0.1016917 -0.3124397
-#> [2,]  0.1016917  1.0000000 -0.6294581
-#> [3,] -0.3124397 -0.6294581  1.0000000
+#> [1,]  1.0000000 -0.3592258 -0.4693409
+#> [2,] -0.3592258  1.0000000  0.6483799
+#> [3,] -0.4693409  0.6483799  1.0000000
 ```
 
 Spearman/Kendall matching
 
 ``` r
 (spearman_corr <- bs$cor_randPD(3))
-#>            [,1]      [,2]       [,3]
-#> [1,]  1.0000000 0.4045765 -0.1302107
-#> [2,]  0.4045765 1.0000000  0.4966516
-#> [3,] -0.1302107 0.4966516  1.0000000
+#>            [,1]       [,2]       [,3]
+#> [1,]  1.0000000  0.5696526 -0.5277236
+#> [2,]  0.5696526  1.0000000 -0.1333224
+#> [3,] -0.5277236 -0.1333224  1.0000000
 (adjusted_corr <- bs$cor_convert(spearman_corr, bs$Spearman, bs$Pearson))
-#>            [,1]      [,2]       [,3]
-#> [1,]  1.0000000 0.4205099 -0.1362507
-#> [2,]  0.4205099 1.0000000  0.5142503
-#> [3,] -0.1362507 0.5142503  1.0000000
+#>            [,1]       [,2]       [,3]
+#> [1,]  1.0000000  0.5877329 -0.5456254
+#> [2,]  0.5877329  1.0000000 -0.1395015
+#> [3,] -0.5456254 -0.1395015  1.0000000
 x <- bs$rvec(100000, adjusted_corr, margins)
 bs$cor(x, bs$Spearman)
-#>            [,1]      [,2]       [,3]
-#> [1,]  1.0000000 0.3975747 -0.1344669
-#> [2,]  0.3975747 1.0000000  0.4935213
-#> [3,] -0.1344669 0.4935213  1.0000000
+#>            [,1]       [,2]       [,3]
+#> [1,]  1.0000000  0.5633441 -0.5227178
+#> [2,]  0.5633441  1.0000000 -0.1322200
+#> [3,] -0.5227178 -0.1322200  1.0000000
 ```
 
 Nearest correlation matrix
@@ -132,3 +132,10 @@ p = bs$cor_fastPD(r)
 bs$iscorrelation(p)
 #> [1] TRUE
 ```
+
+## Issues
+
+This package is just a wrapper for the Julia package. Please file any
+bug reports or feature requests over at the
+[Bigsimr.jl](https://github.com/SchisslerGroup/Bigsimr.jl/issues)
+package repo.

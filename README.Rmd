@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 
 # bigsimr <a href='https://github.com/SchisslerGroup/r-bigsimr'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
-`bigsimr` is an R package for simulating high-dimensional multivariate data with a target correlation and arbitrary marginal distributions via Gaussian copula. It utilizes [Bigsimr.jl](https://github.com/adknudson/Bigsimr.jl) for its core routines. For full documentation and examples, please see the [Bigsimr.jl docs](https://adknudson.github.io/Bigsimr.jl/stable/).
+`bigsimr` is an R package for simulating high-dimensional multivariate data with a target correlation and arbitrary marginal distributions via Gaussian copula. It utilizes [Bigsimr.jl](https://github.com/SchisslerGroup/Bigsimr.jl) for its core routines. For full documentation and examples, please see the [Bigsimr.jl docs](https://SchisslerGroup.github.io/Bigsimr.jl/stable/).
 
 ## Features
 
@@ -103,4 +103,4 @@ bs$iscorrelation(p)
 
 ## Issues
 
-This package is just a wrapper for the Julia package. Please file any bug reports or feature requests over at the [Bigsimr.jl](https://github.com/adknudson/Bigsimr.jl/issues) package repo.
+This package is just a wrapper for the Julia package. Please file any bug reports or feature requests over at the [Bigsimr.jl](https://github.com/SchisslerGroup/Bigsimr.jl/issues) package repo.
