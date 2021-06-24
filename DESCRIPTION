@@ -4,20 +4,21 @@ Version: 0.11.1
 Authors@R:
     c(person(given = "Alex",
              family = "Knudson",
-             role = c("aut", "cre"),
+             role = "aut",
              email = "aknudson@nevada.unr.edu"),
       person(given = "Grant",
              family = "Schissler",
-             role = "aut"))
-Maintainer: Alex Knudson <aknudson@nevada.unr.edu>
+             role = c("aut", "cre"),
+             email = "aschissler@unr.edu"))
 Description: Simulate multivariate data with arbitrary marginal distributions.
+  'bigsimr' is an package for simulating high-dimensional multivariate data with a target correlation and arbitrary marginal distributions via Gaussian copula. 
+  It utilizes a Julia package named 'Bigsimr.jl' for its core routines.
 URL: https://github.com/SchisslerGroup/r-bigsimr
 BugReports: https://github.com/SchisslerGroup/Bigsimr.jl/issues
 Depends: 
     R (>= 3.6.0)
-License: MIT + file LICENSE
+License: GPL-3
 Encoding: UTF-8
-LazyData: true
 SystemRequirements: Julia (>= 1.5), Bigsimr.jl, Distributions.jl
 RoxygenNote: 7.1.1
 Imports:
