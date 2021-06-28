@@ -34,6 +34,12 @@ You can install the release version of the package from GitHub:
 remotes::install_github("SchisslerGroup/r-bigsimr")
 ```
 
+A stable release is also available on [CRAN](https://cran.r-project.org/web/packages/bigsimr/index.html):
+
+``` r
+install.packages("bigsimr")
+```
+
 To get a bug fix or to use a new feature, you can install the
 development version from GitHub:
 
