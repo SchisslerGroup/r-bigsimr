@@ -15,7 +15,7 @@ functions work with.
 }
 \examples{
 ## distributions_setup() is time-consuming and requires Julia+Distributions.jl
-if (Sys.which('julia')!=''){
+\dontrun{
   library(bigsimr)
   bs   <- bigsimr::bigsimr_setup()
   dist <- bigsimr::distributions_setup()

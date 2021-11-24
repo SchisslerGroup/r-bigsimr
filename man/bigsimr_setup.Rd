@@ -22,7 +22,7 @@ if they are missing.
 }
 \examples{
 ## bigsimr_setup() is time-consuming and requires Julia+Bigsimr.jl
-if (Sys.which('julia')!=''){
+\dontrun{
   library(bigsimr)
   bs   <- bigsimr::bigsimr_setup()
   dist <- bigsimr::distributions_setup()

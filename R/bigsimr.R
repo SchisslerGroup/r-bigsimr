@@ -11,7 +11,7 @@
 #' @return Return the imported wrapper of Bigsimr.jl Julia package
 #' @examples
 #' ## bigsimr_setup() is time-consuming and requires Julia+Bigsimr.jl
-#' if (Sys.which('julia')!=''){
+#' \dontrun{
 #'   library(bigsimr)
 #'   bs   <- bigsimr::bigsimr_setup()
 #'   dist <- bigsimr::distributions_setup()
