@@ -21,7 +21,6 @@ Depends:
     R (>= 3.6.0)
 License: GPL-3
 Encoding: UTF-8
-LazyData: true
 SystemRequirements: Julia (>= 1.7), Bigsimr.jl, Distributions.jl
 RoxygenNote: 7.3.1
 Imports:
