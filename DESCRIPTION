@@ -4,13 +4,15 @@ Version: 0.12.0
 Authors@R:
     c(person(given = "Alex",
              family = "Knudson",
-             role = c("aut"),
+             role = c("aut", "cre"),
              email = "alexk.706@gmail.com"),
       person(given = "Grant",
              family = "Schissler",
-             role = c("aut", "cre"),
-             email = "aschissler@unr.edu"))
-Maintainer: Alex Knudson <alexk.706@gmail.com>
+             role = c("aut"),
+             email = "aschissler@unr.edu"),
+      person(given = "Duc",
+             family = "Tran",
+             role = "ctb"))
 Description: Simulate multivariate data with arbitrary marginal distributions.
   'bigsimr' is a package for simulating high-dimensional multivariate data with 
   a target correlation and arbitrary marginal distributions via Gaussian copula. 
