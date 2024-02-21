@@ -59,9 +59,17 @@ Pearson matching
 
 ```{r}
 (target_corr <- bs$cor_randPD(3))
-margins <- c(dist$Binomial(20, 0.2), dist$Beta(2, 3), dist$LogNormal(3, 1))
+
+margins <- c(
+  dist$Binomial(20, 0.2), 
+  dist$Beta(2, 3), 
+  dist$LogNormal(3, 1)
+)
+
 (adjusted_corr <- bs$pearson_match(target_corr, margins))
+
 x <- bs$rvec(100000, adjusted_corr, margins)
+
 bs$cor(x, bs$Pearson)
 ```
 
@@ -69,8 +77,11 @@ Spearman/Kendall matching
 
 ```{r}
 (spearman_corr <- bs$cor_randPD(3))
+
 (adjusted_corr <- bs$cor_convert(spearman_corr, bs$Spearman, bs$Pearson))
+
 x <- bs$rvec(100000, adjusted_corr, margins)
+
 bs$cor(x, bs$Spearman)
 ```
 
@@ -90,12 +101,12 @@ bs$is_correlation(p)
 Fast approximate nearest correlation matrix
 
 ```{r}
-s = bs$cor_randPSD(2000)
-r = bs$cor_convert(s, bs$Spearman, bs$Pearson)
+s <- bs$cor_randPSD(2000)
+r <- bs$cor_convert(s, bs$Spearman, bs$Pearson)
 bs$is_correlation(r)
 ```
 
 ```{r}
-p = bs$cor_fastPD(r)
+p <- bs$cor_fastPD(r)
 bs$is_correlation(p)
 ```
