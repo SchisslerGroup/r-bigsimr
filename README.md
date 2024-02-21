@@ -6,9 +6,9 @@
 `bigsimr` is an R package for simulating high-dimensional multivariate
 data with a target correlation and arbitrary marginal distributions via
 Gaussian copula. It utilizes
-[Bigsimr.jl](https://github.com/adknudson/Bigsimr.jl) for its core
+[Bigsimr.jl](https://github.com/SchisslerGroup/Bigsimr.jl) for its core
 routines. For full documentation and examples, please see the
-[Bigsimr.jl docs](https://adknudson.github.io/Bigsimr.jl/stable/).
+[Bigsimr.jl docs](https://SchisslerGroup.github.io/Bigsimr.jl/stable/).
 
 ## Features
 
@@ -64,6 +64,7 @@ Pearson matching
 ``` r
 (target_corr <- bs$cor_randPD(3))
 #>            [,1]       [,2]       [,3]
+
 #> [1,]  1.0000000 -0.1711279 -0.8019770
 #> [2,] -0.1711279  1.0000000  0.1466505
 #> [3,] -0.8019770  0.1466505  1.0000000
@@ -142,3 +143,10 @@ p <- bs$cor_fastPD(r)
 bs$is_correlation(p)
 #> [1] TRUE
 ```
+
+## Issues
+
+This package is just a wrapper for the Julia package. Please file any
+bug reports or feature requests over at the
+[Bigsimr.jl](https://github.com/SchisslerGroup/Bigsimr.jl/issues)
+package repo.
