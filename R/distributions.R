@@ -1,6 +1,6 @@
 #' Setup Distributions.jl
 #'
-#' This function initializes the Distributions package that many of the bigsimr
+#' This function initializes the Distributions package that many of the Bigsimr
 #' functions work with.
 #'
 #' @export

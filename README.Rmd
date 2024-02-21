@@ -47,11 +47,10 @@ and the required packages if they are missing. If you wish to have it use an exi
 
 ```{r, message=FALSE, warning=FALSE}
 library(bigsimr)
-Sys.setenv(JULIA_NUM_THREADS = parallel::detectCores()) # activate multithreading
 bs <- bigsimr_setup()
 dist <- distributions_setup()
 
-set.seed(2020-02-28)
+set.seed(2024-02-20)
 ```
 
 ### Examples
@@ -80,12 +79,12 @@ Nearest correlation matrix
 ```{r}
 s <- bs$cor_randPSD(200)
 r <- bs$cor_convert(s, bs$Spearman, bs$Pearson)
-bs$iscorrelation(r)
+bs$is_correlation(r)
 ```
 
 ```{r}
 p <- bs$cor_nearPD(r)
-bs$iscorrelation(p)
+bs$is_correlation(p)
 ```
 
 Fast approximate nearest correlation matrix
@@ -93,10 +92,10 @@ Fast approximate nearest correlation matrix
 ```{r}
 s = bs$cor_randPSD(2000)
 r = bs$cor_convert(s, bs$Spearman, bs$Pearson)
-bs$iscorrelation(r)
+bs$is_correlation(r)
 ```
 
 ```{r}
 p = bs$cor_fastPD(r)
-bs$iscorrelation(p)
+bs$is_correlation(p)
 ```

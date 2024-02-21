@@ -13,7 +13,7 @@ bigsimr_setup(pkg_check = TRUE, ...)
 }
 \description{
 This function initializes Julia and the Bigsimr.jl package.
-The first time will be long since it includes precompilation.
+The first time will be longer since it includes precompilation.
 Additionally, this will install Julia and the required packages
 if they are missing.
 }

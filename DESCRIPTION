@@ -1,25 +1,25 @@
 Package: bigsimr
 Title: Fast Generation of High-Dimensional Random Vectors
-Version: 0.11.1
+Version: 0.11.2
 Authors@R:
     c(person(given = "Alex",
              family = "Knudson",
              role = c("aut", "cre"),
-             email = "aknudson@nevada.unr.edu"),
+             email = "alexk.706@gmail.com"),
       person(given = "Grant",
              family = "Schissler",
              role = "aut"))
-Maintainer: Alex Knudson <aknudson@nevada.unr.edu>
+Maintainer: Alex Knudson <alexk.706@gmail.com>
 Description: Simulate multivariate data with arbitrary marginal distributions.
-URL: https://github.com/SchisslerGroup/bigsimr
-BugReports: https://github.com/SchisslerGroup/bigsimr/issues
+URL: https://github.com/SchisslerGroup/r-bigsimr
+BugReports: https://github.com/SchisslerGroup/r-bigsimr/issues
 Depends: 
     R (>= 3.6.0)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-SystemRequirements: Julia (>= 1.5), Bigsimr.jl, Distributions.jl
-RoxygenNote: 7.1.1
+SystemRequirements: Julia (>= 1.7), Bigsimr.jl, Distributions.jl
+RoxygenNote: 7.3.1
 Imports:
     JuliaCall
 Suggests: 
